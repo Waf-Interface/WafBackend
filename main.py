@@ -1,8 +1,10 @@
 from fastapi import FastAPI
-# from app import models
-# from app.database import engine
+from app.database import engine
 from app.routers import waf
-# models.Base.metadata.create_all(bind=engine)
+from app import models
+
+
+models.Base.metadata.create_all(bind=engine)
 
 app = FastAPI(
     title="Waf",
