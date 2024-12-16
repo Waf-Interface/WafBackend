@@ -25,3 +25,8 @@ ALGORITHM: Final = os.getenv("ALGORITHM")
 
 if not ALGORITHM:
     raise ValueError("ALGORITHM environment variable is not set")
+
+ACCESS_TOKEN_EXPIRE_MINUTES = os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES")
+
+if not ACCESS_TOKEN_EXPIRE_MINUTES:
+    ACCESS_TOKEN_EXPIRE_MINUTES=15
