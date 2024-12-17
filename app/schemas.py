@@ -59,3 +59,7 @@ class UserOut_withPassword(UserOut):
         ...,
         description="The user's hashed password",
     )
+
+class VerifyOTPRequest(BaseModel):
+    user_id: int
+    otp: str
