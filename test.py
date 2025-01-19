@@ -5,6 +5,7 @@ import secrets
 import psutil
 import shutil
 from fastapi import FastAPI, HTTPException, WebSocket, WebSocketDisconnect, Body
+from starlette.websockets import WebSocketState
 from pydantic import BaseModel
 from starlette.middleware.cors import CORSMiddleware
 import uvicorn
@@ -21,10 +22,7 @@ AC_FILE_PATH = "ac.txt"
 HOST = DEFAULT_HOST
 PORT = DEFAULT_PORT
 
-origins = [
-    f"http://{HOST}",
-    f"http://{HOST}:62335",
-]
+origins = ["*"]
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 UPLOAD_DIRECTORY = os.path.join(BASE_DIR, 'uploads')
@@ -38,11 +36,12 @@ if not os.path.exists(DEPLOY_DIRECTORY):
 
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=["*"],  
     allow_credentials=True,
     allow_methods=["*"],
-    allow_headers=["*"],
+    allow_headers=["*"],  
 )
+
 
 class LoginRequest(BaseModel):
     username: str
@@ -234,17 +233,18 @@ async def get_system_info():
         'memory_usage_used': f"{memory.used / (1024.0 ** 3):.2f} GB",
         'memory_usage_percentage': memory.percent,
     }
-
+    
 @app.websocket("/ws")
 async def websocket_endpoint(websocket: WebSocket):
     await websocket.accept()
+    print("WebSocket connection accepted")
+
     is_sending_info = False
     try:
         while True:
             message = await websocket.receive_text()
             data = json.loads(message)
             message_type = data.get("type")
-            payload = data.get("payload")
 
             if message_type == "system_info" and not is_sending_info:
                 is_sending_info = True
@@ -260,10 +260,16 @@ async def websocket_endpoint(websocket: WebSocket):
             elif message_type == "notification":
                 notification = {"title": "New message", "content": "You have a new notification."}
                 await websocket.send_text(json.dumps({"type": "notification", "payload": notification}))
+            elif message_type == "stop_system_info":
+                is_sending_info = False
 
     except WebSocketDisconnect:
         print("WebSocket connection closed")
         is_sending_info = False
+    except Exception as e:
+        print(f"WebSocket error: {e}")
+        if websocket.application_state != WebSocketState.DISCONNECTED:
+            await websocket.close(code=1011, reason="Unexpected error")
 
 if __name__ == "__main__":
     parse_ac_file()
