@@ -22,7 +22,7 @@ app.include_router(auth_router)
 app.include_router(deploy_router)
 app.include_router(system_info_router)
 app.include_router(websocket_router)
-app.include_router(waf_router, prefix="/waf", tags=["waf"])  # Include the WAF router
+app.include_router(waf_router, prefix="/waf", tags=["waf"]) 
 
 if __name__ == "__main__":
     uvicorn.run(app, host="127.0.0.1", port=8081)
