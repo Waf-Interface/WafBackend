@@ -1,6 +1,9 @@
 import ctypes
 import os
+import re
+import json
 from ctypes import c_bool, c_char_p
+from fastapi import HTTPException
 
 lib_path = os.path.join(os.path.dirname(__file__), '..', 'static', 'waf-ghm.so')  # For Linux
 
@@ -33,8 +36,7 @@ lib.toggleProtectionForHost.restype = c_bool
 lib.isModSecurityEnabled.argtypes = []
 lib.isModSecurityEnabled.restype = c_bool
 
-lib.showAuditLogs.argtypes = []
-lib.showAuditLogs.restype = c_bool
+
 
 class WAF:
     def __init__(self):
@@ -43,11 +45,11 @@ class WAF:
         print("WAF initialized successfully!")
 
     def is_mod_security_enabled(self):
-     result = lib.isModSecurityEnabled()
-     print(f"ModSecurity Enabled (raw result): {result}")  # Debug log
-     if not result:
-         print("ModSecurity is not enabled. Please ensure it is correctly configured.")
-     return result
+        result = lib.isModSecurityEnabled()
+        print(f"ModSecurity Enabled (raw result): {result}")  # Debug log
+        if not result:
+            print("ModSecurity is not enabled. Please ensure it is correctly configured.")
+        return result
 
     def check_waf_enabled(self):
         return self.is_mod_security_enabled()
@@ -87,13 +89,13 @@ class WAF:
             print(f"Error logging user access: {str(e)}")
             return False
 
-    def show_logs(self):
-        if not self.check_waf_enabled():
+  #  def show_logs(self):
+   #     if not self.check_waf_enabled():
             raise Exception("WAF is offline. Please enable ModSecurity first.")
-        result = lib.showLogs()
-        if not result:
-            raise Exception("Failed to show logs.")
-        return result
+    #    result = lib.showLogs()
+     #   if not result:
+      #      raise Exception("Failed to show logs.")
+       # return result
 
     def toggle_protection_for_host(self, host, enable):
         if not self.check_waf_enabled():
@@ -103,36 +105,82 @@ class WAF:
             raise Exception(f"Failed to toggle protection for host: {host}")
         return result
     
+    def parse_log_line(self, line):
+        log_entry = {}
+        if line.startswith('ModSecurity: Warning'):
+            parts = line.split('[', 1)  # Split the warning message from the rest
+            if len(parts) > 1:
+                log_entry['message'] = parts[0].strip()
+                details = parts[1].strip(']').split("] [")
+                for detail in details:
+                    key_value = detail.split(":", 1)
+                    if len(key_value) == 2:
+                        log_entry[key_value[0].strip()] = key_value[1].strip()
+            return log_entry
+
     def show_audit_logs(self):
-        buffer_size = 1024 * 1024  # 1 MB
-        logs_buffer = ctypes.create_string_buffer(buffer_size)
+        log_file_path = '/var/log/modsec_audit.log'  
+        logs_data = []
 
-        result = lib.showAuditLogs(logs_buffer, buffer_size)
+        try:
+            with open(log_file_path, 'r') as log_file:
+                content = log_file.read()
 
-        if result:
-            return logs_buffer.value.decode('utf-8')
-        else:
+                # Split the log into individual segments based on the delimiters
+                log_segments = re.split(r'---[A-Za-z0-9]+---[A-Z]--', content)
+
+                for segment in log_segments:
+                    segment = segment.strip()
+                    if segment:
+                        log_info = {}
+
+                        lines = segment.splitlines()
+                        if len(lines) > 0:
+                            timestamp_and_ip = lines[0]
+                            timestamp_match = re.search(r'\[([^\]]+)\]', timestamp_and_ip)
+                            if timestamp_match:
+                                log_info['timestamp'] = timestamp_match.group(1)
+                            ip_match = re.search(r'(\d+\.\d+\.\d+\.\d+)', timestamp_and_ip)
+                            if ip_match:
+                                log_info['ip'] = ip_match.group(1)
+
+                        modsec_warnings = []
+                        for line in lines:
+                            warning = self.parse_log_line(line)
+                            if warning:
+                                modsec_warnings.append(warning)
+
+                        if modsec_warnings:
+                            log_info['modsecurity_warnings'] = modsec_warnings
+
+                        if log_info:
+                            logs_data.append(log_info)
+
+            return json.dumps(logs_data, indent=4)
+
+        except Exception as e:
+            print(f"Error reading or processing log file: {e}")
             return None
 
     def clear_audit_logs(self):
         result = lib.clearAuditLogs()
         return result
-   
+
     def show_modsec_rules(self):
         result = lib.showModSecRules()  
-        
+
         if not result:
             print("Failed to fetch ModSecurity rules.")
             return None
-        
+
         rules = ctypes.cast(result, ctypes.c_char_p).value.decode('utf-8')  # Decode the C string to Python string
-        
+
         rule_list = rules.splitlines()
-        
+
         lib.free(result)
-        
+
         return rule_list
-    
+
     def create_new_rule(self, title, body):
         rules_directory = "/usr/local/nginx/rules/"
 
@@ -147,9 +195,9 @@ class WAF:
         try:
             with open(file_path, 'w') as rule_file:
                 rule_file.write(body)
-            
+
             print(f"Rule {title} created successfully at {file_path}")
-            
+
         except Exception as e:
             print(f"Failed to create rule: {e}")
             raise Exception(f"Failed to create new rule: {e}")
