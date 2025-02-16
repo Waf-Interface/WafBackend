@@ -6,7 +6,7 @@ from api.auth import auth_router
 from api.deploy import deploy_router
 from api.system_info import system_info_router
 from api.websocket import websocket_router
-from api.waf import router as waf_router  
+from api.waf_rule import router as waf_rule_router  
 
 app = FastAPI()
 
@@ -22,7 +22,7 @@ app.include_router(auth_router)
 app.include_router(deploy_router)
 app.include_router(system_info_router)
 app.include_router(websocket_router)
-app.include_router(waf_router, prefix="/waf", tags=["waf"]) 
+app.include_router(waf_rule_router, prefix="/waf", tags=["waf"])
 
 if __name__ == "__main__":
     uvicorn.run(app, host="127.0.0.1", port=8081)
