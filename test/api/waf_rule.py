@@ -2,9 +2,12 @@ from fastapi import APIRouter, HTTPException
 from services.waf_rule import WAFRules  
 from pydantic import BaseModel
 import os
+from services.backup_service import BackupService  
+
 waf = WAFRules()
 
 router = APIRouter()
+backup_service = BackupService()  
 
 class WafRequest(BaseModel):
     username: str
@@ -14,6 +17,7 @@ class WafRequest(BaseModel):
     power: str = None
     host: str = None
     log: bool = False
+    status: str = None  # 'enable' or 'disable'
 
 @router.get("/load_rule/{rule}")
 async def load_rule(rule: str):
@@ -78,5 +82,43 @@ async def update_rule(rule: str, request: WafRequest):
             "message": result["message"], 
             "rule_content": result["rule_content"]
         }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Unexpected error: {str(e)}")
+
+@router.post("/restore_backup_rules/")
+async def restore_backup_rules():
+    try:
+        backup_service.restore_backup_rules()
+        return {"status": "success", "message": "Backup rules restored successfully."}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error while restoring backup rules: {str(e)}")
+
+@router.post("/rule/enable_disable/")
+async def enable_disable_rule(request: WafRequest):
+    if not request.rule or not request.status:
+        raise HTTPException(status_code=400, detail="Both rule name and status (enable/disable) are required.")
+    
+    if request.status not in ['enable', 'disable']:
+        raise HTTPException(status_code=400, detail="Status must be either 'enable' or 'disable'.")
+    
+    try:
+        if request.status == 'disable':
+            result = waf.disable_rule(request.rule)
+        elif request.status == 'enable':
+            result = waf.enable_rule(request.rule)
+
+        if result["status"] == "error":
+            raise HTTPException(status_code=400, detail=result["message"])
+        
+        return {"status": "success", "message": result["message"]}
+    
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Unexpected error: {str(e)}")
+
+@router.get("/rule/status/")
+async def rules_status():
+    try:
+        result = waf.get_rules_status()
+        return result
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Unexpected error: {str(e)}")
