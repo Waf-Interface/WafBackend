@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException
 from services.waf_rule import WAFRules  
 from pydantic import BaseModel
-
+import os
 waf = WAFRules()
 
 router = APIRouter()
@@ -15,13 +15,17 @@ class WafRequest(BaseModel):
     host: str = None
     log: bool = False
 
-@router.post("/load_rule/")
-async def load_rule(request: WafRequest):
-    if not waf.check_waf_enabled():
-        raise HTTPException(status_code=400, detail="WAF is offline. Please enable ModSecurity first.")
-    if request.rule and not waf.load_rule(request.rule):
-        raise HTTPException(status_code=400, detail="Failed to load rule.")
-    return {"status": "success"}
+@router.get("/load_rule/{rule}")
+async def load_rule(rule: str):
+    try:
+        result = waf.load_rule(rule) 
+        
+        if result["status"] == "error":
+            raise HTTPException(status_code=400, detail=result["message"])
+        
+        return {"status": "success", "message": result["message"], "rule_content": result["rule_content"]}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Unexpected error: {str(e)}")
 
 @router.get("/show_modsec_rules/")
 async def show_modsec_rules():
@@ -53,3 +57,26 @@ async def create_new_rule(request: WafRequest):
             raise HTTPException(status_code=500, detail="An unexpected error occurred while creating the rule.")
     
     return {"status": "success", "message": f"Rule '{request.rule}' created successfully."}
+
+
+@router.put("/update_rule/{rule}")
+async def update_rule(rule: str, request: WafRequest):
+    if not waf.check_waf_enabled():
+        raise HTTPException(status_code=400, detail="WAF is offline. Please enable ModSecurity first.")
+    
+    if not request.body:
+        raise HTTPException(status_code=400, detail="New rule content is required.")
+    
+    try:
+        result = waf.update_rule(rule, request.body)
+        
+        if result["status"] == "error":
+            raise HTTPException(status_code=400, detail=result["message"])
+        
+        return {
+            "status": "success", 
+            "message": result["message"], 
+            "rule_content": result["rule_content"]
+        }
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Unexpected error: {str(e)}")
