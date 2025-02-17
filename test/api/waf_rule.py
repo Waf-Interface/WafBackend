@@ -59,7 +59,7 @@ async def create_new_rule(request: WafRequest):
     return {"status": "success", "message": f"Rule '{request.rule}' created successfully."}
 
 
-@router.put("/update_rule/{rule}")
+@router.post("/update_rule/{rule}")
 async def update_rule(rule: str, request: WafRequest):
     if not waf.check_waf_enabled():
         raise HTTPException(status_code=400, detail="WAF is offline. Please enable ModSecurity first.")
