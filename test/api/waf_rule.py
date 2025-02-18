@@ -135,3 +135,18 @@ async def backup_rules():
             raise HTTPException(status_code=404, detail="Zip file not found.")
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Error while creating backup: {str(e)}")
+    
+@router.post("/delete_rule/")
+async def delete_rule(request: WafRequest):
+    if not request.rule:
+        raise HTTPException(status_code=400, detail="Rule name is required.")
+    
+    try:
+        result = waf.delete_rule(request.rule)
+
+        if result["status"] == "error":
+            raise HTTPException(status_code=400, detail=result["message"])
+        
+        return {"status": "success", "message": result["message"]}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Unexpected error: {str(e)}")
