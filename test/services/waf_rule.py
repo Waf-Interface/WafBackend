@@ -1,6 +1,11 @@
 import os
 import shutil
 import ctypes
+import zipfile
+
+nginx_rules_directory = "/usr/local/nginx/rules/"
+backend_root_dir = os.path.dirname(__file__)  
+backend_disabled_directory = os.path.join(backend_root_dir, 'rules_disabled')
 
 lib_path = os.path.join(os.path.dirname(__file__), '..', 'static', 'waf-ghm.so')  # For Linux
 lib = ctypes.CDLL(lib_path)
@@ -23,13 +28,14 @@ class WAFRules:
     def load_rule(self, rule_name):
         if not self.check_waf_enabled():
             raise Exception("WAF is offline. Please enable ModSecurity first.")
-        
-        rules_directory = "/usr/local/nginx/rules/"
-        disabled_directory = "/usr/local/nginx/rules_disabled/"
 
-        rule_file_path = os.path.join(rules_directory, rule_name)
-        disabled_file_path = os.path.join(disabled_directory, rule_name)
+        rule_file_path = os.path.join(nginx_rules_directory, rule_name)
+        disabled_file_path = os.path.join(backend_disabled_directory, rule_name)
 
+        if not os.path.exists(nginx_rules_directory):
+            os.makedirs(nginx_rules_directory)  
+        if not os.path.exists(backend_disabled_directory):
+            os.makedirs(backend_disabled_directory)  
         if os.path.exists(rule_file_path):
             rule_file_path = rule_file_path
         elif os.path.exists(disabled_file_path):
@@ -54,12 +60,14 @@ class WAFRules:
     def update_rule(self, rule_name, new_content):
         if not self.check_waf_enabled():
             raise Exception("WAF is offline. Please enable ModSecurity first.")
-        
-        rules_directory = "/usr/local/nginx/rules/"
-        disabled_directory = "/usr/local/nginx/rules_disabled/"
 
-        rule_file_path = os.path.join(rules_directory, rule_name)
-        disabled_file_path = os.path.join(disabled_directory, rule_name)
+        rule_file_path = os.path.join(nginx_rules_directory, rule_name)
+        disabled_file_path = os.path.join(backend_disabled_directory, rule_name)
+
+        if not os.path.exists(nginx_rules_directory):
+            os.makedirs(nginx_rules_directory)  # Create if it doesn't exist
+        if not os.path.exists(backend_disabled_directory):
+            os.makedirs(backend_disabled_directory)  # Create if it doesn't exist
 
         if os.path.exists(rule_file_path):
             file_to_update = rule_file_path
@@ -83,12 +91,10 @@ class WAFRules:
             }
 
     def create_new_rule(self, title, body):
-        rules_directory = "/usr/local/nginx/rules/"
+        if not os.path.exists(nginx_rules_directory):
+            os.makedirs(nginx_rules_directory)  # Create if it doesn't exist
 
-        if not os.path.exists(rules_directory):
-            raise Exception(f"Directory does not exist: {rules_directory}")
-
-        file_path = os.path.join(rules_directory, f"{title}.conf")
+        file_path = os.path.join(nginx_rules_directory, f"{title}.conf")
 
         if os.path.exists(file_path):
             raise Exception(f"Rule '{title}' already exists. Please choose a different title.")
@@ -99,58 +105,79 @@ class WAFRules:
             print(f"Rule {title} created successfully at {file_path}")
         except Exception as e:
             raise Exception(f"Failed to create new rule: {e}")
-        
+
         return True
 
     def disable_rule(self, rule_name: str):
-        rules_dir = "/usr/local/nginx/rules/"
-        disabled_dir = "/usr/local/nginx/rules_disabled/"
-        
-        rule_file_path = os.path.join(rules_dir, rule_name)
-        disabled_file_path = os.path.join(disabled_dir, rule_name)
-        
+        if not os.path.exists(backend_disabled_directory):
+            os.makedirs(backend_disabled_directory)  # Create if it doesn't exist
+
+        rule_file_path = os.path.join(nginx_rules_directory, rule_name)
+        disabled_file_path = os.path.join(backend_disabled_directory, rule_name)
+
         if not os.path.exists(rule_file_path):
             return {"status": "error", "message": f"Rule file {rule_name} not found in active rules."}
-        
-        try:
-            if not os.path.exists(disabled_dir):
-                os.makedirs(disabled_dir)
 
+        try:
             shutil.move(rule_file_path, disabled_file_path)
             return {"status": "success", "message": f"Rule {rule_name} disabled successfully."}
-        
         except Exception as e:
             return {"status": "error", "message": f"Error disabling rule {rule_name}: {str(e)}"}
 
     def enable_rule(self, rule_name: str):
-        rules_dir = "/usr/local/nginx/rules/"
-        disabled_dir = "/usr/local/nginx/rules_disabled/"
-        
-        disabled_file_path = os.path.join(disabled_dir, rule_name)
-        rule_file_path = os.path.join(rules_dir, rule_name)
+        rule_file_path = os.path.join(nginx_rules_directory, rule_name)
+        disabled_file_path = os.path.join(backend_disabled_directory, rule_name)
+
+        if not os.path.exists(nginx_rules_directory):
+            os.makedirs(nginx_rules_directory)  # Create if it doesn't exist
+        if not os.path.exists(backend_disabled_directory):
+            os.makedirs(backend_disabled_directory)  # Create if it doesn't exist
 
         if not os.path.exists(disabled_file_path):
             return {"status": "error", "message": f"Rule file {rule_name} not found in disabled rules."}
-        
+
         try:
             shutil.move(disabled_file_path, rule_file_path)
             return {"status": "success", "message": f"Rule {rule_name} enabled successfully."}
-        
         except Exception as e:
             return {"status": "error", "message": f"Error enabling rule {rule_name}: {str(e)}"}
 
     def rules_status(self):
-        rules_directory = "/usr/local/nginx/rules/"
-        disabled_directory = "/usr/local/nginx/rules_disabled/"
-        
         rule_status = []
 
-        for rule in os.listdir(rules_directory):
+        if not os.path.exists(nginx_rules_directory):
+            os.makedirs(nginx_rules_directory)
+        if not os.path.exists(backend_disabled_directory):
+            os.makedirs(backend_disabled_directory)
+
+        for rule in os.listdir(nginx_rules_directory):
             if rule.endswith(".conf"):
                 rule_status.append({"name": rule, "status": "enabled"})
 
-        for rule in os.listdir(disabled_directory):
+        for rule in os.listdir(backend_disabled_directory):
             if rule.endswith(".conf"):
                 rule_status.append({"name": rule, "status": "disabled"})
 
         return {"status": "success", "rules": rule_status}
+    
+    def backup_rules_to_zip(self):
+        rules_folder = os.path.join(backend_root_dir, 'rules')
+        if not os.path.exists(rules_folder):
+            os.makedirs(rules_folder)
+        try:
+            for filename in os.listdir(nginx_rules_directory):
+                if filename.endswith(".conf"):  
+                    src_path = os.path.join(nginx_rules_directory, filename)
+                    dst_path = os.path.join(rules_folder, filename)
+                    shutil.copy(src_path, dst_path)
+
+            zip_file_path = os.path.join(backend_root_dir, 'rule.zip')
+            with zipfile.ZipFile(zip_file_path, 'w', zipfile.ZIP_DEFLATED) as zipf:
+                for root, _, files in os.walk(rules_folder):
+                    for file in files:
+                        file_path = os.path.join(root, file)
+                        zipf.write(file_path, os.path.relpath(file_path, rules_folder))
+
+            return zip_file_path
+        except Exception as e:
+            raise Exception(f"Error while backing up rules: {str(e)}")
