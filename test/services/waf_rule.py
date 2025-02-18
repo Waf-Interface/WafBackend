@@ -2,6 +2,7 @@ import os
 import shutil
 import ctypes
 import zipfile
+import subprocess
 
 nginx_rules_directory = "/usr/local/nginx/rules/"
 backend_root_dir = os.path.dirname(__file__)  
@@ -65,9 +66,9 @@ class WAFRules:
         disabled_file_path = os.path.join(backend_disabled_directory, rule_name)
 
         if not os.path.exists(nginx_rules_directory):
-            os.makedirs(nginx_rules_directory)  # Create if it doesn't exist
+            os.makedirs(nginx_rules_directory)  
         if not os.path.exists(backend_disabled_directory):
-            os.makedirs(backend_disabled_directory)  # Create if it doesn't exist
+            os.makedirs(backend_disabled_directory)  
 
         if os.path.exists(rule_file_path):
             file_to_update = rule_file_path
@@ -92,7 +93,7 @@ class WAFRules:
 
     def create_new_rule(self, title, body):
         if not os.path.exists(nginx_rules_directory):
-            os.makedirs(nginx_rules_directory)  # Create if it doesn't exist
+            os.makedirs(nginx_rules_directory)  
 
         file_path = os.path.join(nginx_rules_directory, f"{title}.conf")
 
@@ -110,7 +111,7 @@ class WAFRules:
 
     def disable_rule(self, rule_name: str):
         if not os.path.exists(backend_disabled_directory):
-            os.makedirs(backend_disabled_directory)  # Create if it doesn't exist
+            os.makedirs(backend_disabled_directory)  
 
         rule_file_path = os.path.join(nginx_rules_directory, rule_name)
         disabled_file_path = os.path.join(backend_disabled_directory, rule_name)
@@ -129,9 +130,9 @@ class WAFRules:
         disabled_file_path = os.path.join(backend_disabled_directory, rule_name)
 
         if not os.path.exists(nginx_rules_directory):
-            os.makedirs(nginx_rules_directory)  # Create if it doesn't exist
+            os.makedirs(nginx_rules_directory)  
         if not os.path.exists(backend_disabled_directory):
-            os.makedirs(backend_disabled_directory)  # Create if it doesn't exist
+            os.makedirs(backend_disabled_directory)  
 
         if not os.path.exists(disabled_file_path):
             return {"status": "error", "message": f"Rule file {rule_name} not found in disabled rules."}
@@ -181,3 +182,25 @@ class WAFRules:
             return zip_file_path
         except Exception as e:
             raise Exception(f"Error while backing up rules: {str(e)}")
+        
+    def delete_rule(self, rule_name):
+        rule_file_path = os.path.join(nginx_rules_directory, rule_name)
+
+        if not os.path.exists(rule_file_path):
+            return {"status": "error", "message": f"Rule {rule_name} not found in the Nginx rules directory."}
+        try:
+            os.remove(rule_file_path)
+            self.reload_nginx()
+
+            return {"status": "success", "message": f"Rule {rule_name} deleted successfully."}
+        except Exception as e:
+            return {"status": "error", "message": f"Error deleting rule {rule_name}: {str(e)}"}
+
+    def reload_nginx(self):
+        try:
+            reload_command = "/usr/local/nginx/sbin/nginx -s reload"
+            subprocess.run(reload_command, shell=True, check=True)
+            print("Nginx reloaded successfully.")
+        except subprocess.CalledProcessError as e:
+            print(f"Failed to reload Nginx: {e}")
+            raise Exception("Failed to reload Nginx.")
