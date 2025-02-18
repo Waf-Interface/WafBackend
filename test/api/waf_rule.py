@@ -3,6 +3,7 @@ from services.waf_rule import WAFRules
 from pydantic import BaseModel
 import os
 from services.backup_service import BackupService  
+from fastapi.responses import FileResponse
 
 waf = WAFRules()
 
@@ -115,10 +116,22 @@ async def enable_disable_rule(request: WafRequest):
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Unexpected error: {str(e)}")
 
-@router.get("/rule/status/")
+@router.get("/rule/status")
 async def rules_status():
     try:
-        result = waf.get_rules_status()
+        result = waf.rules_status()
         return result
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Unexpected error: {str(e)}")
+
+@router.get("/backup_rules/")
+async def backup_rules():
+    try:
+        zip_file_path = waf.backup_rules_to_zip()
+
+        if os.path.exists(zip_file_path):
+            return FileResponse(zip_file_path, media_type='application/zip', filename='rule.zip')
+        else:
+            raise HTTPException(status_code=404, detail="Zip file not found.")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Error while creating backup: {str(e)}")
