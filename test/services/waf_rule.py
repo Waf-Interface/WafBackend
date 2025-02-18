@@ -184,17 +184,28 @@ class WAFRules:
             raise Exception(f"Error while backing up rules: {str(e)}")
         
     def delete_rule(self, rule_name):
-        rule_file_path = os.path.join(nginx_rules_directory, rule_name)
+     rule_file_path = os.path.join(nginx_rules_directory, rule_name)
+     disabled_file_path = os.path.join(backend_disabled_directory, rule_name)
 
-        if not os.path.exists(rule_file_path):
-            return {"status": "error", "message": f"Rule {rule_name} not found in the Nginx rules directory."}
+     if os.path.exists(rule_file_path):
         try:
             os.remove(rule_file_path)
             self.reload_nginx()
-
-            return {"status": "success", "message": f"Rule {rule_name} deleted successfully."}
+            return {"status": "success", "message": f"Rule {rule_name} deleted successfully from active directory."}
         except Exception as e:
-            return {"status": "error", "message": f"Error deleting rule {rule_name}: {str(e)}"}
+            return {"status": "error", "message": f"Error deleting rule {rule_name} from active directory: {str(e)}"}
+    
+     elif os.path.exists(disabled_file_path):
+        try:
+            os.remove(disabled_file_path)
+            self.reload_nginx()
+            return {"status": "success", "message": f"Rule {rule_name} deleted successfully from disabled directory."}
+        except Exception as e:
+            return {"status": "error", "message": f"Error deleting rule {rule_name} from disabled directory: {str(e)}"}
+
+     else:
+        return {"status": "error", "message": f"Rule {rule_name} not found in either the active or disabled directories."}
+
 
     def reload_nginx(self):
         try:
