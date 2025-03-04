@@ -1,0 +1,8 @@
+{"timestamp": "2025-02-20T12:09:54.978828", "level": "INFO", "message": "Login attempt: username=test, session_id=d76f7b3634eeab9b1e718c76538d2851, status=pending"}
+{"timestamp": "2025-02-20T12:09:58.176721", "level": "INFO", "message": "OTP verified successfully for session_id=d76f7b3634eeab9b1e718c76538d2851"}
+{"timestamp": "2025-02-20T19:06:21.242170", "level": "WARNING", "message": "Invalid login attempt: username=test"}
+{"timestamp": "2025-02-20T19:06:27.238067", "level": "INFO", "message": "Login attempt: username=test, session_id=08c59fb53dc632fb7534e34145a53d66, status=pending"}
+{"timestamp": "2025-02-20T19:06:31.132069", "level": "INFO", "message": "OTP verified successfully for session_id=08c59fb53dc632fb7534e34145a53d66"}
+{"timestamp": "2025-02-21T19:42:27.367445", "level": "WARNING", "message": "Invalid login attempt: username=test"}
+{"timestamp": "2025-02-21T19:42:34.960456", "level": "INFO", "message": "Login attempt: username=test, session_id=92975fdfe908c971245c0572e50b29db, status=pending"}
+{"timestamp": "2025-02-21T19:42:38.333795", "level": "INFO", "message": "OTP verified successfully for session_id=92975fdfe908c971245c0572e50b29db"}
