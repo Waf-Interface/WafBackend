@@ -10,6 +10,7 @@ from api.waf.waf_manager import router as waf_manager
 from api.system.loger import router as loger_router  
 from api.waf.waf_crs import router as waf_setup_router  
 from services.backup_service import BackupService  
+from api.log.nginx_log import router as nginx_log  
 
 backup_service = BackupService()
 
@@ -31,6 +32,6 @@ app.include_router(waf_manager, prefix="/waf", tags=["waf"])
 app.include_router(waf_rule_router, prefix="/waf", tags=["waf"])
 app.include_router(loger_router)  
 app.include_router(waf_setup_router, prefix="/waf", tags=["waf"])  
-
+app.include_router(nginx_log) 
 if __name__ == "__main__":
     uvicorn.run(app, host="127.0.0.1", port=8081)
