@@ -1,24 +1,50 @@
-from fastapi import APIRouter, Depends, HTTPException
-from services.auth.jwt import verify_token 
-from services.users.users import create_user, update_user, delete_user 
+import secrets
+from fastapi import HTTPException
+from sqlalchemy.orm import Session
+from services.database.database import SessionLocal
+from models.user_model import User
+from models.auth_model import Auth  
 
-user_router = APIRouter()
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
 
-@user_router.post("/users/")
-async def create_new_user(username: str, password: str, first_name: str, last_name: str, email: str, role: str, user: dict = Depends(verify_token)):
-    if user.get("role") != "admin":
-        raise HTTPException(status_code=403, detail="Not enough permissions")
-    return await create_user(username, password, first_name, last_name, email, role)
+async def create_user(username: str, password: str, first_name: str, last_name: str, email: str, role: str):
+    db = next(get_db())
+    if role not in ["admin", "user"]:
+        raise HTTPException(status_code=400, detail="Invalid role. Must be 'admin' or 'user'.")
+    
+    user = User(username=username, password=password, first_name=first_name, last_name=last_name, email=email, role=role)
+    db.add(user)
+    db.commit()
+    db.refresh(user)
+    return user
 
-@user_router.put("/users/{user_id}")
-async def update_existing_user(user_id: int, username: str, first_name: str, last_name: str, email: str, role: str, user: dict = Depends(verify_token)):
-    if user.get("role") != "admin":
-        raise HTTPException(status_code=403, detail="Not enough permissions")
-    return await update_user(user_id, username, first_name, last_name, email, role)
+async def update_user(user_id: int, username: str, first_name: str, last_name: str, email: str, role: str):
+    db = next(get_db())
+    user = db.query(User).filter(User.id == user_id).first()
+    
+    if not user:
+        raise HTTPException(status_code=404, detail="User  not found")
+    
+    user.username = username
+    user.first_name = first_name
+    user.last_name = last_name
+    user.email = email
+    user.role = role
+    db.commit()
+    db.refresh(user)
+    return user
 
-@user_router.delete("/users/{user_id}")
-async def remove_user(user_id: int, user: dict = Depends(verify_token)):
-    if user.get("role") != "admin":
-        raise HTTPException(status_code=403, detail="Not enough permissions")
-    return await delete_user(user_id)
-
+async def delete_user(user_id: int):
+    db = next(get_db())
+    user = db.query(User).filter(User.id == user_id).first()
+    
+    if not user:
+        raise HTTPException(status_code=404, detail="User  not found")
+    
+    db.delete(user)
+    db.commit()
