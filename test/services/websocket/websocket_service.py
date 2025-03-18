@@ -1,10 +1,10 @@
 import json
 import asyncio
-from fastapi import WebSocketDisconnect
+from fastapi import WebSocket, WebSocketDisconnect, Depends
+from services.auth.verify_token import verify_token
+from services.system.system_service import get_system_info_service  
 
-from services.system.system_service import get_system_info_service
-
-async def websocket_handler(websocket):
+async def websocket_handler(websocket: WebSocket, token: str = Depends(verify_token)):
     is_sending_info = False
     try:
         await websocket.accept()  
