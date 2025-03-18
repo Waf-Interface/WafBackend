@@ -1,1 +1,10 @@
 
+root@test:/home/test# curl -X POST "http://localhost:8081/login" \
+-H "Content-Type: application/json" \
+-d '{"username": "testuser", "password": "testpassword"}'
+{"login_status":"pending","id":"5078f69ba0cb5c9aaccc1c036dfdfee3","otp":"5672","message":"OTP sent"}root@test:/home/test# curl -X POST "http://localhost:8081/verify_otp" \           curl -X POST "http://localhost:8081/verify_otp" \
+-H "Content-Type: application/json" \
+-d '{"session_id": "5078f69ba0cb5c9aaccc1c036dfdfee3", "otp": 5672}'
+{"login_status":"success","message":"Login successful","access_token":"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ0ZXN0dXNlciIsImV4cCI6MTc0MjMzNTEwNH0.AvJ9toWiR43kmxCshfB5pSiBVydRAoMKdlBblteYFtM","token_root@tesroot@test:/home/root@test:/homrootrootroot@tesroot@trootroot@test:/home/test# curl -X GET "http://localhost:8081/waf/status/" \
+-H "Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ0ZXN0dXNlciIsImV4cCI6MTc0MjMzNTEwNH0.AvJ9toWiR43kmxCshfB5pSiBVydRAoMKdlBblteYFtM"
+{"status":"success","mod_security_enabled":true}root@test:/home/test# 
