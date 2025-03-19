@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException
 from services.auth.jwt import verify_token 
-from services.users.users import create_user, update_user, delete_user, get_all_users 
+from services.users.users import create_user, update_user, delete_user, get_users 
 
 user_router = APIRouter()
 
@@ -23,5 +23,5 @@ async def remove_user(user_id: int, user: dict = Depends(verify_token)):
     return await delete_user(user_id)
 
 @user_router.get("/users/")
-async def get_users():
+async def users():
     return await get_users()  
