@@ -2,13 +2,12 @@ import secrets
 import jwt
 from datetime import datetime, timedelta
 from fastapi import HTTPException
-import bcrypt
 import os
 import json
 
 SECRET_KEY_FILE = 'secret_key.json'
 ALGORITHM = "HS256"
-ACCESS_TOKEN_EXPIRE_MINUTES = 3  
+ACCESS_TOKEN_EXPIRE_MINUTES = 45
 
 def load_secret_key():
     if not os.path.exists(SECRET_KEY_FILE):
@@ -29,18 +28,14 @@ def create_access_token(data: dict, expires_delta: timedelta = None):
 
     hashed_key = load_secret_key()
     
-    original_key = secrets.token_hex(32)  
-
-    encoded_jwt = jwt.encode(to_encode, original_key, algorithm=ALGORITHM)
+    encoded_jwt = jwt.encode(to_encode, hashed_key, algorithm=ALGORITHM)
     return encoded_jwt
 
 def verify_token(token: str):
-    hashed_key = load_secret_key()
-    
-    original_key = secrets.token_hex(32) 
+    hashed_key = load_secret_key()  
     
     try:
-        payload = jwt.decode(token, original_key, algorithms=[ALGORITHM])
+        payload = jwt.decode(token, hashed_key, algorithms=[ALGORITHM])
         return payload
     except jwt.PyJWTError:
         raise HTTPException(status_code=401, detail="Invalid token")
