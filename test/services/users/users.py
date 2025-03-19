@@ -49,10 +49,7 @@ async def delete_user(user_id: int):
     db.delete(user)
     db.commit()
 
-async def get_users_by_role(role: str):
+async def get_users():
     db = next(get_db())
-    if role not in ["admin", "user"]:
-        raise HTTPException(status_code=400, detail="Invalid role. Must be 'admin' or 'user'.")
-    
-    users = db.query(User).filter(User.role == role).all()
+    users = db.query(User).all() 
     return users
