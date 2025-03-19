@@ -2,7 +2,15 @@ from sqlalchemy import Column, Integer, String, DateTime, Enum
 from sqlalchemy.sql import func
 from services.database.database import Base
 import enum
+from pydantic import BaseModel
 
+class UserUpdate(BaseModel):
+    username: str
+    first_name: str
+    last_name: str
+    email: str
+    rule: str
+    
 class UserRule(enum.Enum):
     admin = "admin"
     user = "user"
