@@ -1,10 +1,10 @@
 from fastapi import APIRouter, Depends, HTTPException
 from services.auth.jwt import verify_token 
-from services.users.users import create_user, update_user, delete_user, get_users_by_role 
+from services.users.users import create_user, update_user, delete_user, get_all_users 
 
 user_router = APIRouter()
 
-@user_router.post("/users/")
+@user_router.post("/create_users/")
 async def create_new_user(username: str, password: str, first_name: str, last_name: str, email: str, role: str, user: dict = Depends(verify_token)):
     if user.get("role") != "admin":
         raise HTTPException(status_code=403, detail="Not enough permissions")
@@ -23,7 +23,5 @@ async def remove_user(user_id: int, user: dict = Depends(verify_token)):
     return await delete_user(user_id)
 
 @user_router.get("/users/")
-async def get_users(role: str, user: dict = Depends(verify_token)):
-    if user.get("role") != "admin":
-        raise HTTPException(status_code=403, detail="Not enough permissions")
-    return await get_users_by_role(role)
+async def get_users():
+    return await get_users()  
