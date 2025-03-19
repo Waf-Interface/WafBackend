@@ -12,18 +12,18 @@ def get_db():
     finally:
         db.close()
 
-async def create_user(username: str, password: str, first_name: str, last_name: str, email: str, role: str):
+async def create_user(username: str, password: str, first_name: str, last_name: str, email: str, rule: str):
     db = next(get_db())
-    if role not in ["admin", "user"]:
-        raise HTTPException(status_code=400, detail="Invalid role. Must be 'admin' or 'user'.")
+    if rule not in ["admin", "user"]:
+        raise HTTPException(status_code=400, detail="Invalid rule. Must be 'admin' or 'user'.")
     
-    user = User(username=username, password=password, first_name=first_name, last_name=last_name, email=email, role=role)
+    user = User(username=username, password=password, first_name=first_name, last_name=last_name, email=email, rule=rule)
     db.add(user)
     db.commit()
     db.refresh(user)
     return user
 
-async def update_user(user_id: int, username: str, first_name: str, last_name: str, email: str, role: str):
+async def update_user(user_id: int, username: str, first_name: str, last_name: str, email: str, rule: str):
     db = next(get_db())
     user = db.query(User).filter(User.id == user_id).first()
     
@@ -34,7 +34,7 @@ async def update_user(user_id: int, username: str, first_name: str, last_name: s
     user.first_name = first_name
     user.last_name = last_name
     user.email = email
-    user.role = role
+    user.rule = rule
     db.commit()
     db.refresh(user)
     return user
