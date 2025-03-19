@@ -1,55 +1,36 @@
-import secrets
-from fastapi import HTTPException
-from sqlalchemy.orm import Session
-from services.database.database import SessionLocal
-from models.user_model import User
-from models.auth_model import Auth  
+from fastapi import APIRouter, Depends, HTTPException
+from services.auth.jwt import verify_token 
+from services.users.users import create_user, update_user, delete_user, get_users 
+from pydantic import BaseModel
+from models.user_model import UserUpdate
 
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
+user_router = APIRouter()
 
-async def create_user(username: str, password: str, first_name: str, last_name: str, email: str, rule: str):
-    db = next(get_db())
-    if rule not in ["admin", "user"]:
-        raise HTTPException(status_code=400, detail="Invalid rule. Must be 'admin' or 'user'.")
-    
-    user = User(username=username, password=password, first_name=first_name, last_name=last_name, email=email, rule=rule)
-    db.add(user)
-    db.commit()
-    db.refresh(user)
-    return user
+@user_router.post("/create_users/") 
+async def create_new_user(username: str, password: str, first_name: str, last_name: str, email: str, rule: str, user: dict = Depends(verify_token)):
+    if user.get("rule") != "admin":
+        raise HTTPException(status_code=403, detail="Not enough permissions")
+    return await create_user(username, password, first_name, last_name, email, rule)
 
-async def update_user(user_id: int, username: str, first_name: str, last_name: str, email: str, rule: str):
-    db = next(get_db())
-    user = db.query(User).filter(User.id == user_id).first()
-    
-    if not user:
-        raise HTTPException(status_code=404, detail="User  not found")
-    
-    user.username = username
-    user.first_name = first_name
-    user.last_name = last_name
-    user.email = email
-    user.rule = rule
-    db.commit()
-    db.refresh(user)
-    return user
+@user_router.put("/users/{user_id}")
+async def update_existing_user(user_id: int, user_update: UserUpdate, user: dict = Depends(verify_token)):
+    if user.get("rule") != "admin":
+        raise HTTPException(status_code=403, detail="Not enough permissions")
+    return await update_user(
+        user_id,
+        user_update.username,
+        user_update.first_name,
+        user_update.last_name,
+        user_update.email,
+        user_update.rule
+    )
 
-async def delete_user(user_id: int):
-    db = next(get_db())
-    user = db.query(User).filter(User.id == user_id).first()
-    
-    if not user:
-        raise HTTPException(status_code=404, detail="User  not found")
-    
-    db.delete(user)
-    db.commit()
+@user_router.delete("/users/{user_id}")
+async def remove_user(user_id: int, user: dict = Depends(verify_token)):
+    if user.get("rule") != "admin":
+        raise HTTPException(status_code=403, detail="Not enough permissions")
+    return await delete_user(user_id)
 
-async def get_users():
-    db = next(get_db())
-    users = db.query(User).all() 
-    return users
+@user_router.get("/users/")
+async def users():
+    return await get_users()
