@@ -18,13 +18,16 @@ def load_secret_key():
         hashed_key = data["hashed_key"]
         return hashed_key
 
+
 def verify_token(token: str = Depends(oauth2_scheme)):
+    print(f"Received token: {token}") 
+
     try:
-        # Load the secret key
         hashed_key = load_secret_key()
         
-        # Decode the token
         payload = jwt.decode(token, hashed_key, algorithms=[ALGORITHM])
+        print(f"Decoded Payload: {payload}") 
         return payload 
     except jwt.PyJWTError:
         raise HTTPException(status_code=401, detail="Invalid token")
+
