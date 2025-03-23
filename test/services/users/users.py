@@ -1,11 +1,13 @@
 from datetime import datetime
 import secrets
+from typing import Dict
 from fastapi import HTTPException
 from sqlalchemy.orm import Session
 from models.access_model import Access
 from services.database.database import AccessSessionLocal, SessionLocal
 from models.user_model import User
 from models.auth_model import Auth  
+from typing import List, Dict
 
 def get_db():
     db = SessionLocal()
@@ -81,3 +83,23 @@ async def get_users():
     db = next(get_db())
     users = db.query(User).all() 
     return users
+
+async def get_active_users() -> List[Dict[str, str]]:
+
+    access_db = next(get_access_db())
+    entries = access_db.query(
+        Access.username,
+        Access.rule,
+        Access.expires_at,
+        Access.created_at
+    ).all()
+    
+    return [
+        {
+            "username": entry.username,
+            "rule": entry.rule,
+            "expires_at": entry.expires_at.isoformat(),
+            "created_at": entry.created_at.isoformat()
+        }
+        for entry in entries
+    ]
