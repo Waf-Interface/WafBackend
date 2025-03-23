@@ -4,8 +4,17 @@ from services.database.database import Base
 import enum
 from pydantic import BaseModel
 
+class UserCreate(BaseModel):
+    username: str
+    password: str
+    first_name: str
+    last_name: str
+    email: str
+    rule: str 
+    
 class UserUpdate(BaseModel):
     username: str
+    password: str
     first_name: str
     last_name: str
     email: str
