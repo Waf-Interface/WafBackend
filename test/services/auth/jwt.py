@@ -18,16 +18,19 @@ def load_secret_key():
         hashed_key = data["hashed_key"]
         return hashed_key
 
-def create_access_token(data: dict, expires_delta: timedelta = None):
+def create_access_token(data: dict, user_rule: str, expires_delta: timedelta = None):
     to_encode = data.copy()
     if expires_delta:
         expire = datetime.utcnow() + expires_delta
     else:
         expire = datetime.utcnow() + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
-    to_encode.update({"exp": expire})
+        
+    to_encode.update({
+        "exp": expire,
+        "rule": user_rule  
+    })
 
     hashed_key = load_secret_key()
-    
     encoded_jwt = jwt.encode(to_encode, hashed_key, algorithm=ALGORITHM)
     return encoded_jwt
 
