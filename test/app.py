@@ -10,15 +10,17 @@ from api.system.system import router as system_router
 from api.waf.waf_manager import router as waf_manager
 from api.system.loger import router as loger_router  
 from api.waf.waf_crs import router as waf_setup_router  
+from models.access_model import Access
 from services.auth.generate_secret_key import generate_secret_key  
 from services.backup_service import BackupService  
 from api.log.nginx_log import router as nginx_log  
-from services.database.database import engine
+from services.database.database import engine, access_engine, Base, AccessBase
 from models.user_model import User
 from services.auth.verify_token import verify_token  
 from api.users.users import user_router 
 
-User .metadata.create_all(bind=engine)
+Base.metadata.create_all(bind=engine)
+AccessBase.metadata.create_all(bind=access_engine)
 
 backup_service = BackupService()
 
