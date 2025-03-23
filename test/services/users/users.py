@@ -1,36 +1,83 @@
-from fastapi import APIRouter, Depends, HTTPException
-from services.auth.jwt import verify_token 
-from services.users.users import create_user, update_user, delete_user, get_users 
-from pydantic import BaseModel
-from models.user_model import UserUpdate
+from datetime import datetime
+import secrets
+from fastapi import HTTPException
+from sqlalchemy.orm import Session
+from models.access_model import Access
+from services.database.database import AccessSessionLocal, SessionLocal
+from models.user_model import User
+from models.auth_model import Auth  
 
-user_router = APIRouter()
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
 
-@user_router.post("/create_users/") 
-async def create_new_user(username: str, password: str, first_name: str, last_name: str, email: str, rule: str, user: dict = Depends(verify_token)):
-    if user.get("rule") != "admin":
-        raise HTTPException(status_code=403, detail="Not enough permissions")
-    return await create_user(username, password, first_name, last_name, email, rule)
+def get_access_db():
+    db = AccessSessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
+        
 
-@user_router.put("/users/{user_id}")
-async def update_existing_user(user_id: int, user_update: UserUpdate, user: dict = Depends(verify_token)):
-    if user.get("rule") != "admin":
-        raise HTTPException(status_code=403, detail="Not enough permissions")
-    return await update_user(
-        user_id,
-        user_update.username,
-        user_update.first_name,
-        user_update.last_name,
-        user_update.email,
-        user_update.rule
-    )
 
-@user_router.delete("/users/{user_id}")
-async def remove_user(user_id: int, user: dict = Depends(verify_token)):
-    if user.get("rule") != "admin":
-        raise HTTPException(status_code=403, detail="Not enough permissions")
-    return await delete_user(user_id)
+async def validate_user_access(access_code: str):
+    access_db = next(get_access_db())
+    record = access_db.query(Access).filter(Access.access_code == access_code).first()
+    
+    if not record:
+        raise HTTPException(status_code=401, detail="Invalid access code")
+    
+    if datetime.utcnow() > record.expires_at:
+        access_db.delete(record)
+        access_db.commit()
+        raise HTTPException(status_code=401, detail="Access code expired")
+    
+    return {
+        "username": record.username,
+        "rule": record.rule
+    }
 
-@user_router.get("/users/")
-async def users():
-    return await get_users()
+async def create_user(username: str, password: str, first_name: str, last_name: str, email: str, rule: str):
+    db = next(get_db())
+    if rule not in ["admin", "user"]:
+        raise HTTPException(status_code=400, detail="Invalid rule. Must be 'admin' or 'user'.")
+    
+    user = User(username=username, password=password, first_name=first_name, last_name=last_name, email=email, rule=rule)
+    db.add(user)
+    db.commit()
+    db.refresh(user)
+    return user
+
+async def update_user(user_id: int, username: str, first_name: str, last_name: str, email: str, rule: str):
+    db = next(get_db())
+    user = db.query(User).filter(User.id == user_id).first()
+    
+    if not user:
+        raise HTTPException(status_code=404, detail="User  not found")
+    
+    user.username = username
+    user.first_name = first_name
+    user.last_name = last_name
+    user.email = email
+    user.rule = rule
+    db.commit()
+    db.refresh(user)
+    return user
+
+async def delete_user(user_id: int):
+    db = next(get_db())
+    user = db.query(User).filter(User.id == user_id).first()
+    
+    if not user:
+        raise HTTPException(status_code=404, detail="User  not found")
+    
+    db.delete(user)
+    db.commit()
+
+async def get_users():
+    db = next(get_db())
+    users = db.query(User).all() 
+    return users
