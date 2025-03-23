@@ -14,13 +14,21 @@ from models.access_model import Access
 from services.auth.generate_secret_key import generate_secret_key  
 from services.backup_service import BackupService  
 from api.log.nginx_log import router as nginx_log  
-from services.database.database import engine, access_engine, Base, AccessBase
+from services.database.database import engine, access_engine, Base, AccessBase, SessionLocal
 from models.user_model import User
 from services.auth.verify_token import verify_token  
 from api.users.users import user_router 
+from api.interface.interface import interface_router
+from services.interface.interface import create_default_vip
 
 Base.metadata.create_all(bind=engine)
 AccessBase.metadata.create_all(bind=access_engine)
+
+# Creating virutal ip table on startup
+try:
+    create_default_vip()
+except Exception as e:
+    print(f"VIP Initialization Note: {str(e)}")
 
 backup_service = BackupService()
 
@@ -47,6 +55,6 @@ app.include_router(waf_rule_router, prefix="/waf", tags=["waf"], dependencies=[D
 app.include_router(loger_router, dependencies=[Depends(verify_token)]) 
 app.include_router(waf_setup_router, prefix="/waf", tags=["waf"], dependencies=[Depends(verify_token)]) 
 app.include_router(nginx_log, dependencies=[Depends(verify_token)]) 
-
+app.include_router(interface_router, prefix="/interface", tags=["interface"], dependencies=[Depends(verify_token)])
 if __name__ == "__main__":
-    uvicorn.run(app, host="127.0.0.1", port=8081)
+    uvicorn.run(app, host="0.0.0.0", port=8081)
