@@ -1,8 +1,9 @@
 from fastapi import APIRouter, Depends, HTTPException
 from services.auth.verify_token import verify_token 
-from services.users.users import create_user, update_user, delete_user, get_users 
+from services.users.users import create_user, update_user, delete_user, get_users,get_active_users
 from models.user_model import UserCreate, UserUpdate
 from pydantic import BaseModel
+from typing import List
 
 user_router = APIRouter()
 
@@ -56,5 +57,9 @@ async def remove_user(
     return await delete_user(user_id)
 
 @user_router.get("/users/")
-async def users(current_user: dict = Depends(verify_token)):  
+async def users():  
     return await get_users()
+
+@user_router.get("/active_users/", response_model=List[dict])
+async def active_users():
+    return await get_active_users()
