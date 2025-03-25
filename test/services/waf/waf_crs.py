@@ -72,7 +72,21 @@ class WAFService:
 
     def _get_config_value(self, directive):
         return self.config_cache.get(directive, "Not found")
-    
+
+    def restore_config_file(self, file_key):
+        if file_key not in self.config_files:
+            raise ValueError("Invalid file key provided.")
+        
+        backup_path = os.path.join(self.backup_dir, os.path.basename(self.config_files[file_key]))
+        if os.path.exists(backup_path):
+            shutil.copy(backup_path, self.config_files[file_key])
+            self.config_cache = self.load_configurations()  
+        else:
+            raise FileNotFoundError("Backup file not found.")
+
+    def restore_all_config_files(self):
+        for file_key in self.config_files.keys():
+            self.restore_config_file(file_key)  
 
 #Explanation of Search between large modsecurty.conf and crs-setup.conf :
 # The load_configurations method reads the entire modsecurity.conf file once and uses a regular expression to extract key-value pairs. This allows for efficient lookups later.
