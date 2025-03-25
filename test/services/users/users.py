@@ -103,3 +103,13 @@ async def get_active_users() -> List[Dict[str, str]]:
         }
         for entry in entries
     ]
+
+async def delete_active_user(access_id: int):
+    access_db = next(get_access_db())
+    access_record = access_db.query(Access).filter(Access.id == access_id).first()
+    
+    if not access_record:
+        raise HTTPException(status_code=404, detail="Active user not found")
+    
+    access_db.delete(access_record)
+    access_db.commit()
