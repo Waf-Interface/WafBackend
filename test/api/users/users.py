@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends, HTTPException
 from services.auth.verify_token import verify_token 
-from services.users.users import create_user, update_user, delete_user, get_users,get_active_users
+from services.users.users import create_user, delete_active_user, update_user, delete_user, get_users,get_active_users
 from models.user_model import UserCreate, UserUpdate
 from pydantic import BaseModel
 from typing import List
@@ -63,3 +63,14 @@ async def users():
 @user_router.get("/active_users/", response_model=List[dict])
 async def active_users():
     return await get_active_users()
+
+
+@user_router.delete("/active_users/{access_id}")
+async def remove_active_user(
+    access_id: int, 
+    current_user: dict = Depends(verify_token)
+):
+    if current_user.get("rule") != "admin":
+        raise HTTPException(status_code=403, detail="Not enough permissions")
+    
+    return await delete_active_user(access_id)
