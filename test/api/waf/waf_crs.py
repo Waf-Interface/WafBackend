@@ -9,7 +9,7 @@ class SecRuleEngineRequest(BaseModel):
     value: str  # "On", "Off", "DetectionOnly"
 
 class SecResponseBodyAccessRequest(BaseModel):
-    value: bool  # "On", "Off"
+    value: bool  # True for "On", False for "Off"
 
 @router.post("/set_sec_rule_engine/")
 async def set_sec_rule_engine(request: SecRuleEngineRequest):
@@ -35,5 +35,35 @@ async def get_sec_audit_log():
             return {"SecAuditLog": audit_log_path}
         else:
             raise HTTPException(status_code=404, detail="SecAuditLog not found.")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@router.get("/get_config_file/{file_key}")
+async def get_config_file(file_key: str):
+    try:
+        contents = waf_service.get_file_contents(file_key)
+        return {"contents": contents}
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@router.post("/restore_config_file/{file_key}")
+async def restore_config_file(file_key: str):
+    try:
+        waf_service.restore_config_file(file_key)
+        return {"message": f"{file_key} restored successfully."}
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except FileNotFoundError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@router.post("/restore_all_config_files/")
+async def restore_all_config_files():
+    try:
+        waf_service.restore_all_config_files()
+        return {"message": "All configuration files restored successfully."}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
