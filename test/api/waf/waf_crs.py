@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException,Request
 from services.waf.waf_crs import WAFService
 from pydantic import BaseModel
 
@@ -65,5 +65,20 @@ async def restore_all_config_files():
     try:
         waf_service.restore_all_config_files()
         return {"message": "All configuration files restored successfully."}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+    
+@router.put("/update_config/{file_key}")
+async def update_config(file_key: str, request: Request):
+    try:
+        new_contents = await request.body()
+        
+        new_contents = new_contents.decode('utf-8')
+
+        waf_service.replace_file_contents(file_key, new_contents)
+        
+        return {"message": f"{file_key} updated successfully."}
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
