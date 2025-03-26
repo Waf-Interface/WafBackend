@@ -57,13 +57,12 @@ async def remove_user(
     return await delete_user(user_id)
 
 @user_router.get("/users/")
-async def users():  
+async def users(current_user: dict = Depends(verify_token)):  
     return await get_users()
 
 @user_router.get("/active_users/", response_model=List[dict])
-async def active_users():
+async def active_users(current_user: dict = Depends(verify_token)):
     return await get_active_users()
-
 
 @user_router.delete("/active_users/{access_id}")
 async def remove_active_user(
