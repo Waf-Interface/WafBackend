@@ -11,7 +11,7 @@ from api.waf.waf_manager import router as waf_manager
 from api.system.loger import router as loger_router  
 from api.waf.waf_crs import router as waf_setup_router  
 from models.access_model import Access
-from services.auth.generate_secret_key import generate_secret_key  
+from services.auth.generate_rsa_keys import generate_rsa_keys  
 from services.backup_service import BackupService  
 from api.log.nginx_log import router as nginx_log  
 from services.database.database import engine, access_engine, Base, AccessBase, SessionLocal
@@ -24,7 +24,6 @@ from services.interface.interface import create_default_vip
 Base.metadata.create_all(bind=engine)
 AccessBase.metadata.create_all(bind=access_engine)
 
-# Creating virutal ip table on startup
 try:
     create_default_vip()
 except Exception as e:
@@ -34,7 +33,7 @@ backup_service = BackupService()
 
 app = FastAPI()
 
-generate_secret_key()
+generate_rsa_keys()
 
 app.add_middleware(
     CORSMiddleware,
