@@ -87,3 +87,15 @@ async def verify_otp_service(request: VerifyOTPRequest):
             raise HTTPException(status_code=401, detail="Invalid OTP")
     else:
         raise HTTPException(status_code=404, detail="Session ID not found")
+    
+async def logout_service(username: str):
+    access_db = next(get_access_db())
+    
+    access_entry = access_db.query(Access).filter(Access.username == username).first()
+    
+    if access_entry:
+        access_db.delete(access_entry)
+        access_db.commit()
+        return {"message": "Logout successful"}
+    else:
+        raise HTTPException(status_code=404, detail="User  not found in access database")
