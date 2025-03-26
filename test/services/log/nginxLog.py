@@ -1,3 +1,4 @@
+from datetime import datetime
 import json
 import os
 import re
@@ -33,7 +34,7 @@ class nginxLog:
         with open(self.output_file_path, 'w') as json_file:
             json.dump(logs[::-1], json_file, indent=4)  
 
-        return logs[::-1]  # return logs in reverse order
+        return logs[::-1]  
 
     def get_summary(self):
         status_count = defaultdict(int)
@@ -58,3 +59,21 @@ class nginxLog:
         }
 
         return summary
+    
+    def get_daily_traffic(self):
+        daily_traffic = defaultdict(int)  
+
+        with open(self.log_file_path, 'r') as f:
+            for line in f:
+                match = re.match(
+                    r'(?P<ip>[\d\.]+) - - \[(?P<timestamp>.*?)\] "(?P<request>.*?)" (?P<status>\d{3}) (?P<bytes>\d+|-) "(?P<referrer>.*?)" "(?P<user_agent>.*?)"',
+                    line
+                )
+                if match:
+                    timestamp_str = match.group("timestamp")
+                    date_str = timestamp_str.split(':')[0] 
+                    date = datetime.strptime(date_str, '%d/%b/%Y').date()  
+                    daily_traffic[date] += 1  
+
+
+        return dict(daily_traffic)
