@@ -45,3 +45,27 @@ def verify_token(token: str = Depends(oauth2_scheme)):
         
     except jwt.PyJWTError:
         raise HTTPException(status_code=401, detail="Invalid token")
+    
+def verify_websocket_token(token: str):
+    try:
+        hashed_key = load_secret_key()
+        payload = jwt.decode(token, hashed_key, algorithms=[ALGORITHM])
+        
+        access_db = next(get_access_db())
+        record = access_db.query(Access).filter(
+            Access.username == payload.get("sub"),
+            Access.rule == payload.get("rule")
+        ).first()
+        
+        if not record:
+            raise HTTPException(status_code=401, detail="Invalid token")
+            
+        if datetime.utcnow() > record.expires_at:
+            access_db.delete(record)
+            access_db.commit()
+            raise HTTPException(status_code=401, detail="Token expired")
+            
+        return payload
+        
+    except jwt.PyJWTError:
+        raise HTTPException(status_code=401, detail="Invalid token")
