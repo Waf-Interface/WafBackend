@@ -12,7 +12,7 @@ async def convert_nginx_log():
         logs = nginx_log_service.access_log()
         return {"message": "Nginx access log converted to JSON", "logs": logs}
     except FileNotFoundError:
-        raise HTTPException(status_code=404, detail="Log file not found")
+        raise HTTPException(status_code=404, detail="log not found")
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
@@ -25,6 +25,24 @@ async def get_nginx_log_summary():
         summary = nginx_log_service.get_summary()
         return {"summary": summary}
     except FileNotFoundError:
-        raise HTTPException(status_code=404, detail="Log file not found")
+        raise HTTPException(status_code=404, detail="log not found")
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+from fastapi import APIRouter, HTTPException
+from services.log.nginxLog import nginxLog
+
+router = APIRouter()
+
+@router.get("/traffic")
+async def get_daily_traffic():
+    log_file_path = "/usr/local/nginx/logs/access.log"  
+    nginx_log_service = nginxLog(log_file_path)
+    
+    try:
+        traffic = nginx_log_service.get_daily_traffic()  
+        return {"traffic": traffic}
+    except FileNotFoundError:
+        raise HTTPException(status_code=404, detail="log not found")
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
