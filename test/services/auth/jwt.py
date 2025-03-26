@@ -1,44 +1,54 @@
-import secrets
 import jwt
 from datetime import datetime, timedelta
 from fastapi import HTTPException
+from cryptography.hazmat.primitives import serialization
+from cryptography.hazmat.backends import default_backend
 import os
-import json
+from dotenv import load_dotenv
 
-SECRET_KEY_FILE = 'secret_key.json'
-ALGORITHM = "HS256"
+load_dotenv()  
+
+ALGORITHM = "RS256"  
 ACCESS_TOKEN_EXPIRE_MINUTES = 45
 
-def load_secret_key():
-    if not os.path.exists(SECRET_KEY_FILE):
-        raise HTTPException(status_code=500, detail="Secret key file not found.")
-    
-    with open(SECRET_KEY_FILE, 'r') as f:
-        data = json.load(f) 
-        hashed_key = data["hashed_key"]
-        return hashed_key
+def load_private_key():
+    private_key_path = os.getenv("RSA_PRIVATE_KEY_PATH", ".private_key.pem")
+    try:
+        with open(private_key_path, "rb") as key_file:
+            private_key = serialization.load_pem_private_key(
+                key_file.read(),
+                password=None,
+                backend=default_backend()
+            )
+        return private_key
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to load private key: {str(e)}")
+
+def load_public_key():
+    public_key_path = os.getenv("RSA_PUBLIC_KEY_PATH", ".public_key.pem")
+    try:
+        with open(public_key_path, "rb") as key_file:
+            public_key = serialization.load_pem_public_key(
+                key_file.read(),
+                backend=default_backend()
+            )
+        return public_key
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=f"Failed to load public key: {str(e)}")
 
 def create_access_token(data: dict, user_rule: str, expires_delta: timedelta = None):
     to_encode = data.copy()
-    if expires_delta:
-        expire = datetime.utcnow() + expires_delta
-    else:
-        expire = datetime.utcnow() + timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
-        
-    to_encode.update({
-        "exp": expire,
-        "rule": user_rule  
-    })
-
-    hashed_key = load_secret_key()
-    encoded_jwt = jwt.encode(to_encode, hashed_key, algorithm=ALGORITHM)
+    expire = datetime.utcnow() + (expires_delta or timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES))
+    to_encode.update({"exp": expire, "rule": user_rule})
+    
+    private_key = load_private_key() 
+    encoded_jwt = jwt.encode(to_encode, private_key, algorithm=ALGORITHM)
     return encoded_jwt
 
 def verify_token(token: str):
-    hashed_key = load_secret_key()  
-    
+    public_key = load_public_key() 
     try:
-        payload = jwt.decode(token, hashed_key, algorithms=[ALGORITHM])
+        payload = jwt.decode(token, public_key, algorithms=[ALGORITHM])
         return payload
-    except jwt.PyJWTError:
-        raise HTTPException(status_code=401, detail="Invalid token")
+    except jwt.PyJWTError as e:
+        raise HTTPException(status_code=401, detail=f"Invalid token: {str(e)}")
