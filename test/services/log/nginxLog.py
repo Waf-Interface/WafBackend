@@ -37,28 +37,35 @@ class nginxLog:
         return logs[::-1]  
 
     def get_summary(self):
-        status_count = defaultdict(int)
-        unique_ips = set()
-        total_requests = 0
+      status_count = defaultdict(int)
+      unique_ips = set()
+      total_requests = 0
+      request_methods = defaultdict(int)  
+    
+      with open(self.log_file_path, 'r') as f:
+          for line in f:
+             match = re.match(
+                 r'(?P<ip>[\d\.]+) - - \[(?P<timestamp>.*?)\] "(?P<request>.*?)" (?P<status>\d{3}) (?P<bytes>\d+|-) "(?P<referrer>.*?)" "(?P<user_agent>.*?)"',
+                 line
+             )
+             if match:
+                 total_requests += 1
+                 unique_ips.add(match.group("ip"))
+                 status_count[match.group("status")] += 1
+                 
+                 request_parts = match.group("request").split()
+                 if request_parts:  
+                     method = request_parts[0]
+                     request_methods[method] += 1       
+      summary = {
+          "total_requests": total_requests,
+          "unique_ips": len(unique_ips),
+          "status_counts": dict(status_count),
+          "request_methods": dict(request_methods)  
+          }
 
-        with open(self.log_file_path, 'r') as f:
-            for line in f:
-                match = re.match(
-                    r'(?P<ip>[\d\.]+) - - \[(?P<timestamp>.*?)\] "(?P<request>.*?)" (?P<status>\d{3}) (?P<bytes>\d+|-) "(?P<referrer>.*?)" "(?P<user_agent>.*?)"',
-                    line
-                )
-                if match:
-                    total_requests += 1
-                    unique_ips.add(match.group("ip"))
-                    status_count[match.group("status")] += 1
+      return summary
 
-        summary = {
-            "total_requests": total_requests,
-            "unique_ips": len(unique_ips),
-            "status_counts": dict(status_count)
-        }
-
-        return summary
     
     def get_daily_traffic(self):
         daily_traffic = defaultdict(int)  
