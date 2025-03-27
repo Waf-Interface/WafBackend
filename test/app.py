@@ -20,9 +20,11 @@ from services.auth.verify_token import verify_token
 from api.users.users import user_router 
 from api.interface.interface import interface_router
 from services.interface.interface import create_default_vip
+from api.update.update import router as update_router 
 
 Base.metadata.create_all(bind=engine)
 AccessBase.metadata.create_all(bind=access_engine)
+
 
 try:
     create_default_vip()
@@ -55,5 +57,7 @@ app.include_router(loger_router, dependencies=[Depends(verify_token)])
 app.include_router(waf_setup_router, prefix="/waf", tags=["waf"], dependencies=[Depends(verify_token)]) 
 app.include_router(nginx_log, dependencies=[Depends(verify_token)]) 
 app.include_router(interface_router, prefix="/interface", tags=["interface"], dependencies=[Depends(verify_token)])
+app.include_router( update_router, prefix="/update",tags=["update"],dependencies=[Depends(verify_token)])
+
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8081)
