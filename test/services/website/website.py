@@ -1,4 +1,5 @@
 from datetime import datetime
+import glob
 import ipaddress
 import os
 import secrets
@@ -19,6 +20,7 @@ from services.interface.interface import (
     release_vip
 )
 from services.logger.logger_service import app_logger
+from services.waf.waf_website import WAFWebsiteManager
 
 UPLOAD_DIRECTORY = 'uploads'
 NGINX_CONF_DIRECTORY = '/usr/local/nginx/conf'
@@ -63,16 +65,13 @@ def get_available_port():
 
 def configure_apache_port(port: int):
     try:
-        # Check if port is already configured
         with open(APACHE_PORTS_FILE, 'r') as f:
             if f"Listen {port}" in f.read():
                 return port
         
-        # Add port configuration
         with open(APACHE_PORTS_FILE, 'a') as f:
             f.write(f"\nListen {port}\n")
         
-        # Test Apache config before reloading
         subprocess.run(['sudo', 'apache2ctl', 'configtest'], check=True)
         subprocess.run(['sudo', 'systemctl', 'reload', 'apache2'], check=True)
         return port
@@ -102,40 +101,29 @@ def create_simple_apache_config(domain: str, port: int, doc_root: str):
 """
 
 def create_nginx_config(vip: str, domain: str, backend_port: int, doc_root: str):
-    """Create Nginx config with ModSecurity and security headers"""
     return f"""
 server {{
     listen {vip}:80;
     server_name {domain};
     
-    # Security headers
     add_header X-Frame-Options "SAMEORIGIN";
     add_header X-Content-Type-Options "nosniff";
     add_header X-XSS-Protection "1; mode=block";
     add_header Content-Security-Policy "default-src 'self'";
     
-    # ModSecurity configuration
     modsecurity on;
     modsecurity_rules_file /usr/local/nginx/conf/modsec_includes.conf;
     
-    # Static content
     location / {{
         root {doc_root};
         try_files $uri $uri/ /index.html;
     }}
     
-    # Proxy to Apache for dynamic content
     location /api/ {{
         proxy_pass http://127.0.0.1:{backend_port};
         proxy_set_header Host $host;
         proxy_set_header X-Real-IP $remote_addr;
         proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-        
-        # ModSecurity for API endpoints
-        modsecurity_rules '
-            SecRuleEngine On
-            SecRule REQUEST_URI "@contains /api/" "id:1000,phase:1,t:none,log,deny,status:403"
-        ';
     }}
 }}
 """
@@ -149,7 +137,6 @@ async def deploy_file_service(file_name: str):
     apache_conf_path = None
     
     try:
-        # File validation
         if not file_name.lower().endswith('.zip'):
             file_name += '.zip'
         
@@ -157,20 +144,16 @@ async def deploy_file_service(file_name: str):
         if not os.path.exists(file_path):
             raise HTTPException(status_code=404, detail="File not found")
 
-        # Create initial website entry
         server_ip = get_server_ip()
         website = create_website_entry(website_db, file_name, server_ip)
         app_logger.info(f"Created website entry with ID: {website.id}")
 
-        # Update status
         update_website_status(website_db, website.id, "Acquiring VIP")
 
-        # VIP acquisition
         try:
             vip = interface_db.query(VirtualIP).filter(VirtualIP.status == "available").first()
             
             if not vip:
-                # Create new VIP if none available
                 netmask = calculate_netmask(server_ip)
                 
                 try:
@@ -248,7 +231,6 @@ async def deploy_file_service(file_name: str):
         apache_port = get_available_port()
         configure_apache_port(apache_port)
         
-        # Apache config
         apache_conf = create_simple_apache_config(
             domain_name,
             apache_port,
@@ -258,7 +240,6 @@ async def deploy_file_service(file_name: str):
         with open(apache_conf_path, 'w') as f:
             f.write(apache_conf)
 
-        # Nginx config
         nginx_conf = create_nginx_config(
             vip.ip_address,
             domain_name,
@@ -269,9 +250,12 @@ async def deploy_file_service(file_name: str):
         with open(nginx_conf_path, 'w') as f:
             f.write(nginx_conf)
 
+        waf_manager = _setup_website_waf(website.id, domain_name)
+        
+        _update_nginx_config_with_waf(website.id, domain_name)
+
         update_website_status(website_db, website.id, "Enabling Services")
 
-        # Enable configurations
         try:
             subprocess.run(['sudo', 'a2ensite', os.path.basename(apache_conf_path)], check=True)
             subprocess.run(['sudo', 'apache2ctl', 'configtest'], check=True)
@@ -291,10 +275,10 @@ async def deploy_file_service(file_name: str):
         vip.last_updated = datetime.utcnow()
         interface_db.commit()
 
-        # Final website update
         website.listen_to = f"127.0.0.1:{apache_port}"
         website.status = "Active"
         website.mode = "enabled"
+        website.waf_enabled = True
         website_db.commit()
 
         return {
@@ -303,7 +287,8 @@ async def deploy_file_service(file_name: str):
             "vip": vip.ip_address,
             "apache_port": apache_port,
             "deployment_folder": deployment_folder,
-            "website_id": website.id
+            "website_id": website.id,
+            "waf_enabled": True
         }
 
     except HTTPException:
@@ -343,13 +328,12 @@ async def deploy_file_service(file_name: str):
         website_db.close()
 
 def create_website_entry(db: Session, name: str, real_web_s: str):
-    name_without_extension = name.split('.')[0]  # Remove .zip if present
-    
+    name_without_extension = name.split('.')[0]  
     website = Website(
         id=secrets.token_hex(8),
         name=name_without_extension,
         application=f"www.{name_without_extension}",
-        listen_to="127.0.0.1:8081",  # Default, can be updated later
+        listen_to="127.0.0.1:8081",  
         real_web_s=real_web_s,
         status="Waiting for zip",
         init_status=True,
@@ -373,3 +357,53 @@ def update_website_status(db: Session, website_id: str, status: str):
 
 def get_website_by_name(db: Session, name: str):
     return db.query(Website).filter(Website.name == name).first()
+
+
+def _update_nginx_config_with_waf(website_id: str, domain_name: str):
+    """Update Nginx config to include website-specific WAF rules"""
+    waf_manager = WAFWebsiteManager(website_id)
+    config_path = os.path.join(NGINX_CONF_DIRECTORY, f"{domain_name}.conf")
+    
+    if not os.path.exists(config_path):
+        return False
+    
+    with open(config_path, 'r') as f:
+        config = f.read()
+    
+    if "modsecurity_rules_file" not in config:
+        config = config.replace(
+            "modsecurity on;",
+            f"modsecurity on;\n    modsecurity_rules_file {waf_manager.modsec_include};"
+        )
+    else:
+        config = config.replace(
+            "modsecurity_rules_file",
+            f"modsecurity_rules_file {waf_manager.modsec_include}\n    modsecurity_rules_file"
+        )
+    
+    with open(config_path, 'w') as f:
+        f.write(config)
+    
+    return True
+
+def _setup_website_waf(website_id: str, domain_name: str):
+    """Setup WAF structure for new website"""
+    waf_manager = WAFWebsiteManager(website_id)
+    
+    global_rules_dir = "/usr/local/nginx/rules/"
+    for rule_file in glob.glob(os.path.join(global_rules_dir, "*.conf")):
+        shutil.copy(
+            rule_file,
+            os.path.join(waf_manager.rules_dir, os.path.basename(rule_file)))
+    
+    with WebsiteSessionLocal() as db:
+        website = db.query(Website).filter(Website.id == website_id).first()
+        if website:
+            website.modsec_audit_log = f"/var/log/modsec_audit_{domain_name}.log"
+            website.modsec_debug_log = f"/var/log/modsec_debug_{domain_name}.log"
+            db.commit()
+    
+    _update_nginx_config_with_waf(website_id, domain_name)
+    
+    return waf_manager
+
