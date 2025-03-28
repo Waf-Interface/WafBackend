@@ -1,8 +1,8 @@
-from sqlalchemy import Column, String, Boolean, DateTime
+from sqlalchemy import Column, String, Boolean, DateTime, JSON, Text
 from datetime import datetime
-from services.database.database import WebsiteBase  
+from services.database.database import WebsiteBase
 
-class Website(WebsiteBase):  
+class Website(WebsiteBase):
     __tablename__ = "websites"
 
     id = Column(String(16), primary_key=True)
@@ -13,4 +13,9 @@ class Website(WebsiteBase):
     status = Column(String(50), nullable=False)
     init_status = Column(Boolean, default=True)
     mode = Column(String(50), default="disabled")
+    waf_enabled = Column(Boolean, default=True)
+    modsec_audit_log = Column(String(255), default="/var/log/modsec_audit.log")
+    modsec_debug_log = Column(String(255), default="/var/log/modsec_debug.log")
+    custom_rules = Column(JSON, default=[])
+    rule_backups = Column(JSON, default=[])
     timestamp = Column(DateTime, default=datetime.utcnow)
