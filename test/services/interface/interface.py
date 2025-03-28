@@ -1,17 +1,19 @@
+from datetime import datetime, timedelta
 import subprocess
 import ipaddress
 import os
 from sqlalchemy.orm import Session
 from models.interface_model import VirtualIP
-from services.database.database import SessionLocal
+from services.database.database import InterfaceSessionLocal 
 from fastapi import HTTPException
+from services.logger.logger_service import app_logger
 
 NGINX_CONF_DIRECTORY = '/usr/local/nginx/conf'
 NGINX_HTML_DIRECTORY = '/usr/local/nginx/html'
 APACHE_CONF_DIRECTORY = '/etc/apache2/sites-available'
 
 def get_db():
-    db = SessionLocal()
+    db = InterfaceSessionLocal()
     try:
         yield db
     finally:
@@ -32,19 +34,44 @@ def get_server_ip():
         raise RuntimeError(f"Failed to get server IP: {str(e)}")
 
 def calculate_netmask(ip: str):
+    """Calculate proper netmask for the given IP"""
     try:
-        result = subprocess.run(['ip', '-o', '-f', 'inet', 'addr', 'show'], 
-                              capture_output=True, text=True, check=True)
+        # Try to get netmask from system first
+        result = subprocess.run(
+            ['ip', '-o', '-f', 'inet', 'addr', 'show'],
+            capture_output=True, text=True, check=True
+        )
+        
         for line in result.stdout.splitlines():
             if ip in line:
                 parts = line.split()
-                return parts[6]
-        return "255.255.255.0"
+                netmask = parts[6]
+                # Validate the netmask format
+                try:
+                    ipaddress.IPv4Network(f"{ip}/{netmask}", strict=False)
+                    return netmask
+                except ValueError:
+                    continue
+        
+        # Fallback to common private network netmasks
+        if ipaddress.IPv4Address(ip).is_private:
+            if ip.startswith('10.'):
+                return '255.0.0.0'
+            elif ip.startswith('172.16.'):
+                return '255.240.0.0'
+            elif ip.startswith('192.168.'):
+                return '255.255.255.0'
+        
+        # Default netmask for public IPs
+        return '255.255.255.0'
+        
     except Exception as e:
-        return "255.255.255.0"
+        app_logger.error(f"Error calculating netmask: {e}")
+        return '255.255.255.0'
+
 
 def create_default_vip():
-    db = SessionLocal()
+    db = InterfaceSessionLocal()
     try:
         if not db.query(VirtualIP).first():
             server_ip = get_server_ip()
@@ -69,7 +96,7 @@ def create_default_vip():
         db.close()
 
 def add_virtual_ip(ip_address: str, netmask: str, interface: str = "ens33"):
-    db = SessionLocal()
+    db = InterfaceSessionLocal()
     try:
         existing_vip = db.query(VirtualIP).filter(VirtualIP.ip_address == ip_address).first()
         if existing_vip:
@@ -89,14 +116,14 @@ def add_virtual_ip(ip_address: str, netmask: str, interface: str = "ens33"):
         db.close()
 
 def list_virtual_ips():
-    db = SessionLocal()
+    db = InterfaceSessionLocal()
     try:
         return db.query(VirtualIP).all()
     finally:
         db.close()
 
 def delete_virtual_ip(vip_id: int):
-    db = SessionLocal()
+    db = InterfaceSessionLocal()
     try:
         vip = db.query(VirtualIP).filter(VirtualIP.id == vip_id).first()
         if not vip:
@@ -115,7 +142,7 @@ def delete_virtual_ip(vip_id: int):
         db.close()
 
 def release_vip(vip_id: int):
-    db = SessionLocal()
+    db = InterfaceSessionLocal()
     try:
         vip = db.query(VirtualIP).filter(VirtualIP.id == vip_id).first()
         if not vip:
@@ -149,5 +176,34 @@ def release_vip(vip_id: int):
     except Exception as e:
         db.rollback()
         raise HTTPException(status_code=500, detail=f"VIP release failed: {str(e)}")
+    finally:
+        db.close()
+
+def check_vip_usage():
+    db = InterfaceSessionLocal()
+    try:
+        total = db.query(VirtualIP).count()
+        available = db.query(VirtualIP).filter(VirtualIP.status == "available").count()
+        return {
+            "total_vips": total,
+            "available_vips": available,
+            "usage_percentage": ((total - available) / total) * 100 if total > 0 else 0
+        }
+    finally:
+        db.close()
+
+def cleanup_stale_deployments():
+    db = InterfaceSessionLocal()
+    try:
+        stale_days = 7  
+        stale = db.query(VirtualIP).filter(
+            VirtualIP.status == "in_use",
+            VirtualIP.last_updated < datetime.now() - timedelta(days=stale_days)
+        ).all()
+        
+        for vip in stale:
+            release_vip(vip.id)
+            
+        return {"released": len(stale)}
     finally:
         db.close()
