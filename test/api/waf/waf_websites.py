@@ -4,15 +4,19 @@ from sqlalchemy.orm import Session
 from services.database.database import WebsiteSessionLocal
 from services.waf.waf_website import WAFWebsiteManager
 
-router = APIRouter(prefix="/waf/website", tags=["website_waf"])
+router = APIRouter(prefix="/website", tags=["website_waf"])
 
 class RuleCreateRequest(BaseModel):
     name: str
     content: str
 
 class BackupRequest(BaseModel):
-    name: str
 
+    name: str
+class NginxConfigUpdateRequest(BaseModel):
+    config: str
+
+    
 def get_db():
     db = WebsiteSessionLocal()
     try:
@@ -89,5 +93,67 @@ def restore_backup(website_id: str, backup_name: str):
         waf = WAFWebsiteManager(website_id)
         success = waf.restore_backup(backup_name)
         return {"status": "success" if success else "backup not found"}
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+@router.get("/{website_id}/nginx-config")
+def get_nginx_config(website_id: str):
+    try:
+        waf = WAFWebsiteManager(website_id)
+        config = waf.get_nginx_config()
+        return {"status": "success", "config": config}
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+@router.put("/{website_id}/nginx-config")
+def update_nginx_config(website_id: str, request: NginxConfigUpdateRequest):
+    try:
+        waf = WAFWebsiteManager(website_id)
+        success = waf.update_nginx_config(request.config)
+        return {"status": "success" if success else "failed"}
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+@router.get("/{website_id}/modsec-main-config")
+def get_modsec_main_config(website_id: str):
+    try:
+        waf = WAFWebsiteManager(website_id)
+        config = waf.get_modsec_main_config()
+        return {"status": "success", "config": config}
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+@router.get("/{website_id}/audit-log")
+def get_audit_log(website_id: str):
+    try:
+        waf = WAFWebsiteManager(website_id)
+        log = waf.get_audit_log()
+        return {"status": "success", "log": log}
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+@router.get("/{website_id}/debug-log")
+def get_debug_log(website_id: str):
+    try:
+        waf = WAFWebsiteManager(website_id)
+        log = waf.get_debug_log()
+        return {"status": "success", "log": log}
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+@router.post("/{website_id}/audit-log/reset")
+def reset_audit_log(website_id: str):
+    try:
+        waf = WAFWebsiteManager(website_id)
+        success = waf.reset_audit_log()
+        return {"status": "success" if success else "failed"}
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+
+@router.post("/{website_id}/debug-log/reset")
+def reset_debug_log(website_id: str):
+    try:
+        waf = WAFWebsiteManager(website_id)
+        success = waf.reset_debug_log()
+        return {"status": "success" if success else "failed"}
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
