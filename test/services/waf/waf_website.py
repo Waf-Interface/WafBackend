@@ -1,4 +1,5 @@
 from datetime import datetime
+import json
 import os
 import shutil
 import glob
@@ -8,6 +9,7 @@ from models.website_model import Website
 from services.database.database import WebsiteSessionLocal
 import subprocess
 from services.logger.logger_service import app_logger
+from services.waf.waf_log import Waf_Log
 
 class WAFWebsiteManager:
     def __init__(self, website_identifier: str):
@@ -254,12 +256,23 @@ class WAFWebsiteManager:
                 website.custom_rules = active_rules
                 db.commit()
     def get_nginx_config(self) -> str:
-        config_path = os.path.join(self.NGINX_CONF_DIRECTORY, f"{self.application_name}.conf")
-        if not os.path.exists(config_path):
-            raise FileNotFoundError(f"Nginx config not found for website: {self.application_name}")
-        
-        with open(config_path, 'r') as f:
-            return f.read()
+     config_path = os.path.join(self.NGINX_CONF_DIRECTORY, f"{self.application_name}.conf")
+    
+     if not os.path.exists(config_path) and self.application_name.startswith('www.'):
+         base_name = self.application_name[4:]  
+         config_path = os.path.join(self.NGINX_CONF_DIRECTORY, f"{base_name}.conf")
+    
+     if not os.path.exists(config_path):
+         config_path = os.path.join(self.NGINX_CONF_DIRECTORY, f"{self.website_id}.conf")
+    
+     if not os.path.exists(config_path):
+         raise FileNotFoundError(
+             f"Nginx config not found for website {self.application_name} (ID: {self.website_id}). "
+             f"Tried paths: {self.application_name}.conf, {self.application_name[4:] if self.application_name.startswith('www.') else ''}.conf, {self.website_id}.conf"
+         )
+    
+     with open(config_path, 'r') as f:
+         return f.read()
 
     def update_nginx_config(self, new_config: str) -> bool:
         config_path = os.path.join(self.NGINX_CONF_DIRECTORY, f"{self.application_name}.conf")
@@ -288,13 +301,38 @@ class WAFWebsiteManager:
         with open(config_path, 'r') as f:
             return f.read()
 
-    def get_audit_log(self) -> str:
-        log_path = os.path.join(self.base_dir, "audit.log")
-        if not os.path.exists(log_path):
-            return ""
+    def get_audit_log(self) -> dict:
+     log_path = os.path.join(self.base_dir, "audit.log")
+    
+     if not os.path.exists(log_path):
+         return {
+             "status": "error",
+             "message": "Audit log file not found",
+             "path": log_path
+         }
+    
+     try:
+         waf_log = Waf_Log(log_path=log_path)
+         
+         parsed_logs = waf_log.parse_audit_log()
+         
+         metadata = waf_log.get_log_metadata()
         
-        with open(log_path, 'r') as f:
-            return f.read()
+         return {
+             "status": "success",
+             "file_status": metadata,
+             "count": len(parsed_logs),
+             "logs": parsed_logs[:10000]  
+         }
+     except Exception as e:
+         error_info = {
+             "error": str(e),
+            "type": type(e).__name__,
+             "log_path": log_path,
+             "file_exists": os.path.exists(log_path),
+             "file_size": os.path.getsize(log_path) if os.path.exists(log_path) else 0
+         }
+         raise RuntimeError(json.dumps(error_info)) from e
 
     def get_debug_log(self) -> str:
         log_path = os.path.join(self.base_dir, "debug.log")
@@ -319,4 +357,6 @@ class WAFWebsiteManager:
                 f.write("")
             return True
         return False
+        
+
         
