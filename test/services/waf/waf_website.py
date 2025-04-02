@@ -95,36 +95,88 @@ class WAFWebsiteManager:
         raise Exception(f"Failed to update rule: {str(e)}")
     
     def delete_rule(self, rule_name: str) -> bool:
-        rule_path = os.path.join(self.rules_dir, f"{rule_name}.conf")
+     try:
+         if not rule_name.endswith('.conf'):
+             rule_name += '.conf'
+         else:
+             rule_name = rule_name.replace('.conf.conf', '.conf')
+            
+         rule_path = os.path.join(self.rules_dir, rule_name)
+         app_logger.info(f"Attempting to delete rule at path: {rule_path}")
+         
+         if os.path.exists(rule_path):
+             os.remove(rule_path)
+             self._update_website_rules()
+             self.reload_nginx()
+             return True
+            
+         app_logger.error(f"Rule file not found at path: {rule_path}")
+         return False
         
-        if os.path.exists(rule_path):
-            os.remove(rule_path)
-            self._update_website_rules()
-            self.reload_nginx()
-            return True
+     except Exception as e:
+        app_logger.error(f"Error deleting rule {rule_name}: {str(e)}", exc_info=True)
         return False
-
+    
+    def _validate_rule_name(self, rule_name: str) -> str:
+        if not rule_name.endswith('.conf'):
+            rule_name += '.conf'
+        if not rule_name.replace('.conf', '').replace('-', '').isalnum():
+            raise ValueError("Invalid rule name")
+        return rule_name
+    
     def disable_rule(self, rule_name: str) -> bool:
-        src = os.path.join(self.rules_dir, f"{rule_name}.conf")
-        dst = os.path.join(self.disabled_rules_dir, f"{rule_name}.conf")
+        rule_name = self._validate_rule_name(rule_name)
+        src = os.path.join(self.rules_dir, rule_name)
+        dst = os.path.join(self.disabled_rules_dir, rule_name)
         
-        if os.path.exists(src):
+        if not os.path.exists(src):
+            app_logger.error(f"Rule file not found for disabling: {src}")
+            return False
+            
+        try:
             shutil.move(src, dst)
             self._update_website_rules()
             self.reload_nginx()
             return True
-        return False
+        except Exception as e:
+            app_logger.error(f"Error disabling rule {rule_name}: {str(e)}")
+            return False
 
     def enable_rule(self, rule_name: str) -> bool:
-        src = os.path.join(self.disabled_rules_dir, f"{rule_name}.conf")
-        dst = os.path.join(self.rules_dir, f"{rule_name}.conf")
+     try:
+        # Standardize the rule name with exactly one .conf
+         if not rule_name.endswith('.conf'):
+             rule_name += '.conf'
+         else:
+             rule_name = rule_name.replace('.conf.conf', '.conf')
+            
+         src = os.path.join(self.disabled_rules_dir, rule_name)
+         dst = os.path.join(self.rules_dir, rule_name)
+         
+         app_logger.info(f"Attempting to enable rule from {src} to {dst}")
         
-        if os.path.exists(src):
-            shutil.move(src, dst)
-            self._update_website_rules()
-            self.reload_nginx()
-            return True
-        return False
+        # Verify directories exist
+         os.makedirs(self.disabled_rules_dir, exist_ok=True)
+         os.makedirs(self.rules_dir, exist_ok=True)
+        
+         if not os.path.exists(src):
+             app_logger.error(f"Disabled rule not found at: {src}")
+             return False
+            
+         if os.path.exists(dst):
+             app_logger.error(f"Active rule already exists at: {dst}")
+             return False
+            
+         shutil.move(src, dst)
+         self._update_website_rules()
+         self.reload_nginx()
+        
+         app_logger.info(f"Successfully enabled rule: {rule_name}")
+         return True
+        
+     except Exception as e:
+         app_logger.error(f"Error enabling rule {rule_name}: {str(e)}", exc_info=True)
+         return False
 
     def get_rules(self) -> List[Dict]:
      rules = []
@@ -261,23 +313,53 @@ class WAFWebsiteManager:
                 website.custom_rules = active_rules
                 db.commit()
     def get_nginx_config(self) -> str:
-     config_path = os.path.join(self.NGINX_CONF_DIRECTORY, f"{self.application_name}.conf")
+    # Define all possible locations
+     possible_locations = [
+        # Sites-available pattern
+         os.path.join(self.NGINX_CONF_DIRECTORY, "sites-available", f"{self.application_name}.conf"),
+         os.path.join(self.NGINX_CONF_DIRECTORY, "sites-available", f"{self.website_id}.conf"),
+        
+         # Direct conf pattern
+         os.path.join(self.NGINX_CONF_DIRECTORY, f"{self.application_name}.conf"),
+         os.path.join(self.NGINX_CONF_DIRECTORY, f"{self.website_id}.conf")
+     ]
     
-     if not os.path.exists(config_path) and self.application_name.startswith('www.'):
-         base_name = self.application_name[4:]  
-         config_path = os.path.join(self.NGINX_CONF_DIRECTORY, f"{base_name}.conf")
+    # Handle www. prefix alternative
+     if self.application_name.startswith('www.'):
+         base_name = self.application_name[4:]
+         possible_locations.insert(0, os.path.join(self.NGINX_CONF_DIRECTORY, "sites-available", f"{base_name}.conf"))
+         possible_locations.insert(3, os.path.join(self.NGINX_CONF_DIRECTORY, f"{base_name}.conf"))
+     
+     app_logger.info(f"Searching for nginx config at: {possible_locations}")
     
-     if not os.path.exists(config_path):
-         config_path = os.path.join(self.NGINX_CONF_DIRECTORY, f"{self.website_id}.conf")
+     for config_path in possible_locations:
+         if os.path.exists(config_path):
+             try:
+                 with open(config_path, 'r') as f:
+                     return f.read()
+             except Exception as e:
+                 app_logger.error(f"Error reading config file {config_path}: {str(e)}")
+                 continue
     
-     if not os.path.exists(config_path):
-         raise FileNotFoundError(
-             f"Nginx config not found for website {self.application_name} (ID: {self.website_id}). "
-             f"Tried paths: {self.application_name}.conf, {self.application_name[4:] if self.application_name.startswith('www.') else ''}.conf, {self.website_id}.conf"
-         )
+    # If not found, check enabled symlinks
+     enabled_path = os.path.join(self.NGINX_CONF_DIRECTORY, "sites-enabled")
+     if os.path.exists(enabled_path):
+         for config_file in os.listdir(enabled_path):
+             if config_file.endswith('.conf'):
+                 full_path = os.path.join(enabled_path, config_file)
+                 try:
+                     if os.path.islink(full_path):
+                         real_path = os.path.realpath(full_path)
+                         with open(real_path, 'r') as f:
+                             return f.read()
+                 except Exception as e:
+                     app_logger.error(f"Error reading enabled config {full_path}: {str(e)}")
+                     continue
     
-     with open(config_path, 'r') as f:
-         return f.read()
+     raise FileNotFoundError(
+        f"Nginx config not found for website {self.application_name} (ID: {self.website_id}). "
+        f"Tried paths: {possible_locations}"
+     )
 
     def update_nginx_config(self, new_config: str) -> bool:
         config_path = os.path.join(self.NGINX_CONF_DIRECTORY, f"{self.application_name}.conf")
@@ -311,34 +393,84 @@ class WAFWebsiteManager:
     
      if not os.path.exists(log_path):
          return {
-             "status": "error",
-             "message": "Audit log file not found",
-             "path": log_path
-         }
+            "status": "error",
+            "message": "Audit log file not found",
+            "path": log_path,
+            "file_exists": False
+        }
     
      try:
+        # Verify file is readable
+         if not os.access(log_path, os.R_OK):
+             return {
+                "status": "error",
+                "message": "Audit log file not readable",
+                "path": log_path,
+                "file_exists": True,
+                "readable": False
+            }
+
+        # Get file stats first
+         file_stats = {
+            "size": os.path.getsize(log_path),
+            "modified": os.path.getmtime(log_path),
+            "created": os.path.getctime(log_path)
+        }
+
+        # Handle empty log file
+         if file_stats["size"] == 0:
+             return {
+                "status": "success",
+                "file_status": {
+                    "path": log_path,
+                    "size": 0,
+                    "modified": file_stats["modified"],
+                    "created": file_stats["created"]
+                },
+                "count": 0,
+                "logs": []
+            }
+
          waf_log = Waf_Log(log_path=log_path)
-         
-         parsed_logs = waf_log.parse_audit_log()
-         
-         metadata = waf_log.get_log_metadata()
         
+        # Parse logs with error handling
+         try:
+             parsed_logs = waf_log.parse_audit_log()
+         except Exception as e:
+             return {
+                "status": "partial",
+                "message": "Error parsing some log entries",
+                "error": str(e),
+                "file_status": waf_log.get_log_metadata(),
+                "count": 0,
+                "logs": []
+             }
+
+        # Limit the number of returned logs to prevent memory issues
+         MAX_LOGS = 1000
+         if len(parsed_logs) > MAX_LOGS:
+            parsed_logs = parsed_logs[:MAX_LOGS]
+
          return {
-             "status": "success",
-             "file_status": metadata,
-             "count": len(parsed_logs),
-             "logs": parsed_logs[:10000]  
-         }
+            "status": "success",
+            "file_status": waf_log.get_log_metadata(),
+            "count": len(parsed_logs),
+            "logs": parsed_logs
+        }
+        
      except Exception as e:
          error_info = {
-             "error": str(e),
+            "error": str(e),
             "type": type(e).__name__,
-             "log_path": log_path,
-             "file_exists": os.path.exists(log_path),
-             "file_size": os.path.getsize(log_path) if os.path.exists(log_path) else 0
+            "log_path": log_path,
+            "file_exists": os.path.exists(log_path),
+            "file_size": os.path.getsize(log_path) if os.path.exists(log_path) else 0
          }
-         raise RuntimeError(json.dumps(error_info)) from e
-
+         return {
+            "status": "error",
+            "message": "Failed to process audit log",
+            "details": error_info
+         }
     def get_debug_log(self) -> str:
         log_path = os.path.join(self.base_dir, "debug.log")
         if not os.path.exists(log_path):
