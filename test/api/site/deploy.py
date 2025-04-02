@@ -63,7 +63,7 @@ def get_website_by_name_endpoint(name: str, db: Session = Depends(get_website_db
         raise HTTPException(status_code=404, detail="Website not found")
     return website
 
-@deploy_router.delete("/{website_id}")
+@deploy_router.delete("/websites/{website_id}")
 async def delete_website(website_id: str):
     try:
         result = await delete_website_service(website_id)
