@@ -78,17 +78,22 @@ class WAFWebsiteManager:
         return rule_path
 
     def update_rule(self, rule_name: str, rule_content: str) -> str:
-        rule_path = os.path.join(self.rules_dir, f"{rule_name}.conf")
+     if not rule_name.endswith('.conf'):
+         rule_name += '.conf'
         
-        if not os.path.exists(rule_path):
-            raise FileNotFoundError(f"Rule {rule_name} not found")
-        
-        with open(rule_path, 'w') as f:
+     rule_path = os.path.join(self.rules_dir, rule_name)
+    
+     if not os.path.exists(rule_path):
+         raise FileNotFoundError(f"Rule {rule_name} not found at path {rule_path}")
+    
+     try:
+         with open(rule_path, 'w') as f:
             f.write(rule_content)
-        
-        self.reload_nginx()
-        return rule_path
-
+         self.reload_nginx()
+         return rule_path
+     except Exception as e:
+        raise Exception(f"Failed to update rule: {str(e)}")
+    
     def delete_rule(self, rule_name: str) -> bool:
         rule_path = os.path.join(self.rules_dir, f"{rule_name}.conf")
         
