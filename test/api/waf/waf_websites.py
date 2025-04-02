@@ -1,3 +1,4 @@
+import json
 from fastapi import APIRouter, HTTPException, Depends
 from pydantic import BaseModel
 from sqlalchemy.orm import Session
@@ -16,7 +17,7 @@ class BackupRequest(BaseModel):
 class NginxConfigUpdateRequest(BaseModel):
     config: str
 
-    
+
 def get_db():
     db = WebsiteSessionLocal()
     try:
@@ -36,9 +37,15 @@ def create_rule(website_id: str, request: RuleCreateRequest):
 @router.put("/{website_id}/rule/{rule_name}")
 def update_rule(website_id: str, rule_name: str, request: RuleCreateRequest):
     try:
+        if not rule_name.endswith('.conf'):
+         rule_name += '.conf'
+        
+            
         waf = WAFWebsiteManager(website_id)
         rule_path = waf.update_rule(rule_name, request.content)
         return {"status": "success", "rule_path": rule_path}
+    except FileNotFoundError as e:
+        raise HTTPException(status_code=404, detail=str(e))
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 
@@ -46,8 +53,13 @@ def update_rule(website_id: str, rule_name: str, request: RuleCreateRequest):
 def delete_rule(website_id: str, rule_name: str):
     try:
         waf = WAFWebsiteManager(website_id)
+        if not rule_name.endswith('.conf'):
+            rule_name += '.conf'
+            
         success = waf.delete_rule(rule_name)
-        return {"status": "success" if success else "rule not found"}
+        if not success:
+            raise HTTPException(status_code=404, detail="Rule not found")
+        return {"status": "success", "message": "Rule deleted successfully"}
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 
@@ -55,8 +67,13 @@ def delete_rule(website_id: str, rule_name: str):
 def disable_rule(website_id: str, rule_name: str):
     try:
         waf = WAFWebsiteManager(website_id)
+        if not rule_name.endswith('.conf'):
+            rule_name += '.conf'
+            
         success = waf.disable_rule(rule_name)
-        return {"status": "success" if success else "rule not found"}
+        if not success:
+            raise HTTPException(status_code=404, detail="Rule not found")
+        return {"status": "success", "message": "Rule disabled successfully"}
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 
@@ -104,12 +121,14 @@ def get_nginx_config(website_id: str):
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 
-@router.put("/{website_id}/nginx-config")
-def update_nginx_config(website_id: str, request: NginxConfigUpdateRequest):
+@router.get("/{website_id}/nginx-config")
+def get_nginx_config(website_id: str):
     try:
         waf = WAFWebsiteManager(website_id)
-        success = waf.update_nginx_config(request.config)
-        return {"status": "success" if success else "failed"}
+        config = waf.get_nginx_config()
+        return {"status": "success", "config": config}
+    except FileNotFoundError as e:
+        raise HTTPException(status_code=404, detail=str(e))
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
 
@@ -126,10 +145,29 @@ def get_modsec_main_config(website_id: str):
 def get_audit_log(website_id: str):
     try:
         waf = WAFWebsiteManager(website_id)
-        log = waf.get_audit_log()
-        return {"status": "success", "log": log}
+        log_data = waf.get_audit_log()
+        
+        if log_data.get("status") == "error":
+            raise HTTPException(status_code=404, detail=log_data)
+        
+        return log_data
+        
+    except HTTPException:
+        raise
     except Exception as e:
-        raise HTTPException(status_code=400, detail=str(e))
+        try:
+            error_info = json.loads(str(e))
+        except json.JSONDecodeError:
+            error_info = {"error": str(e)}
+        
+        raise HTTPException(
+            status_code=400,
+            detail={
+                "status": "error",
+                "message": "Failed to retrieve audit log",
+                "details": error_info
+            }
+        )
 
 @router.get("/{website_id}/debug-log")
 def get_debug_log(website_id: str):
