@@ -99,10 +99,20 @@ def create_simple_apache_config(domain: str, port: int, doc_root: str):
 </VirtualHost>
 """
 
-def create_nginx_config(vip: str, domain: str, backend_port: int, doc_root: str):
+def create_nginx_config(vip: str, domain: str, backend_port: int, doc_root: str, website_id: str = None):
     """
     Creates proper Nginx configuration for a website with VIP listening
+    Includes website-specific WAF configuration when website_id is provided
     """
+    waf_config = ""
+    if website_id:
+        waf_manager = WAFWebsiteManager(website_id)
+        waf_config = f"""
+    # WAF configuration
+    modsecurity on;
+    modsecurity_rules_file {waf_manager.modsec_include};
+"""
+    
     config = f"""
 # {domain} configuration
 server {{
@@ -115,11 +125,7 @@ server {{
     add_header X-Frame-Options "SAMEORIGIN";
     add_header X-Content-Type-Options "nosniff";
     add_header X-XSS-Protection "1; mode=block";
-    
-    # WAF configuration
-    modsecurity on;
-    modsecurity_rules_file /usr/local/nginx/conf/modsec_includes.conf;
-    
+    {waf_config}
     location / {{
         try_files $uri $uri/ /index.html;
     }}
@@ -142,26 +148,37 @@ server {{
     return config
 
 def _validate_existing_configs():
-    """Validate all existing Nginx configs before making changes"""
     try:
-        # Check main config
         result = subprocess.run(
             [NGINX_BIN, '-t'],
             capture_output=True,
             text=True
         )
-        if result.returncode != 0:
-            app_logger.error(f"Existing Nginx config is invalid: {result.stderr}")
-            _repair_broken_configs()
-            raise RuntimeError("Existing Nginx configuration is invalid")
         
-        return True
+        if result.returncode == 0:
+            return True
+            
+        if "modsecurity_rules_file" in result.stderr:
+            app_logger.warning("Nginx config test failed due to WAF rules, attempting to repair")
+            _repair_broken_configs()
+            
+            result = subprocess.run(
+                [NGINX_BIN, '-t'],
+                capture_output=True,
+                text=True
+            )
+            if result.returncode == 0:
+                return True
+                
+        app_logger.error(f"Existing Nginx config is invalid: {result.stderr}")
+        _repair_broken_configs()
+        raise RuntimeError("Existing Nginx configuration is invalid")
+        
     except Exception as e:
         app_logger.error(f"Config validation failed: {str(e)}")
         raise
 
 def _repair_broken_configs():
-    """Attempt to fix any broken configs in sites-enabled"""
     sites_enabled = '/usr/local/nginx/conf/sites-enabled'
     if not os.path.exists(sites_enabled):
         return
@@ -382,8 +399,18 @@ async def deploy_file_service(file_name: str):
                     network = ipaddress.IPv4Network(f"{server_ip}/{netmask}", strict=False)
                 
                 hosts = list(network.hosts())
-                new_ip = str(hosts[1]) if len(hosts) > 1 else str(hosts[0])
-                app_logger.info(f"Generated new VIP IP: {new_ip}")
+                # Try the last available IP first
+                new_ip = str(hosts[-1])
+                
+                # Check if this IP is actually available
+                try:
+                    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+                        s.settimeout(1)
+                        s.bind((new_ip, 80))
+                        s.close()
+                except socket.error:
+                    app_logger.warning(f"IP {new_ip} appears to be in use, trying next")
+                    new_ip = str(hosts[-2]) if len(hosts) > 1 else str(hosts[0])
                 
                 existing_vip = interface_db.query(VirtualIP).filter(VirtualIP.ip_address == new_ip).first()
                 if existing_vip:
@@ -403,11 +430,13 @@ async def deploy_file_service(file_name: str):
                     app_logger.info(f"Created new VIP: {vip.ip_address}")
                 
                 interface_db.refresh(vip)
-                app_logger.info(f"Configuring VIP network for {vip.ip_address}")
-                _configure_vip_network(vip.ip_address, vip.netmask, vip.interface)
-                _validate_vip_binding(vip.ip_address)
-                app_logger.info("Killing any processes using port 80")
-                subprocess.run(['fuser', '-k', '80/tcp'], stderr=subprocess.DEVNULL)
+
+            # Now configure the VIP
+            app_logger.info(f"Configuring VIP network for {vip.ip_address}")
+            _configure_vip_network(vip.ip_address, vip.netmask, vip.interface)
+            _validate_vip_binding(vip.ip_address)
+            app_logger.info("Killing any processes using port 80")
+            subprocess.run(['fuser', '-k', '80/tcp'], stderr=subprocess.DEVNULL)
 
             if not vip:
                 error_msg = "No VIP available and creation failed"
@@ -491,7 +520,8 @@ async def deploy_file_service(file_name: str):
                 vip.ip_address,
                 domain_name,
                 apache_port,
-                deployment_folder
+                deployment_folder,
+                website.id  # Pass website ID for WAF config
             )
             
             nginx_available_path = os.path.join(sites_available, f"{domain_name}.conf")
@@ -513,57 +543,67 @@ async def deploy_file_service(file_name: str):
 
         # WAF Configuration
         try:
-            app_logger.info("Configuring WAF")
-            waf_manager = WAFWebsiteManager(website.id)
-            crs_rules_dir = "/usr/local/nginx/rules/"
+         app_logger.info("Configuring WAF")
+         waf_manager = WAFWebsiteManager(website.id)
+         crs_dir = "/usr/local/nginx/rules/"
+        
+         if not os.path.exists(crs_dir):
+             error_msg = f"CRS directory not found: {crs_dir}"
+             app_logger.error(error_msg)
+             raise HTTPException(status_code=500, detail=error_msg)
+         
+         if not os.path.exists(waf_manager.rules_dir):
+             error_msg = f"WAF rules directory not found: {waf_manager.rules_dir}"
+             app_logger.error(error_msg)
+             raise HTTPException(status_code=500, detail=error_msg)
+        
+        # Copy ALL CRS files (both .conf and .data)
+         app_logger.info(f"Copying CRS files from {crs_dir} to {waf_manager.rules_dir}")
+        
+        # Create list of all files to copy
+         files_to_copy = []
+         for root, _, files in os.walk(crs_dir):
+             for file in files:
+                 if file.endswith(('.conf', '.data')):
+                     files_to_copy.append(os.path.join(root, file))
+        
+         app_logger.info(f"Found {len(files_to_copy)} CRS files to copy")
+        
+         for source_file in files_to_copy:
+             file_name = os.path.basename(source_file)
+             dest_path = os.path.join(waf_manager.rules_dir, file_name)
             
-            if not os.path.exists(crs_rules_dir):
-                error_msg = f"CRS rules directory not found: {crs_rules_dir}"
-                app_logger.error(error_msg)
-                raise HTTPException(status_code=500, detail=error_msg)
-            
-            if not os.path.exists(waf_manager.rules_dir):
-                error_msg = f"WAF rules directory not found: {waf_manager.rules_dir}"
-                app_logger.error(error_msg)
-                raise HTTPException(status_code=500, detail=error_msg)
-            
-            # Copy CRS rules
-            source_rules = glob.glob(os.path.join(crs_rules_dir, "*.conf"))
-            app_logger.info(f"Found {len(source_rules)} CRS rules to copy")
-            
-            for rule_file in source_rules:
-                rule_name = os.path.basename(rule_file)
-                dest_path = os.path.join(waf_manager.rules_dir, rule_name)
-                
-                try:
-                    if not os.access(rule_file, os.R_OK):
-                        app_logger.error(f"Source rule not readable: {rule_file}")
-                        continue
-                    
-                    shutil.copy2(rule_file, dest_path)
-                    app_logger.info(f"Copied CRS rule: {rule_name}")
-                except Exception as e:
-                    app_logger.error(f"Failed to copy rule {rule_name}: {str(e)}")
-                    continue
+             try:
+                 if not os.access(source_file, os.R_OK):
+                     app_logger.error(f"Source file not readable: {source_file}")
+                     continue
+                 
+                 shutil.copy2(source_file, dest_path)
+                 app_logger.debug(f"Copied CRS file: {file_name}")
+             except Exception as e:
+                 app_logger.error(f"Failed to copy file {file_name}: {str(e)}")
+                 continue
 
-            # Configure ModSecurity
-            app_logger.info(f"Creating ModSecurity include file at {waf_manager.modsec_include}")
-            with open(waf_manager.modsec_include, 'w') as f:
-                f.write(
-                    f"SecAuditEngine On\n"
-                    f"SecAuditLog {os.path.join(waf_manager.base_dir, 'audit.log')}\n"
-                    f"SecAuditLogParts ABIJDEFHZ\n"
-                    f"SecAuditLogType Serial\n"
-                    f"SecDebugLog {os.path.join(waf_manager.base_dir, 'debug.log')}\n"
-                    f"SecDebugLogLevel 0\n"
-                    f"Include {waf_manager.rules_dir}/*.conf\n"
-                )
+         app_logger.info(f"Creating ModSecurity include file at {waf_manager.modsec_include}")
+         with open(waf_manager.modsec_include, 'w') as f:
+             f.write(
+                 f"SecAuditEngine On\n"
+                 f"SecAuditLog {os.path.join(waf_manager.base_dir, 'audit.log')}\n"
+                 f"SecAuditLogParts ABIJDEFHZ\n"
+                 f"SecAuditLogType Serial\n"
+                 f"SecDebugLog {os.path.join(waf_manager.base_dir, 'debug.log')}\n"
+                 f"SecDebugLogLevel 0\n"
+                 f"Include {waf_manager.rules_dir}/*.conf\n"
+             )
+        
+         subprocess.run(['sudo', 'chown', '-R', 'www-data:www-data', waf_manager.base_dir], check=True)
+         subprocess.run(['sudo', 'chmod', '-R', '755', waf_manager.base_dir], check=True)
+        
         except Exception as e:
-            error_msg = f"WAF configuration failed: {str(e)}"
-            app_logger.error(error_msg, exc_info=True)
-            raise
+         error_msg = f"WAF configuration failed: {str(e)}"
+         app_logger.error(error_msg, exc_info=True)
+         raise
 
-        # Service Activation
         update_website_status(website_db, website.id, "Enabling Services")
         try:
             # Apache activation
@@ -675,7 +715,6 @@ async def deploy_file_service(file_name: str):
         
         try:
             app_logger.info("Starting cleanup after failed deployment")
-            # Enhanced cleanup with error logging
             if deployment_folder and os.path.exists(deployment_folder):
                 app_logger.info(f"Removing deployment folder: {deployment_folder}")
                 shutil.rmtree(deployment_folder, ignore_errors=True)
@@ -714,14 +753,6 @@ async def deploy_file_service(file_name: str):
                 try:
                     app_logger.info(f"Releasing VIP: {vip.ip_address}")
                     release_vip(vip.id)
-                    app_logger.info(f"Running ifdown for {vip.interface}:0")
-                    ifdown_result = subprocess.run(
-                        ['sudo', 'ifdown', f'{vip.interface}:0'], 
-                        capture_output=True,
-                        text=True
-                    )
-                    if ifdown_result.returncode != 0:
-                        app_logger.error(f"ifdown failed: {ifdown_result.stderr}")
                     app_logger.info(f"Removing IP address {vip.ip_address}/{vip.netmask}")
                     ip_del_result = subprocess.run(
                         ['sudo', 'ip', 'addr', 'del', f'{vip.ip_address}/{vip.netmask}', 'dev', vip.interface],
@@ -782,118 +813,73 @@ def get_website_by_name(db: Session, name: str):
 
 def _configure_vip_network(vip_ip: str, netmask: str = "255.255.255.0", interface: str = "ens33"):
     try:
-        # First, ensure the IP isn't already in use
+        # First, check if the IP is actually assigned to the interface
         result = subprocess.run(
-            ['ip', 'addr', 'show', 'dev', interface],
+            ['ip', '-br', 'addr', 'show', 'dev', interface],
             capture_output=True,
             text=True
         )
+        
+        # If IP exists but isn't properly configured
         if vip_ip in result.stdout:
-            app_logger.warning(f"VIP {vip_ip} already exists on {interface}")
-            return True
-            
-        subprocess.run(['sudo', 'ifdown', f'{interface}:0'], stderr=subprocess.DEVNULL)
+            app_logger.warning(f"VIP {vip_ip} exists but may not be properly configured")
+            # Remove the existing IP
+            subprocess.run(
+                ['sudo', 'ip', 'addr', 'del', f'{vip_ip}/{netmask}', 'dev', interface],
+                check=True
+            )
         
-        network_conf = f"""
-auto {interface}:0
-iface {interface}:0 inet static
-    address {vip_ip}
-    netmask {netmask}
-"""
-        os.makedirs('/etc/network/interfaces.d', exist_ok=True)
-        
-        with open('/etc/network/interfaces.d/vip.conf', 'w') as f:
-            f.write(network_conf)
-        
+        # Configure ARP settings
         subprocess.run(['sudo', 'sysctl', '-w', 'net.ipv4.conf.all.arp_ignore=1'], check=True)
         subprocess.run(['sudo', 'sysctl', '-w', 'net.ipv4.conf.all.arp_announce=2'], check=True)
         
-        arp_conf = """
-net.ipv4.conf.all.arp_ignore = 1
-net.ipv4.conf.all.arp_announce = 2
-"""
-        os.makedirs('/etc/sysctl.d', exist_ok=True)
-        with open('/etc/sysctl.d/10-vip-arp.conf', 'w') as f:
-            f.write(arp_conf)
+        # Add the IP address
+        subprocess.run(
+            ['sudo', 'ip', 'addr', 'add', f'{vip_ip}/{netmask}', 'dev', interface, 'label', f'{interface}:0'],
+            check=True
+        )
         
-        try:
-            result = subprocess.run(
-                ['sudo', 'ifup', f'{interface}:0'],
-                capture_output=True,
-                text=True
-            )
-            if result.returncode != 0:
-                app_logger.warning(f"ifup failed, trying manual IP assignment: {result.stderr}")
-                subprocess.run([
-                    'sudo', 'ip', 'addr', 'add',
-                    f'{vip_ip}/{netmask}',
-                    'dev', interface,
-                    'label', f'{interface}:0'
-                ], check=True)
-            
-            subprocess.run(['sudo', 'sysctl', '-p', '/etc/sysctl.d/10-vip-arp.conf'], check=True)
-            
-            result = subprocess.run(
-                ['ip', 'addr', 'show', 'dev', interface],
-                capture_output=True,
-                text=True
-            )
-            if vip_ip not in result.stdout:
-                raise RuntimeError(f"VIP {vip_ip} not assigned to interface {interface}")
-            
-            return True
-            
-        except subprocess.CalledProcessError as e:
-            app_logger.error(f"VIP network configuration failed: {e.stderr.decode() if e.stderr else str(e)}")
-            try:
-                subprocess.run([
-                    'sudo', 'ip', 'addr', 'add',
-                    f'{vip_ip}/{netmask}',
-                    'dev', interface,
-                    'label', f'{interface}:0'
-                ], check=True)
-                return True
-            except subprocess.CalledProcessError as fallback_error:
-                app_logger.error(f"Fallback IP assignment failed: {fallback_error.stderr.decode() if fallback_error.stderr else str(fallback_error)}")
-                raise RuntimeError(f"VIP network configuration failed and fallback also failed: {str(fallback_error)}")
-                
+        # Verify the IP was added
+        result = subprocess.run(
+            ['ip', '-br', 'addr', 'show', 'dev', interface],
+            capture_output=True,
+            text=True
+        )
+        if vip_ip not in result.stdout:
+            raise RuntimeError(f"Failed to assign VIP {vip_ip} to interface {interface}")
+        
+        return True
+        
+    except subprocess.CalledProcessError as e:
+        error_msg = f"VIP network configuration failed: {e.stderr.decode() if e.stderr else str(e)}"
+        app_logger.error(error_msg)
+        raise RuntimeError(error_msg)
     except Exception as e:
         app_logger.error(f"VIP network configuration error: {str(e)}", exc_info=True)
         raise RuntimeError(f"VIP network configuration failed: {str(e)}")
     
 def _validate_vip_binding(vip_ip: str, port: int = 80):
     try:
+        # First verify the IP is assigned
         result = subprocess.run(
             ['ip', '-br', 'addr', 'show', 'to', vip_ip],
-            capture_output=True, text=True
+            capture_output=True, 
+            text=True
         )
         if vip_ip not in result.stdout:
             raise ValueError(f"VIP {vip_ip} not assigned to any interface")
         
+        # Then check if something is listening
         result = subprocess.run(
             ['ss', '-tulnp'],
-            capture_output=True, text=True
+            capture_output=True,
+            text=True
         )
+        
+        # If nothing is listening, that's okay at this stage
         if f"{vip_ip}:{port}" not in result.stdout:
-            with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-                s.settimeout(2)
-                try:
-                    s.bind((vip_ip, port))
-                    raise RuntimeError(f"Port {port} was available but not listening")
-                except OSError as e:
-                    if "Address already in use" not in str(e):
-                        raise RuntimeError(f"Cannot bind to {vip_ip}:{port} - {str(e)}")
-        
-        try:
-            subprocess.run(
-                ['curl', '--connect-timeout', '3', '-I', f'http://{vip_ip}:{port}'],
-                check=True, timeout=5
-            )
-        except subprocess.TimeoutExpired:
-            app_logger.warning(f"VIP {vip_ip} connection timeout - may indicate service issues")
-        except subprocess.CalledProcessError:
-            app_logger.warning(f"VIP {vip_ip} returned error - service may not be fully ready")
-        
+            app_logger.warning(f"Nothing listening on {vip_ip}:{port} yet")
+            
         return True
         
     except Exception as e:
@@ -1031,3 +1017,46 @@ def _ensure_nginx_running():
     except Exception as e:
         app_logger.error(f"Error ensuring Nginx is running: {str(e)}")
         raise RuntimeError(f"Failed to ensure Nginx is running: {str(e)}")
+
+def update_existing_nginx_configs_with_waf():
+    """Update all existing Nginx configs to use website-specific WAF rules"""
+    sites_enabled = '/usr/local/nginx/conf/sites-enabled'
+    if not os.path.exists(sites_enabled):
+        return
+    
+    for config_file in os.listdir(sites_enabled):
+        if not config_file.endswith('.conf'):
+            continue
+            
+        try:
+            # Extract website name from config filename
+            website_name = os.path.splitext(config_file)[0]
+            
+            # Find website in database
+            db = WebsiteSessionLocal()
+            website = db.query(Website).filter(Website.name == website_name).first()
+            if not website:
+                continue
+                
+            # Get WAF manager for this website
+            waf_manager = WAFWebsiteManager(website.id)
+            
+            # Read current config
+            config_path = os.path.join(sites_enabled, config_file)
+            with open(config_path, 'r') as f:
+                config = f.read()
+            
+            # Update WAF configuration
+            new_config = config.replace(
+                "modsecurity_rules_file /usr/local/nginx/conf/modsec_includes.conf;",
+                f"modsecurity_rules_file {waf_manager.modsec_include};"
+            )
+            
+            # Write updated config if changed
+            if new_config != config:
+                with open(config_path, 'w') as f:
+                    f.write(new_config)
+                app_logger.info(f"Updated WAF config for {website_name}")
+                
+        except Exception as e:
+            app_logger.error(f"Failed to update WAF config for {config_file}: {str(e)}")
