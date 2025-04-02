@@ -3,13 +3,14 @@ import os
 import json
 from datetime import datetime
 from typing import List, Dict, Optional, Tuple, Union
+from services.logger.logger_service import app_logger
 
 class Waf_Log:
-    def __init__(self, log_path: str = "/var/log/modsec_audit.log", cache_path: str = "cache.json"):
-        self.log_path = log_path
-        self.cache_path = cache_path
-        self.rule_name_pattern = re.compile(r'file "(.*?)"')
-        self._verify_log_file()
+    def __init__(self, log_path: str = "/var/log/modsec_audit.log", cache_path: str = None):
+     self.log_path = log_path
+     self.cache_path = cache_path or os.path.join(os.path.dirname(os.path.abspath(__file__)), "cache.json")
+     self.rule_name_pattern = re.compile(r'file "(.*?)"')
+     self._verify_log_file()
 
     def _verify_log_file(self) -> Tuple[bool, int, str]:
         self.file_exists = os.path.exists(self.log_path)
@@ -24,33 +25,42 @@ class Waf_Log:
         return self.file_exists, self.file_size, self.file_status
     
     def parse_audit_log(self) -> List[Dict]:
-        try:
-            self._verify_log_file()
-            
-            # Check if cached data exists
-            if os.path.exists(self.cache_path):
-                with open(self.cache_path, 'r') as cache_file:
-                    return json.load(cache_file)
+     try:
+         self._verify_log_file()
+        
+        # Check if cached data exists and is valid
+         if os.path.exists(self.cache_path):
+             try:
+                 with open(self.cache_path, 'r') as cache_file:
+                     cached_data = json.load(cache_file)
+                     if isinstance(cached_data, list):  # Basic validation
+                         return cached_data
+             except (json.JSONDecodeError, IOError) as e:
+                 app_logger.warning(f"Invalid cache file, regenerating: {str(e)}")
+                 os.remove(self.cache_path)  # Remove invalid cache
+ 
+         entries = self._parse_log_file()
+         if not entries:
+             raise ValueError("No valid log entries found - check file format")
 
-            entries = self._parse_log_file()
-            if not entries:
-                raise ValueError("No valid log entries found - check file format")
+         processed_logs = self._process_entries(entries[::-1])
+        
+        # Save processed logs to cache
+         try:
+             with open(self.cache_path, 'w') as cache_file:
+                 json.dump(processed_logs, cache_file)
+         except IOError as e:
+             app_logger.warning(f"Could not write cache: {str(e)}")
+ 
+         return processed_logs
 
-            processed_logs = self._process_entries(entries[::-1])
-            
-            # Save processed logs to cache
-            with open(self.cache_path, 'w') as cache_file:
-                json.dump(processed_logs, cache_file)
-
-            return processed_logs
-
-        except Exception as e:
-            error_info = {
-                "error": str(e),
-                "type": type(e).__name__,
-                "log_metadata": self.get_log_metadata()
-            }
-            raise RuntimeError(f"Failed to parse audit logs: {error_info}") from e
+     except Exception as e:
+         error_info = {
+            "error": str(e),
+            "type": type(e).__name__,
+            "log_metadata": self.get_log_metadata()
+        }
+         raise RuntimeError(f"Failed to parse audit logs: {error_info}") from e
         
     def get_log_metadata(self) -> Dict:
         return {
