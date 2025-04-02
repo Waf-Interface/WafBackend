@@ -10,6 +10,7 @@ from api.system.system import router as system_router
 from api.waf.waf_manager import router as waf_manager
 from api.system.loger import router as loger_router  
 from api.waf.waf_crs import router as waf_setup_router  
+from api.waf.waf_websites import router 
 from models.access_model import Access
 from services.auth.generate_rsa_keys import generate_rsa_keys  
 from services.backup_service import BackupService  
@@ -59,6 +60,6 @@ app.include_router(waf_setup_router, prefix="/waf", tags=["waf"], dependencies=[
 app.include_router(nginx_log, dependencies=[Depends(verify_token)]) 
 app.include_router(interface_router, prefix="/interface", tags=["interface"], dependencies=[Depends(verify_token)])
 app.include_router(update_router, prefix="/update",tags=["update"],dependencies=[Depends(verify_token)])
-
+app.include_router(router, prefix="/waf", tags=["waf"], dependencies=[Depends(verify_token)])
 if __name__ == "__main__":
     uvicorn.run(app, host="0.0.0.0", port=8081)
