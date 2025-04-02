@@ -5,6 +5,7 @@ from sqlalchemy.orm import Session
 from services.database.database import WebsiteSessionLocal
 from models.website_model import Website
 from services.website.website import (
+    delete_website_service,
     upload_file_service, 
     deploy_file_service,
     create_website_entry,
@@ -61,3 +62,13 @@ def get_website_by_name_endpoint(name: str, db: Session = Depends(get_website_db
     if not website:
         raise HTTPException(status_code=404, detail="Website not found")
     return website
+
+@deploy_router.delete("/{website_id}")
+async def delete_website(website_id: str):
+    try:
+        result = await delete_website_service(website_id)
+        return result
+    except HTTPException as http_exc:
+        raise http_exc
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
