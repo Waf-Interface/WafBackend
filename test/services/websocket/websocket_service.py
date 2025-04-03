@@ -5,6 +5,7 @@ from fastapi import APIRouter, WebSocket, WebSocketDisconnect, HTTPException
 from services.auth.verify_token import verify_token
 from services.log.nginxLog import nginxLog
 from services.system.system_service import get_system_info_service
+from services.waf.waf_log import Waf_Log
 from services.waf.waf_service import WAF
 from services.websocket.websocket_service import WebSocket
 
@@ -50,7 +51,7 @@ async def get_nginx_log_summary():
         summary = nginx_log_service.get_summary()
         return {"summary": summary}
     except FileNotFoundError:
-        raise HTTPException(status_code=404, detail="Log file not found")
+        raise HTTPException(status_code=404, detail="log not found")
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
     
@@ -66,8 +67,25 @@ async def show_logs():
 
 
 async def show_audit_logs():
-    logs = waf.show_audit_logs()
-    if logs is None:
-        raise HTTPException(status_code=400, detail="Failed to show audit logs.")
-    
-    return {"status": "success", "audit_logs": logs}
+    try:
+        log_paths = [
+            "/var/log/modsec_audit.log",
+            "/usr/local/nginx/logs/modsec_audit.log",
+            "/var/log/nginx/modsec_audit.log"
+        ]
+        
+        last_error = None
+        
+        for path in log_paths:
+            try:
+                log_parser = Waf_Log(path)
+                logs = log_parser.parse_audit_log()
+                return {"status": "success", "audit_logs": logs[:1000]}
+            except Exception as e:
+                last_error = str(e)
+                continue
+                
+        raise Exception(f"Could not find ModSecurity audit log. Last error: {last_error}")
+            
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
