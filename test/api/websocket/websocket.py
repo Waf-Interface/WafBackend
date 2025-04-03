@@ -8,9 +8,12 @@ from services.system.system_service import get_system_info_service
 from services.websocket.websocket_service import get_nginx_log_summary, show_logs
 from services.waf.waf_log import Waf_Log
 from services.waf.waf_service import WAF
+from services.log.nginxLog import nginxLog
 
 websocket_router = APIRouter()
-waf = WAF()  
+waf = WAF()
+log_file_path = "/usr/local/nginx/logs/access.log"
+nginx_log_service = nginxLog(log_file_path)
 
 @websocket_router.websocket("/ws")
 async def websocket_endpoint(websocket: WebSocket):
@@ -129,6 +132,68 @@ async def websocket_handler(websocket: WebSocket, payload: dict):
                     await websocket.send_json({
                         "type": "error",
                         "message": f"Failed to check ModSecurity status: {str(e)}"
+                    })
+
+            # New endpoints
+            elif message_type == "nginx_log":
+                try:
+                    logs = nginx_log_service.access_log()
+                    await websocket.send_json({
+                        "type": "nginx_log",
+                        "payload": {
+                            "message": "Nginx access log converted to JSON",
+                            "logs": logs
+                        }
+                    })
+                except FileNotFoundError:
+                    await websocket.send_json({
+                        "type": "error",
+                        "message": "Nginx log file not found"
+                    })
+                except Exception as e:
+                    await websocket.send_json({
+                        "type": "error",
+                        "message": f"Failed to get nginx logs: {str(e)}"
+                    })
+
+            elif message_type == "summary":
+                try:
+                    summary = nginx_log_service.get_summary()
+                    await websocket.send_json({
+                        "type": "summary",
+                        "payload": {
+                            "summary": summary
+                        }
+                    })
+                except FileNotFoundError:
+                    await websocket.send_json({
+                        "type": "error",
+                        "message": "Nginx log file not found"
+                    })
+                except Exception as e:
+                    await websocket.send_json({
+                        "type": "error",
+                        "message": f"Failed to get summary: {str(e)}"
+                    })
+
+            elif message_type == "traffic":
+                try:
+                    traffic = nginx_log_service.get_daily_traffic()
+                    await websocket.send_json({
+                        "type": "traffic",
+                        "payload": {
+                            "traffic": traffic
+                        }
+                    })
+                except FileNotFoundError:
+                    await websocket.send_json({
+                        "type": "error",
+                        "message": "Nginx log file not found"
+                    })
+                except Exception as e:
+                    await websocket.send_json({
+                        "type": "error",
+                        "message": f"Failed to get traffic data: {str(e)}"
                     })
 
     except WebSocketDisconnect:
