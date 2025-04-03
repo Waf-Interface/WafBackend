@@ -80,7 +80,7 @@ async def show_audit_logs():
             try:
                 log_parser = Waf_Log(path)
                 logs = log_parser.parse_audit_log()
-                return {"status": "success", "audit_logs": logs[:1000]}
+                return {"status": "success", "audit_logs": logs[:10000]}
             except Exception as e:
                 last_error = str(e)
                 continue
