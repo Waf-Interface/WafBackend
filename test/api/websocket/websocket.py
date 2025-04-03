@@ -57,8 +57,39 @@ async def websocket_handler(websocket: WebSocket, payload: dict):
                 await websocket.send_text(json.dumps({"type": "show_logs", "payload": logs}))
 
             elif message_type == "show_audit_logs":
-                audit_logs = await Waf_Log.parse_audit_log()
-                await websocket.send_text(json.dumps({"type": "show_audit_logs", "payload": audit_logs}))
+    try:
+        log_paths = [
+            "/var/log/modsec_audit.log",
+            "/usr/local/nginx/logs/modsec_audit.log",
+            "/var/log/nginx/modsec_audit.log"
+        ]
+        audit_logs = None
+        last_error = None
+        
+         for path in log_paths:
+             try:
+                 logger.info(f"Trying audit log path: {path}")
+                 log_parser = Waf_Log(log_path=path)
+                 audit_logs = log_parser.parse_audit_log()
+                 logger.info(f"Successfully parsed {len(audit_logs)} audit logs from {path}")
+                 break
+             except Exception as e:
+                 last_error = str(e)
+                 logger.warning(f"Failed to parse audit log at {path}: {last_error}")
+                 continue
+        
+           if audit_logs is None:
+              logger.error(f"Could not find valid audit log. Last error: {last_error}")
+              await websocket.send_json({
+                 "type": "error",
+                 "message": f"Could not find audit log. Last error: {last_error}"
+             })
+         else:
+             await websocket.send_text(json.dumps({"type": "show_audit_logs", "payload": audit_logs}))
+
+       except Exception as e:
+              logger.error(f"Unexpected error in show_audit_logs: {str(e)}", exc_info=True)
+              await websocket.send_json({"type": "error", "message": f"Failed to fetch audit logs: {str(e)}"})
 
             elif message_type == "nginx_log_summary":
                 summary = await get_nginx_log_summary()
