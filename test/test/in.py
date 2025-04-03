@@ -271,6 +271,63 @@ def test_installation():
     else:
         print(colorize("ModSecurity might be blocking requests.", 'green'))
 
+
+def setup_modsecurity_config():
+    print(colorize("\nSetting up ModSecurity configuration file...", 'yellow'))
+    
+    config_url = "https://raw.githubusercontent.com/owasp-modsecurity/ModSecurity/v3/master/modsecurity.conf-recommended"
+    config_path = "/usr/local/nginx/conf/modsecurity.conf"
+    
+    try:
+        os.makedirs("/usr/local/nginx/conf", exist_ok=True)
+        
+        print("Downloading modsecurity.conf-recommended...")
+        subprocess.run(["wget", "-O", "/tmp/modsecurity.conf-recommended", config_url], check=True)
+        
+        print("Moving to correct location...")
+        subprocess.run(["sudo", "mv", "/tmp/modsecurity.conf-recommended", config_path], check=True)
+        
+        subprocess.run(["sudo", "chmod", "644", config_path], check=True)
+        
+        includes_path = "/usr/local/nginx/conf/modsec_includes.conf"
+        with open(includes_path, "a") as f:
+            f.write("\nInclude /usr/local/nginx/conf/modsecurity.conf\n")
+        
+        print(colorize("ModSecurity configuration file setup complete!", 'green'))
+        return True
+        
+    except subprocess.CalledProcessError as e:
+        print(colorize(f"Failed to setup ModSecurity config: {str(e)}", 'red'))
+        return False
+    except Exception as e:
+        print(colorize(f"Error setting up ModSecurity config: {str(e)}", 'red'))
+        return False
+def setup_unicode_mapping():
+    print(colorize("\nSetting up Unicode mapping file for ModSecurity...", 'yellow'))
+    
+    unicode_url = "https://raw.githubusercontent.com/owasp-modsecurity/ModSecurity/49495f1925a14f74f93cb0ef01172e5abc3e4c55/unicode.mapping"
+    mapping_path = "/usr/local/nginx/conf/unicode.mapping"
+    
+    try:
+        os.makedirs("/usr/local/nginx/conf", exist_ok=True)
+        
+        print("Downloading unicode.mapping...")
+        subprocess.run(["wget", "-O", "/tmp/unicode.mapping", unicode_url], check=True)
+        
+        print("Moving to correct location...")
+        subprocess.run(["sudo", "mv", "/tmp/unicode.mapping", mapping_path], check=True)
+        
+        subprocess.run(["sudo", "chmod", "644", mapping_path], check=True)
+        
+        print(colorize("Unicode mapping file setup complete!", 'green'))
+        return True
+        
+    except subprocess.CalledProcessError as e:
+        print(colorize(f"Failed to setup Unicode mapping file: {str(e)}", 'red'))
+        return False
+    except Exception as e:
+        print(colorize(f"Error setting up Unicode mapping file: {str(e)}", 'red'))
+        return False
 def main():
     os.chdir("/tmp")
     
@@ -285,7 +342,9 @@ def main():
     install_owasp_crs() 
 
     enable_modsecurity()
-
+    setup_modsecurity_config()
+    setup_unicode_mapping() 
+    
     apache_listen_ports = check_apache()
     if apache_listen_ports:
         apache_ip, apache_port = apache_listen_ports[0].split(":")
