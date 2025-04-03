@@ -1,5 +1,8 @@
 from fastapi import APIRouter, HTTPException
 from services.waf.waf_service import WAF  
+from services.waf.waf_log import Waf_Log
+from services.logger.logger_service import app_logger
+
 from pydantic import BaseModel
 
 waf = WAF()
@@ -84,11 +87,81 @@ async def toggle_protection_for_host(request: WafRequest):
 
 @router.get("/show_audit_logs/")
 async def show_audit_logs():
-    logs = waf.show_audit_logs()
-    if logs is None:
-        raise HTTPException(status_code=400, detail="Failed to show audit logs.")
-    
-    return {"status": "success", "audit_logs": logs}
+    try:
+        app_logger.info("Attempting to fetch audit logs")
+        
+        log_paths = [
+            "/var/log/modsec_audit.log",
+            "/usr/local/nginx/logs/modsec_audit.log",
+            "/var/log/nginx/modsec_audit.log"
+        ]
+        
+        log_parser = None
+        last_error = None
+        
+        for path in log_paths:
+            try:
+                app_logger.debug(f"Trying log path: {path}")
+                log_parser = Waf_Log(path)
+                app_logger.info(f"Found valid log file at: {path}")
+                app_logger.debug(f"Cache file location: {log_parser.cache_path}")
+                break
+            except Exception as e:
+                last_error = str(e)
+                app_logger.warning(f"Failed to access log file at {path}: {str(e)}")
+                continue
+                
+        if log_parser is None:
+            error_msg = "Could not find ModSecurity audit log"
+            app_logger.error(error_msg)
+            raise HTTPException(
+                status_code=404,
+                detail={
+                    "status": "error",
+                    "message": error_msg,
+                    "tried_paths": log_paths,
+                    "last_error": last_error
+                }
+            )
+        
+        try:
+            app_logger.debug("Starting log parsing")
+            logs = log_parser.parse_audit_log()
+            app_logger.info(f"Successfully parsed {len(logs)} log entries")
+            return {
+                "status": "success",
+                "file_status": log_parser.get_log_metadata(),
+                "count": len(logs),
+                "logs": logs[:1000]
+            }
+        except Exception as e:
+            error_msg = f"Failed to parse log file: {str(e)}"
+            app_logger.error(error_msg)
+            raise HTTPException(
+                status_code=400,
+                detail={
+                    "status": "error",
+                    "message": "Failed to parse log file",
+                    "error": str(e),
+                    "log_path": log_parser.log_path,
+                    "cache_path": log_parser.cache_path
+                }
+            )
+            
+    except HTTPException as he:
+        app_logger.error(f"HTTPException in show_audit_logs: {he.detail}")
+        raise
+    except Exception as e:
+        error_msg = f"Unexpected error processing audit logs: {str(e)}"
+        app_logger.error(error_msg, exc_info=True)
+        raise HTTPException(
+            status_code=500,
+            detail={
+                "status": "error",
+                "message": "Unexpected error processing audit logs",
+                "error": str(e)
+            }
+        )
 
 @router.post("/clear_audit_logs/")
 async def clear_audit_logs():
