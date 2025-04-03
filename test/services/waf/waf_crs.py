@@ -1,92 +1,94 @@
-from fastapi import APIRouter, HTTPException,Request
-from services.waf.waf_crs import WAFService
-from pydantic import BaseModel
-from services.waf.waf_log import Waf_Log
+import shutil
+import os
+import re
 
-waf_service = WAFService()
-router = APIRouter()
-
-class SecRuleEngineRequest(BaseModel):
-    value: str  # "On", "Off", "DetectionOnly"
-
-class SecResponseBodyAccessRequest(BaseModel):
-    value: bool  # True for "On", False for "Off"
-
-@router.post("/set_sec_rule_engine/")
-async def set_sec_rule_engine(request: SecRuleEngineRequest):
-    try:
-        waf_service.set_sec_rule_engine(request.value)
-        return {"message": f"SecRuleEngine set to {request.value} successfully."}
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
-
-@router.post("/set_sec_response_body_access/")
-async def set_sec_response_body_access(request: SecResponseBodyAccessRequest):
-    try:
-        waf_service.set_sec_response_body_access(request.value)
-        return {"message": f"SecResponseBodyAccess set to {'On' if request.value else 'Off'} successfully."}
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
-
-@router.get("/get_sec_audit_log/")
-async def get_sec_audit_log():
-    try:
-        parser = Waf_Log("/var/log/modsec_audit.log")
-        logs = parser.parse_audit_log()
-        
-        return {
-            "status": "success",
-            "count": len(logs),
-            "logs": logs[:500],  
-            "filtered": True  
+class WAFService:
+    def __init__(self):
+        self.config_files = {
+            "crs_setup": "/usr/local/nginx/conf/crs-setup.conf",
+            "modsecurity": "/usr/local/nginx/conf/modsecurity.conf",
+            "modsec_includes": "/usr/local/nginx/conf/modsec_includes.conf",
+            "nginx": "/usr/local/nginx/conf/nginx.conf"
         }
-    except FileNotFoundError:
-        raise HTTPException(status_code=404, detail="ModSecurity audit log not found")
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
-    
+        self.backup_dir = os.path.join(os.path.dirname(__file__), "backup")
+        os.makedirs(self.backup_dir, exist_ok=True)
 
-@router.get("/get_config_file/{file_key}")
-async def get_config_file(file_key: str):
-    try:
-        contents = waf_service.get_file_contents(file_key)
-        return {"contents": contents}
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        self.backup_all_files()
+        self.config_cache = self.load_configurations()
 
-@router.post("/restore_config_file/{file_key}")
-async def restore_config_file(file_key: str):
-    try:
-        waf_service.restore_config_file(file_key)
-        return {"message": f"{file_key} restored successfully."}
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
-    except FileNotFoundError as e:
-        raise HTTPException(status_code=404, detail=str(e))
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+    def backup_all_files(self):
+        for file_key, file_path in self.config_files.items():
+            if os.path.exists(file_path):
+                backup_path = os.path.join(self.backup_dir, os.path.basename(file_path))
+                shutil.copy(file_path, backup_path)
 
-@router.post("/restore_all_config_files/")
-async def restore_all_config_files():
-    try:
-        waf_service.restore_all_config_files()
-        return {"message": "All configuration files restored successfully."}
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
-    
-@router.put("/update_config/{file_key}")
-async def update_config(file_key: str, request: Request):
-    try:
-        new_contents = await request.body()
+    def load_configurations(self):
+        config_cache = {}
+        file_path = self.config_files["modsecurity"]
+        with open(file_path, 'r') as file:
+            content = file.read()
+            matches = re.findall(r'(\S+)\s+(.+)', content)
+            for key, value in matches:
+                config_cache[key.strip()] = value.strip()
+        return config_cache
+
+    def get_file_contents(self, file_key):
+        if file_key not in self.config_files:
+            raise ValueError("Invalid file key provided.")
         
-        new_contents = new_contents.decode('utf-8')
+        file_path = self.config_files[file_key]
+        with open(file_path, 'r') as file:
+            return file.read()
 
-        waf_service.replace_file_contents(file_key, new_contents)
+    def replace_file_contents(self, file_key, new_contents):
+        if file_key not in self.config_files:
+            raise ValueError("Invalid file key provided.")
         
-        return {"message": f"{file_key} updated successfully."}
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        file_path = self.config_files[file_key]
+        with open(file_path, 'w') as file:
+            file.write(new_contents)
+
+    def set_sec_rule_engine(self, value):
+        self._set_config_value("SecRuleEngine", value)
+
+    def set_sec_response_body_access(self, value):
+        self._set_config_value("SecResponseBodyAccess", "On" if value else "Off")
+
+    def get_sec_audit_log(self):
+        return self._get_config_value("SecAuditLog")
+
+    def _set_config_value(self, directive, value):
+        file_path = self.config_files["modsecurity"]
+        with open(file_path, 'r') as file:
+            contents = file.readlines()
+
+        with open(file_path, 'w') as file:
+            for line in contents:
+                if line.startswith(directive):
+                    line = f"{directive} {value}\n"
+                file.write(line)
+        
+        self.config_cache[directive] = value
+
+    def _get_config_value(self, directive):
+        return self.config_cache.get(directive, "Not found")
+
+    def restore_config_file(self, file_key):
+        if file_key not in self.config_files:
+            raise ValueError("Invalid file key provided.")
+        
+        backup_path = os.path.join(self.backup_dir, os.path.basename(self.config_files[file_key]))
+        if os.path.exists(backup_path):
+            shutil.copy(backup_path, self.config_files[file_key])
+            self.config_cache = self.load_configurations()  
+        else:
+            raise FileNotFoundError("Backup file not found.")
+
+    def restore_all_config_files(self):
+        for file_key in self.config_files.keys():
+            self.restore_config_file(file_key)  
+
+#Explanation of Search between large modsecurty.conf and crs-setup.conf :
+# The load_configurations method reads the entire modsecurity.conf file once and uses a regular expression to extract key-value pairs. This allows for efficient lookups later.
+#Getting Configuration Values: The _get_config_value method retrieves values from the cached dictionary, which is much faster than reading the file line by line.
+#Backup Functionality: The backup_all_files method remains unchanged, ensuring that the original configuration files are backed up before any modifications.

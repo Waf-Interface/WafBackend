@@ -6,7 +6,7 @@ from typing import List, Dict, Optional, Tuple, Union
 from services.logger.logger_service import app_logger
 
 class Waf_Log:
-    def __init__(self, log_path: str = "/var/log/modsec_audit.log", cache_path: str = None):
+    def __init__(self, log_path: str ="/var/log/modsec_audit.log", cache_path: str = None):
      self.log_path = log_path
      self.cache_path = cache_path or os.path.join(os.path.dirname(os.path.abspath(__file__)), "cache.json")
      self.rule_name_pattern = re.compile(r'file "(.*?)"')

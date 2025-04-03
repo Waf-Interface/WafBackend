@@ -1,152 +1,221 @@
-from fastapi import APIRouter, HTTPException
-from services.waf.waf_rule import WAFRules  
-from pydantic import BaseModel
 import os
-from services.backup_service import BackupService  
-from fastapi.responses import FileResponse
+import shutil
+import ctypes
+import zipfile
+import subprocess
 
-waf = WAFRules()
+nginx_rules_directory = "/usr/local/nginx/rules/"
+backend_root_dir = os.path.dirname(__file__)  
+backend_disabled_directory = os.path.join(backend_root_dir, 'rules_disabled')
+two_levels_up = os.path.join(backend_root_dir, os.pardir, os.pardir)
+two_levels_up = os.path.normpath(two_levels_up)
 
-router = APIRouter()
-backup_service = BackupService()  
+lib_path = os.path.join(two_levels_up, 'static', 'waf-ghm.so')
+print("Library path:", lib_path)
 
-class WafRequest(BaseModel):
-    username: str
-    password: str
-    body: str = None  
-    rule: str = None  
-    power: str = None
-    host: str = None
-    log: bool = False
-    status: str = None  # 'enable' or 'disable'
+lib = ctypes.CDLL(lib_path)
 
-@router.get("/load_rule/{rule}")
-async def load_rule(rule: str):
-    try:
-        result = waf.load_rule(rule) 
-        
-        if result["status"] == "error":
-            raise HTTPException(status_code=400, detail=result["message"])
-        
-        return {"status": "success", "message": result["message"], "rule_content": result["rule_content"]}
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Unexpected error: {str(e)}")
+class WAFRules:
+    def __init__(self):
+        if not lib.initialize():
+            raise Exception("Failed to initialize WAF.")
+        print("WAF initialized successfully!")
 
-@router.get("/show_modsec_rules/")
-async def show_modsec_rules():
-    if not waf.is_mod_security_enabled():
-        raise HTTPException(status_code=400, detail="WAF is offline. Please enable ModSecurity first.")
-    
-    rules = waf.show_modsec_rules()
-    if not rules:
-        raise HTTPException(status_code=400, detail="Failed to show ModSecurity rules. Check directory permissions.")
-    
-    return {"status": "success", "modsec_rules": rules}
-
-@router.post("/new_rule/")
-async def create_new_rule(request: WafRequest):
-    if not waf.check_waf_enabled():
-        raise HTTPException(status_code=400, detail="WAF is offline. Please enable ModSecurity first.")
-    
-    if not request.rule or not request.body:
-        raise HTTPException(status_code=400, detail="Both rule and body are required for the rule.")
-    
-    try:
-        rule_created = waf.create_new_rule(request.rule, request.body)
-        if not rule_created:
-            raise HTTPException(status_code=400, detail="Failed to create new rule.")
-    except Exception as e:
-        if "already exists" in str(e):
-            raise HTTPException(status_code=409, detail=str(e))  
-        else:
-            raise HTTPException(status_code=500, detail="An unexpected error occurred while creating the rule.")
-    
-    return {"status": "success", "message": f"Rule '{request.rule}' created successfully."}
-
-
-@router.post("/update_rule/{rule}")
-async def update_rule(rule: str, request: WafRequest):
-    if not waf.check_waf_enabled():
-        raise HTTPException(status_code=400, detail="WAF is offline. Please enable ModSecurity first.")
-    
-    if not request.body:
-        raise HTTPException(status_code=400, detail="New rule content is required.")
-    
-    try:
-        result = waf.update_rule(rule, request.body)
-        
-        if result["status"] == "error":
-            raise HTTPException(status_code=400, detail=result["message"])
-        
-        return {
-            "status": "success", 
-            "message": result["message"], 
-            "rule_content": result["rule_content"]
-        }
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Unexpected error: {str(e)}")
-
-@router.post("/restore_backup_rules/")
-async def restore_backup_rules():
-    try:
-        backup_service.restore_backup_rules()
-        return {"status": "success", "message": "Backup rules restored successfully."}
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error while restoring backup rules: {str(e)}")
-
-@router.post("/rule/enable_disable/")
-async def enable_disable_rule(request: WafRequest):
-    if not request.rule or not request.status:
-        raise HTTPException(status_code=400, detail="Both rule name and status (enable/disable) are required.")
-    
-    if request.status not in ['enable', 'disable']:
-        raise HTTPException(status_code=400, detail="Status must be either 'enable' or 'disable'.")
-    
-    try:
-        if request.status == 'disable':
-            result = waf.disable_rule(request.rule)
-        elif request.status == 'enable':
-            result = waf.enable_rule(request.rule)
-
-        if result["status"] == "error":
-            raise HTTPException(status_code=400, detail=result["message"])
-        
-        return {"status": "success", "message": result["message"]}
-    
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Unexpected error: {str(e)}")
-
-@router.get("/rule/status")
-async def rules_status():
-    try:
-        result = waf.rules_status()
+    def is_mod_security_enabled(self):
+        result = lib.isModSecurityEnabled()
+        if not result:
+            print("ModSecurity is not enabled. Please ensure it is correctly configured.")
         return result
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Unexpected error: {str(e)}")
 
-@router.get("/backup_rules/")
-async def backup_rules():
-    try:
-        zip_file_path = waf.backup_rules_to_zip()
+    def check_waf_enabled(self):
+        return self.is_mod_security_enabled()
 
-        if os.path.exists(zip_file_path):
-            return FileResponse(zip_file_path, media_type='application/zip', filename='rule.zip')
+    def load_rule(self, rule_name):
+        if not self.check_waf_enabled():
+            raise Exception("WAF is offline. Please enable ModSecurity first.")
+
+        rule_file_path = os.path.join(nginx_rules_directory, rule_name)
+        disabled_file_path = os.path.join(backend_disabled_directory, rule_name)
+
+        if not os.path.exists(nginx_rules_directory):
+            os.makedirs(nginx_rules_directory)  
+        if not os.path.exists(backend_disabled_directory):
+            os.makedirs(backend_disabled_directory)  
+        if os.path.exists(rule_file_path):
+            rule_file_path = rule_file_path
+        elif os.path.exists(disabled_file_path):
+            rule_file_path = disabled_file_path
         else:
-            raise HTTPException(status_code=404, detail="Zip file not found.")
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Error while creating backup: {str(e)}")
-    
-@router.post("/delete_rule/")
-async def delete_rule(request: WafRequest):
-    if not request.rule:
-        raise HTTPException(status_code=400, detail="Rule name is required.")
-    
-    try:
-        result = waf.delete_rule(request.rule)
+            return {"status": "error", "message": f"Rule file {rule_name} not found in any folder."}
 
-        if result["status"] == "error":
-            raise HTTPException(status_code=400, detail=result["message"])
+        try:
+            with open(rule_file_path, 'r') as rule_file:
+                rule_content = rule_file.read()
+            return {
+                "status": "success", 
+                "message": f"Rule {rule_name} loaded successfully.", 
+                "rule_content": rule_content
+            }
+        except Exception as e:
+            return {
+                "status": "error", 
+                "message": f"Error loading rule {rule_name}: {str(e)}"
+            }
+
+    def update_rule(self, rule_name, new_content):
+        if not self.check_waf_enabled():
+            raise Exception("WAF is offline. Please enable ModSecurity first.")
+
+        rule_file_path = os.path.join(nginx_rules_directory, rule_name)
+        disabled_file_path = os.path.join(backend_disabled_directory, rule_name)
+
+        if not os.path.exists(nginx_rules_directory):
+            os.makedirs(nginx_rules_directory)  
+        if not os.path.exists(backend_disabled_directory):
+            os.makedirs(backend_disabled_directory)  
+
+        if os.path.exists(rule_file_path):
+            file_to_update = rule_file_path
+        elif os.path.exists(disabled_file_path):
+            file_to_update = disabled_file_path
+        else:
+            return {"status": "error", "message": f"Rule file {rule_name} not found in any folder."}
+
+        try:
+            with open(file_to_update, 'w') as rule_file:
+                rule_file.write(new_content)
+            return {
+                "status": "success",
+                "message": f"Rule {rule_name} updated successfully.",
+                "rule_content": new_content
+            }
+        except Exception as e:
+            return {
+                "status": "error", 
+                "message": f"Error updating rule {rule_name}: {str(e)}"
+            }
+
+    def create_new_rule(self, title, body):
+        if not os.path.exists(nginx_rules_directory):
+            os.makedirs(nginx_rules_directory)  
+
+        file_path = os.path.join(nginx_rules_directory, f"{title}.conf")
+
+        if os.path.exists(file_path):
+            raise Exception(f"Rule '{title}' already exists. Please choose a different title.")
+
+        try:
+            with open(file_path, 'w') as rule_file:
+                rule_file.write(body)
+            print(f"Rule {title} created successfully at {file_path}")
+        except Exception as e:
+            raise Exception(f"Failed to create new rule: {e}")
+
+        return True
+
+    def disable_rule(self, rule_name: str):
+        if not os.path.exists(backend_disabled_directory):
+            os.makedirs(backend_disabled_directory)  
+
+        rule_file_path = os.path.join(nginx_rules_directory, rule_name)
+        disabled_file_path = os.path.join(backend_disabled_directory, rule_name)
+
+        if not os.path.exists(rule_file_path):
+            return {"status": "error", "message": f"Rule file {rule_name} not found in active rules."}
+
+        try:
+            shutil.move(rule_file_path, disabled_file_path)
+            return {"status": "success", "message": f"Rule {rule_name} disabled successfully."}
+        except Exception as e:
+            return {"status": "error", "message": f"Error disabling rule {rule_name}: {str(e)}"}
+
+    def enable_rule(self, rule_name: str):
+        rule_file_path = os.path.join(nginx_rules_directory, rule_name)
+        disabled_file_path = os.path.join(backend_disabled_directory, rule_name)
+
+        if not os.path.exists(nginx_rules_directory):
+            os.makedirs(nginx_rules_directory)  
+        if not os.path.exists(backend_disabled_directory):
+            os.makedirs(backend_disabled_directory)  
+
+        if not os.path.exists(disabled_file_path):
+            return {"status": "error", "message": f"Rule file {rule_name} not found in disabled rules."}
+
+        try:
+            shutil.move(disabled_file_path, rule_file_path)
+            return {"status": "success", "message": f"Rule {rule_name} enabled successfully."}
+        except Exception as e:
+            return {"status": "error", "message": f"Error enabling rule {rule_name}: {str(e)}"}
+
+    def rules_status(self):
+        rule_status = []
+
+        if not os.path.exists(nginx_rules_directory):
+            os.makedirs(nginx_rules_directory)
+        if not os.path.exists(backend_disabled_directory):
+            os.makedirs(backend_disabled_directory)
+
+        for rule in os.listdir(nginx_rules_directory):
+            if rule.endswith(".conf"):
+                rule_status.append({"name": rule, "status": "enabled"})
+
+        for rule in os.listdir(backend_disabled_directory):
+            if rule.endswith(".conf"):
+                rule_status.append({"name": rule, "status": "disabled"})
+
+        return {"status": "success", "rules": rule_status}
+    
+    def backup_rules_to_zip(self):
+        rules_folder = os.path.join(backend_root_dir, 'rules')
+        if not os.path.exists(rules_folder):
+            os.makedirs(rules_folder)
+        try:
+            for filename in os.listdir(nginx_rules_directory):
+                if filename.endswith(".conf"):  
+                    src_path = os.path.join(nginx_rules_directory, filename)
+                    dst_path = os.path.join(rules_folder, filename)
+                    shutil.copy(src_path, dst_path)
+
+            zip_file_path = os.path.join(backend_root_dir, 'rule.zip')
+            with zipfile.ZipFile(zip_file_path, 'w', zipfile.ZIP_DEFLATED) as zipf:
+                for root, _, files in os.walk(rules_folder):
+                    for file in files:
+                        file_path = os.path.join(root, file)
+                        zipf.write(file_path, os.path.relpath(file_path, rules_folder))
+
+            return zip_file_path
+        except Exception as e:
+            raise Exception(f"Error while backing up rules: {str(e)}")
         
-        return {"status": "success", "message": result["message"]}
-    except Exception as e:
-        raise HTTPException(status_code=500, detail=f"Unexpected error: {str(e)}")
+    def delete_rule(self, rule_name):
+     rule_file_path = os.path.join(nginx_rules_directory, rule_name)
+     disabled_file_path = os.path.join(backend_disabled_directory, rule_name)
+
+     if os.path.exists(rule_file_path):
+        try:
+            os.remove(rule_file_path)
+            self.reload_nginx()
+            return {"status": "success", "message": f"Rule {rule_name} deleted successfully from active directory."}
+        except Exception as e:
+            return {"status": "error", "message": f"Error deleting rule {rule_name} from active directory: {str(e)}"}
+    
+     elif os.path.exists(disabled_file_path):
+        try:
+            os.remove(disabled_file_path)
+            self.reload_nginx()
+            return {"status": "success", "message": f"Rule {rule_name} deleted successfully from disabled directory."}
+        except Exception as e:
+            return {"status": "error", "message": f"Error deleting rule {rule_name} from disabled directory: {str(e)}"}
+
+     else:
+        return {"status": "error", "message": f"Rule {rule_name} not found in either the active or disabled directories."}
+
+
+    def reload_nginx(self):
+        try:
+            reload_command = "/usr/local/nginx/sbin/nginx -s reload"
+            subprocess.run(reload_command, shell=True, check=True)
+            print("Nginx reloaded successfully.")
+        except subprocess.CalledProcessError as e:
+            print(f"Failed to reload Nginx: {e}")
+            raise Exception("Failed to reload Nginx.")
