@@ -328,6 +328,58 @@ def setup_unicode_mapping():
     except Exception as e:
         print(colorize(f"Error setting up Unicode mapping file: {str(e)}", 'red'))
         return False
+def configure_crs_setup():
+    print(colorize("\nConfiguring CRS setup file...", 'yellow'))
+    
+    try:
+        crs_setup_example = "/usr/local/nginx/conf/crs-setup.conf.example"
+        crs_setup_active = "/usr/local/nginx/conf/crs-setup.conf"
+        crs_setup_url = "https://raw.githubusercontent.com/coreruleset/coreruleset/main/crs-setup.conf.example"
+        
+        if not os.path.exists(crs_setup_example):
+            print(colorize("crs-setup.conf.example not found, downloading from GitHub...", 'yellow'))
+            try:
+                subprocess.run([
+                    "sudo", "wget", "-O", crs_setup_example, 
+                    crs_setup_url
+                ], check=True)
+                print(colorize("Successfully downloaded crs-setup.conf.example", 'green'))
+            except subprocess.CalledProcessError as e:
+                print(colorize(f"Failed to download crs-setup.conf.example: {str(e)}", 'red'))
+                return False
+        
+        # Copy the example file to active configuration
+        if os.path.exists(crs_setup_example):
+            subprocess.run(["sudo", "cp", crs_setup_example, crs_setup_active], check=True)
+            print(colorize("Copied crs-setup.conf.example to crs-setup.conf", 'green'))
+        else:
+            print(colorize("Failed to obtain crs-setup.conf.example", 'red'))
+            return False
+        
+        # Add include to modsec_includes.conf
+        modsec_includes_path = "/usr/local/nginx/conf/modsec_includes.conf"
+        include_line = "Include /usr/local/nginx/conf/crs-setup.conf\n"
+        
+        # Check if the include already exists
+        if os.path.exists(modsec_includes_path):
+            with open(modsec_includes_path, 'r') as f:
+                if include_line in f.read():
+                    print(colorize("CRS setup already included in modsec_includes.conf", 'yellow'))
+                    return True
+        
+        # Add the include line
+        with open(modsec_includes_path, 'a') as f:
+            f.write(include_line)
+        
+        print(colorize("Added CRS setup include to modsec_includes.conf", 'green'))
+        return True
+        
+    except subprocess.CalledProcessError as e:
+        print(colorize(f"Failed to configure CRS setup: {str(e)}", 'red'))
+        return False
+    except Exception as e:
+        print(colorize(f"Error configuring CRS setup: {str(e)}", 'red'))
+        return False
 def main():
     os.chdir("/tmp")
     
@@ -343,7 +395,8 @@ def main():
 
     enable_modsecurity()
     setup_modsecurity_config()
-    setup_unicode_mapping() 
+    setup_unicode_mapping()
+    configure_crs_setup()  
     
     apache_listen_ports = check_apache()
     if apache_listen_ports:
