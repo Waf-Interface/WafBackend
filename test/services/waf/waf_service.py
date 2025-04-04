@@ -125,48 +125,48 @@ class WAF:
                         log_entry[key_value[0].strip()] = key_value[1].strip()
             return log_entry
 
-    def show_audit_logs(self):
-        log_file_path = '/var/log/modsec_audit.log'  
-        logs_data = []
+    # def show_audit_logs(self):
+    #     log_file_path = '/var/log/modsec_audit.log'  
+    #     logs_data = []
 
-        try:
-            with open(log_file_path, 'r') as log_file:
-                content = log_file.read()
+    #     try:
+    #         with open(log_file_path, 'r') as log_file:
+    #             content = log_file.read()
 
-                log_segments = re.split(r'---[A-Za-z0-9]+---[A-Z]--', content)
+    #             log_segments = re.split(r'---[A-Za-z0-9]+---[A-Z]--', content)
 
-                for segment in log_segments:
-                    segment = segment.strip()
-                    if segment:
-                        log_info = {}
+    #             for segment in log_segments:
+    #                 segment = segment.strip()
+    #                 if segment:
+    #                     log_info = {}
 
-                        lines = segment.splitlines()
-                        if len(lines) > 0:
-                            timestamp_and_ip = lines[0]
-                            timestamp_match = re.search(r'\[([^\]]+)\]', timestamp_and_ip)
-                            if timestamp_match:
-                                log_info['timestamp'] = timestamp_match.group(1)
-                            ip_match = re.search(r'(\d+\.\d+\.\d+\.\d+)', timestamp_and_ip)
-                            if ip_match:
-                                log_info['ip'] = ip_match.group(1)
+    #                     lines = segment.splitlines()
+    #                     if len(lines) > 0:
+    #                         timestamp_and_ip = lines[0]
+    #                         timestamp_match = re.search(r'\[([^\]]+)\]', timestamp_and_ip)
+    #                         if timestamp_match:
+    #                             log_info['timestamp'] = timestamp_match.group(1)
+    #                         ip_match = re.search(r'(\d+\.\d+\.\d+\.\d+)', timestamp_and_ip)
+    #                         if ip_match:
+    #                             log_info['ip'] = ip_match.group(1)
 
-                        modsec_warnings = []
-                        for line in lines:
-                            warning = self.parse_log_line(line)
-                            if warning:
-                                modsec_warnings.append(warning)
+    #                     modsec_warnings = []
+    #                     for line in lines:
+    #                         warning = self.parse_log_line(line)
+    #                         if warning:
+    #                             modsec_warnings.append(warning)
 
-                        if modsec_warnings:
-                            log_info['modsecurity_warnings'] = modsec_warnings
+    #                     if modsec_warnings:
+    #                         log_info['modsecurity_warnings'] = modsec_warnings
 
-                        if log_info:
-                            logs_data.append(log_info)
+    #                     if log_info:
+    #                         logs_data.append(log_info)
 
-            return json.dumps(logs_data, indent=4)
+    #         return json.dumps(logs_data, indent=4)
 
-        except Exception as e:
-            print(f"Error reading or processing log file: {e}")
-            return None
+    #     except Exception as e:
+    #         print(f"Error reading or processing log file: {e}")
+    #         return None
 
     def clear_audit_logs(self):
         result = lib.clearAuditLogs()

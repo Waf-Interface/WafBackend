@@ -1,148 +1,92 @@
-from fastapi import APIRouter, HTTPException
-from services.waf.waf_service import WAF  
+from fastapi import APIRouter, HTTPException,Request
+from services.waf.waf_crs import WAFService
+from pydantic import BaseModel
 from services.waf.waf_log import Waf_Log
 
-from pydantic import BaseModel
-
-waf = WAF()
-
+waf_service = WAFService()
 router = APIRouter()
 
-class WafRequest(BaseModel):
+class SecRuleEngineRequest(BaseModel):
+    value: str  # "On", "Off", "DetectionOnly"
 
-    username: str
-    password: str
-    body: str = None  
-    rule: str = None  
-    power: str = None
-    host: str = None
-    log: bool = False
+class SecResponseBodyAccessRequest(BaseModel):
+    value: bool  # True for "On", False for "Off"
 
-
-
-@router.get("/status/")
-async def check_mod_security_status():
-    print(waf.is_mod_security_enabled())  
-    if waf.is_mod_security_enabled():
-        return {"status": "success", "mod_security_enabled": True}
-    else:
-        return {"status": "failure", "mod_security_enabled": False}
-
-@router.post("/auth/")
-async def authenticate(request: WafRequest):
-    if request.username != "test" or request.password != "test":
-        raise HTTPException(status_code=401, detail="Authentication failed.")
-    return {"status": "success"}
-
-@router.post("/load_rule/")
-async def load_rule(request: WafRequest):
-    if not waf.check_waf_enabled():
-        raise HTTPException(status_code=400, detail="WAF is offline. Please enable ModSecurity first.")
-    if request.rule and not waf.load_rule(request.rule):
-        raise HTTPException(status_code=400, detail="Failed to load rule.")
-    return {"status": "success"}
-
-
-@router.post("/set_engine/")
-async def set_mod_security(request: WafRequest):
-    if request.power not in ["on", "off"]:
-        raise HTTPException(status_code=400, detail="Invalid power option. Use 'on' or 'off'.")
-    power = True if request.power == "on" else False
-    success = waf.set_mod_security_power(power)
-    if not success:
-        raise HTTPException(status_code=400, detail="Failed to set ModSecurity power. Check permissions.")
-    return {"status": "success"}
-
-
-@router.post("/log_user/")
-async def log_user_access(request: WafRequest):
-    if not waf.check_waf_enabled():
-        raise HTTPException(status_code=400, detail="WAF is offline. Please enable ModSecurity first.")
-    if not waf.log_user_access(request.username):
-        raise HTTPException(status_code=400, detail="Failed to log user access.")
-    
-    return {"status": "success", "message": f"User access logged for {request.username}"}
-
-@router.get("/show_logs/")
-async def show_logs():
-    if not waf.check_waf_enabled():
-        raise HTTPException(status_code=400, detail="WAF is offline. Please enable ModSecurity first.")
-    logs = waf.show_logs()  
-    if not logs:
-        raise HTTPException(status_code=400, detail="Failed to show logs.")
-    
-    return {"status": "success", "logs": logs}
-
-@router.post("/toggle_protection/")
-async def toggle_protection_for_host(request: WafRequest):
-    if not waf.check_waf_enabled():
-        raise HTTPException(status_code=400, detail="WAF is offline. Please enable ModSecurity first.")
-    if request.host is None:
-        raise HTTPException(status_code=400, detail="Host is required.")
-    power = True if request.power == "on" else False
-    if not waf.toggle_protection_for_host(request.host, power):
-        raise HTTPException(status_code=400, detail="Failed to toggle protection for host.")
-    return {"status": "success"}
-
-@router.get("/show_audit_logs/")
-async def get_audit_logs():
+@router.post("/set_sec_rule_engine/")
+async def set_sec_rule_engine(request: SecRuleEngineRequest):
     try:
-        waf = Waf_Log()
-        logs = waf.parse_audit_log()
+        waf_service.set_sec_rule_engine(request.value)
+        return {"message": f"SecRuleEngine set to {request.value} successfully."}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@router.post("/set_sec_response_body_access/")
+async def set_sec_response_body_access(request: SecResponseBodyAccessRequest):
+    try:
+        waf_service.set_sec_response_body_access(request.value)
+        return {"message": f"SecResponseBodyAccess set to {'On' if request.value else 'Off'} successfully."}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@router.get("/get_sec_audit_log/")
+async def get_sec_audit_log():
+    try:
+        parser = Waf_Log("/var/log/modsec_audit.log")
+        logs = parser.parse_audit_log()
+        
         return {
             "status": "success",
-            "file_status": waf.get_log_metadata(),
             "count": len(logs),
-            "logs": logs[:5000]
+            "logs": logs[:500],  
+            "filtered": True  
         }
+    except FileNotFoundError:
+        raise HTTPException(status_code=404, detail="ModSecurity audit log not found")
     except Exception as e:
-        raise HTTPException(
-            status_code=500,
-            detail={
-                "error": str(e),
-                "type": type(e).__name__,
-                "file_info": Waf_Log().get_log_metadata() if 'Waf_Log' in globals() else None
-            }
-        )
+        raise HTTPException(status_code=500, detail=str(e))
+    
 
-@router.post("/clear_audit_logs/")
-async def clear_audit_logs():
-    if not waf.clear_audit_logs():
-        raise HTTPException(status_code=400, detail="Failed to clear audit logs.")
-    return {"status": "success", "message": "Audit logs cleared successfully."}
-
-@router.get("/show_modsec_rules/")
-async def show_modsec_rules():
-    if not waf.is_mod_security_enabled():
-        raise HTTPException(status_code=400, detail="WAF is offline. Please enable ModSecurity first.")
-    
-    rules = waf.show_modsec_rules() 
-    if not rules:
-        raise HTTPException(status_code=400, detail="Failed to show ModSecurity rules. Check directory permissions.")
-    
-    return {"status": "success", "modsec_rules": rules}  
-
-@router.post("/new_rule/")
-async def create_new_rule(request: WafRequest):
-    if not waf.check_waf_enabled():
-        raise HTTPException(status_code=400, detail="WAF is offline. Please enable ModSecurity first.")
-    
-    if not request.rule or not request.body:  # rule is needed instead of title
-        raise HTTPException(status_code=400, detail="Both rule and body are required for the rule.")
-    
+@router.get("/get_config_file/{file_key}")
+async def get_config_file(file_key: str):
     try:
-        print(f"Creating rule with name: {request.rule} and body: {request.body}")
-        
-        rule_created = waf.create_new_rule(request.rule, request.body)  # use rule instead of title
-        
-        if not rule_created:
-            raise HTTPException(status_code=400, detail="Failed to create new rule.")
-        
+        contents = waf_service.get_file_contents(file_key)
+        return {"contents": contents}
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
     except Exception as e:
-        print(f"Error during rule creation: {str(e)}")  
-        if "already exists" in str(e):
-            raise HTTPException(status_code=409, detail=str(e))  
-        else:
-            raise HTTPException(status_code=500, detail="An unexpected error occurred while creating the rule.")
+        raise HTTPException(status_code=500, detail=str(e))
+
+@router.post("/restore_config_file/{file_key}")
+async def restore_config_file(file_key: str):
+    try:
+        waf_service.restore_config_file(file_key)
+        return {"message": f"{file_key} restored successfully."}
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except FileNotFoundError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+@router.post("/restore_all_config_files/")
+async def restore_all_config_files():
+    try:
+        waf_service.restore_all_config_files()
+        return {"message": "All configuration files restored successfully."}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
     
-    return {"status": "success", "message": f"Rule '{request.rule}' created successfully."}
+@router.put("/update_config/{file_key}")
+async def update_config(file_key: str, request: Request):
+    try:
+        new_contents = await request.body()
+        
+        new_contents = new_contents.decode('utf-8')
+
+        waf_service.replace_file_contents(file_key, new_contents)
+        
+        return {"message": f"{file_key} updated successfully."}
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))

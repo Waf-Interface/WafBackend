@@ -29,11 +29,6 @@ async def get_nginx_log_summary():
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 
-from fastapi import APIRouter, HTTPException
-from services.log.nginxLog import nginxLog
-
-router = APIRouter()
-
 @router.get("/traffic")
 async def get_daily_traffic():
     log_file_path = "/usr/local/nginx/logs/access.log"  

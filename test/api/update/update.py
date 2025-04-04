@@ -1,5 +1,5 @@
 from fastapi import APIRouter, HTTPException
-from services.update import check_versions, update_module
+from services.update.update import check_versions,update_module
 from utils.env_manager import get_env_version
 
 router = APIRouter()

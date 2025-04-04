@@ -50,7 +50,7 @@ def update_website(
     website_id: str, 
     status: str,
     db: Session = Depends(get_website_db)
-):
+): 
     website = update_website_status(db, website_id, status)
     if not website:
         raise HTTPException(status_code=404, detail="Website not found")

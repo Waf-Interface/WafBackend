@@ -12,7 +12,7 @@ LOGIN_LOG_FILE = os.path.join(LOG_DIRECTORY, 'login_log.json')
 async def get_app_logs():
     try:
         if not os.path.exists(APP_LOG_FILE):
-            raise HTTPException(status_code=404, detail="Application log file not found.")
+            raise HTTPException(status_code=404, detail="Application log not found.")
         
         with open(APP_LOG_FILE, 'r') as f:
             logs = f.readlines()
@@ -27,7 +27,7 @@ async def get_app_logs():
 async def get_login_logs():
     try:
         if not os.path.exists(LOGIN_LOG_FILE):
-            raise HTTPException(status_code=404, detail="Login log file not found.")
+            raise HTTPException(status_code=404, detail="Login log not found.")
         
         with open(LOGIN_LOG_FILE, 'r') as f:
             logs = f.readlines()

@@ -54,7 +54,6 @@ async def update_crs_rules() -> Dict:
         existing_rules_dir = "/usr/local/nginx/rules"
         added_files = []
         
-        # Copy only new files
         for filename in os.listdir(new_rules_dir):
             src = os.path.join(new_rules_dir, filename)
             dest = os.path.join(existing_rules_dir, filename)
@@ -63,12 +62,10 @@ async def update_crs_rules() -> Dict:
                 subprocess.run(["sudo", "cp", src, dest], check=True)
                 added_files.append(filename)
         
-        # Verify update
         if not verify_crs_update():
             rollback_crs(added_files)
             return {"success": False, "error": "Update verification failed"}
         
-        # Update .env version if successful
         set_env_version("crs", latest_tag)
         
         return {

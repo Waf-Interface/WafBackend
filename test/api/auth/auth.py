@@ -1,7 +1,7 @@
 from fastapi import APIRouter, HTTPException, Depends
 from models.auth_models import LoginRequest, VerifyOTPRequest
 from services.auth.auth_service import login_service, verify_otp_service, logout_service
-from services.auth.jwt import verify_token  #
+from services.auth.jwt import verify_token  
 
 auth_router = APIRouter()
 
