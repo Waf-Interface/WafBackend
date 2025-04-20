@@ -348,7 +348,6 @@ def configure_crs_setup():
                 print(colorize(f"Failed to download crs-setup.conf.example: {str(e)}", 'red'))
                 return False
         
-        # Copy the example file to active configuration
         if os.path.exists(crs_setup_example):
             subprocess.run(["sudo", "cp", crs_setup_example, crs_setup_active], check=True)
             print(colorize("Copied crs-setup.conf.example to crs-setup.conf", 'green'))
@@ -356,18 +355,15 @@ def configure_crs_setup():
             print(colorize("Failed to obtain crs-setup.conf.example", 'red'))
             return False
         
-        # Add include to modsec_includes.conf
         modsec_includes_path = "/usr/local/nginx/conf/modsec_includes.conf"
         include_line = "Include /usr/local/nginx/conf/crs-setup.conf\n"
         
-        # Check if the include already exists
         if os.path.exists(modsec_includes_path):
             with open(modsec_includes_path, 'r') as f:
                 if include_line in f.read():
                     print(colorize("CRS setup already included in modsec_includes.conf", 'yellow'))
                     return True
         
-        # Add the include line
         with open(modsec_includes_path, 'a') as f:
             f.write(include_line)
         
