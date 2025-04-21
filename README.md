@@ -10,6 +10,7 @@
 - **RSA Key Generation**: Creates RSA keys automatically for secure use.
 - **Database Support**: Uses SQLAlchemy to handle multiple databases.
 - **Backup Service**: Keeps your data safe with regular backups.
+and many more...
 
 ## Quick Start
 
@@ -54,6 +55,7 @@ For a quick install or deploy, check the script:
 https://github.com/Waf-Interface/WafBackend/blob/main/test/test/in.py
 ```
 
+## Coded by:
+Morteza Mansouri , Ehsan Moradi
 ## License
-
 This project uses the MIT License.
