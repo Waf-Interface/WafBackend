@@ -57,5 +57,7 @@ https://github.com/Waf-Interface/WafBackend/blob/main/test/test/in.py
 
 ## Coded by:
 Morteza Mansouri , Ehsan Moradi
+
 ## License
-This project uses the MIT License.
+This project is licensed under the [MIT License](LICENSE).
+
