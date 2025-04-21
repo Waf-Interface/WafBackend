@@ -1,8 +1,7 @@
-**WafBackend** is a simple backend built with FastAPI. It connects Nginx’s ModSecurity to a clear API. This helps you manage web security settings easily.
-
-### Status: <Beta, writting doc...>
 # WafBackend
+### Status: <Beta, writting doc...>
 
+**WafBackend** is a simple backend built with FastAPI. It connects Nginx’s ModSecurity to a clear API. This helps you manage web security settings easily.
 
 ## Features
 
