@@ -43,6 +43,8 @@ lib.toggleProtectionForHost.restype = c_bool
 lib.isModSecurityEnabled.argtypes = []
 lib.isModSecurityEnabled.restype = c_bool
 
+lib.clearAuditLogs.argtypes = []
+lib.clearAuditLogs.restype = c_bool
 
 
 class WAF:

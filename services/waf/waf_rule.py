@@ -6,7 +6,7 @@ import subprocess
 
 nginx_rules_directory = "/usr/local/nginx/rules/"
 backend_root_dir = os.path.dirname(__file__)  
-backend_disabled_directory = os.path.join(backend_root_dir, 'rules_disabled')
+backend_disabled_directory = os.path.join(backend_root_dir, 'rules_disabled') 
 two_levels_up = os.path.join(backend_root_dir, os.pardir, os.pardir)
 two_levels_up = os.path.normpath(two_levels_up)
 
