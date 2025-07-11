@@ -5,27 +5,25 @@ import subprocess
 from datetime import datetime, timedelta
 import logging
 
-# Configure logging for user access logs
 USER_ACCESS_LOG_FILE = "user_access.log"
 logging.basicConfig(filename=USER_ACCESS_LOG_FILE, level=logging.INFO,
                     format='%(asctime)s - %(message)s')
 
-# Define paths for Nginx and ModSecurity configuration files
 NGINX_CONFIG_PATH = "/etc/nginx/nginx.conf"
 MODSECURITY_CONFIG_PATH = "/etc/nginx/modsecurity.conf"
 MODSEC_AUDIT_LOG_PATH = "/var/log/modsec_audit.log"
-MODSEC_RULES_DIR = "/usr/local/nginx/rules" # This path is from the C++ code
+MODSEC_RULES_DIR = "/usr/local/nginx/rules"
 
 class WAF:
     def __init__(self):
-        # No C++ initialization needed anymore
         print("WAF initialized successfully (Python native)!")
-        self.host_protection_map = {} # Python equivalent of hostProtectionMap in C++
+        self.host_protection_map = {}
 
-    def _update_config_file(self, file_path, search_pattern, enable_line, disable_line, append_if_not_found=False):
+    def _update_config_file(self, file_path, search_pattern, enable_line, disable_line, enable, append_if_not_found=False):
         """
         Helper function to safely update configuration files.
         Addresses the bug of incorrect line modification/deletion.
+        The 'enable' parameter now explicitly controls which line to write.
         """
         try:
             with open(file_path, 'r') as f:
@@ -33,28 +31,22 @@ class WAF:
 
             new_lines = []
             modified = False
+            target_line = enable_line if enable else disable_line
+
             for line in lines:
-                # Use regex to find "modsecurity" or "SecRuleEngine" with optional leading whitespace
-                # and capture the surrounding text to ensure precise replacement.
                 if re.search(search_pattern, line, re.IGNORECASE):
-                    if enable_line and enable_line in line and not enable_line.startswith(line.strip()):
-                         # This handles cases like comments or other text on the line
-                        new_lines.append(line)
-                    elif disable_line and disable_line in line and not disable_line.startswith(line.strip()):
-                         # This handles cases like comments or other text on the line
-                        new_lines.append(line)
+                    if target_line in line and line.strip().startswith(target_line):
+                        new_lines.append(line) 
                     else:
-                        new_lines.append(enable_line + '\n' if enable_line and enable else disable_line + '\n')
+                        new_lines.append(target_line + '\n')
                         modified = True
                 else:
                     new_lines.append(line)
 
-            # If the pattern was not found and appending is allowed (e.g., for 'modsecurity on;'), add it.
             if not modified and append_if_not_found:
-                new_lines.append(enable_line + '\n' if enable else disable_line + '\n')
+                new_lines.append(target_line + '\n')
                 modified = True
 
-            # Write to a temporary file and then rename for atomic update
             temp_file_path = file_path + ".temp"
             with open(temp_file_path, 'w') as f:
                 f.writelines(new_lines)
@@ -176,6 +168,7 @@ class WAF:
             r'^\s*modsecurity\s+(on|off)\s*;', # Regex to match 'modsecurity on;' or 'modsecurity off;' exactly
             "modsecurity on;",
             "modsecurity off;",
+            enable, # Pass 'enable' argument
             append_if_not_found=True # Append if 'modsecurity' directive is not found
         )
 
@@ -184,6 +177,7 @@ class WAF:
             r'^\s*SecRuleEngine\s+(On|Off|DetectionOnly)', # Regex for SecRuleEngine
             "SecRuleEngine On",
             "SecRuleEngine Off",
+            enable, # Pass 'enable' argument
             append_if_not_found=False # Don't append if SecRuleEngine is not found, it implies config issue
         )
 
@@ -284,6 +278,7 @@ class WAF:
                             if ' +0000' in log_timestamp_str:
                                 log_timestamp_str = log_timestamp_str.replace(' +0000', '')
                             # Example format: '11/Jul/2025:13:40:20'
+                            # Adjust format string based on actual log format if needed
                             log_timestamp = datetime.strptime(log_timestamp_str.split(' ')[0], '%d/%b/%Y:%H:%M:%S')
                             if log_timestamp < cutoff_time:
                                 continue # Skip logs older than cutoff_time
