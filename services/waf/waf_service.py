@@ -4,6 +4,7 @@ import json
 import subprocess
 from datetime import datetime, timedelta
 import logging
+from fastapi import HTTPException
 
 USER_ACCESS_LOG_FILE = "user_access.log"
 logging.basicConfig(filename=USER_ACCESS_LOG_FILE, level=logging.INFO,
