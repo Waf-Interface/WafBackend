@@ -1,75 +1,72 @@
-{"timestamp": "2025-07-14T16:24:01.834369", "level": "INFO", "message": "Starting deployment for file: aaabb"}
-{"timestamp": "2025-07-14T16:24:01.834509", "level": "INFO", "message": "Validating existing Nginx configuration"}
-{"timestamp": "2025-07-14T16:24:01.958678", "level": "INFO", "message": "Ensuring Nginx service is ready"}
-{"timestamp": "2025-07-14T16:24:01.980627", "level": "INFO", "message": "Regenerating Nginx pid file"}
-{"timestamp": "2025-07-14T16:24:01.999652", "level": "INFO", "message": "Looking for file at: uploads/aaabb.zip"}
-{"timestamp": "2025-07-14T16:24:02.000898", "level": "INFO", "message": "Creating website entry for aaabb.zip with server IP: 192.168.70.2"}
-{"timestamp": "2025-07-14T16:24:02.004970", "level": "INFO", "message": "Created website entry with ID: 4a17ef81d39b0b3d"}
-{"timestamp": "2025-07-14T16:24:02.008334", "level": "INFO", "message": "VIP parameters not provided by user. Searching for available VIP in database."}
-{"timestamp": "2025-07-14T16:24:02.008874", "level": "INFO", "message": "No available VIP found in database. Attempting to create a new one."}
-{"timestamp": "2025-07-14T16:24:02.011141", "level": "WARNING", "message": "IP 192.168.70.254 appears to be in use, trying next if available"}
-{"timestamp": "2025-07-14T16:24:02.011301", "level": "INFO", "message": "Creating new VIP record in database for 192.168.70.253"}
-{"timestamp": "2025-07-14T16:24:02.015688", "level": "INFO", "message": "New VIP record created: 192.168.70.253"}
-{"timestamp": "2025-07-14T16:24:02.015794", "level": "INFO", "message": "Attempting to ensure VIP 192.168.70.253 is removed from network interface before usage."}
-{"timestamp": "2025-07-14T16:24:02.023567", "level": "INFO", "message": "Configuring VIP network for 192.168.70.253"}
-{"timestamp": "2025-07-14T16:24:02.033244", "level": "INFO", "message": "Killing any processes using port 80 (if any)"}
-{"timestamp": "2025-07-14T16:24:02.102580", "level": "INFO", "message": "Processes on port 80 cleared."}
-{"timestamp": "2025-07-14T16:24:02.110378", "level": "INFO", "message": "Setting up deployment folder at: /usr/local/nginx/html/aaabb"}
-{"timestamp": "2025-07-14T16:24:02.110710", "level": "INFO", "message": "Removing existing deployment folder: /usr/local/nginx/html/aaabb"}
-{"timestamp": "2025-07-14T16:24:02.111467", "level": "INFO", "message": "Creating new deployment folder: /usr/local/nginx/html/aaabb"}
-{"timestamp": "2025-07-14T16:24:02.112295", "level": "INFO", "message": "Extracting zip file: uploads/aaabb.zip"}
-{"timestamp": "2025-07-14T16:24:02.112581", "level": "INFO", "message": "Client disconnected"}
-{"timestamp": "2025-07-14T16:24:02.114703", "level": "INFO", "message": "Extracted files to /usr/local/nginx/html/aaabb"}
-{"timestamp": "2025-07-14T16:24:02.114885", "level": "INFO", "message": "Setting permissions for /usr/local/nginx/html/aaabb"}
-{"timestamp": "2025-07-14T16:24:02.130737", "level": "INFO", "message": "Configuring Apache port: 8082"}
-{"timestamp": "2025-07-14T16:24:02.130908", "level": "INFO", "message": "Creating Apache config at: /etc/apache2/sites-available/aaabb.conf"}
-{"timestamp": "2025-07-14T16:24:02.131752", "level": "INFO", "message": "Ensuring Nginx includes are configured"}
-{"timestamp": "2025-07-14T16:24:02.131987", "level": "INFO", "message": "Creating sites-available and sites-enabled directories if needed"}
-{"timestamp": "2025-07-14T16:24:02.133799", "level": "INFO", "message": "Creating Nginx config at: /usr/local/nginx/conf/sites-available/aaabb.conf"}
-{"timestamp": "2025-07-14T16:24:02.134629", "level": "INFO", "message": "Removing existing symlink: /usr/local/nginx/conf/sites-enabled/aaabb.conf"}
-{"timestamp": "2025-07-14T16:24:02.134820", "level": "INFO", "message": "Creating symlink from /usr/local/nginx/conf/sites-available/aaabb.conf to /usr/local/nginx/conf/sites-enabled/aaabb.conf"}
-{"timestamp": "2025-07-14T16:24:02.134934", "level": "INFO", "message": "Configuring WAF"}
-{"timestamp": "2025-07-14T16:24:02.136014", "level": "INFO", "message": "Copying CRS files from /usr/local/nginx/rules/ to /usr/local/nginx/website_waf/4a17ef81d39b0b3d/rules"}
-{"timestamp": "2025-07-14T16:24:02.136416", "level": "INFO", "message": "Found 43 CRS files to copy"}
-{"timestamp": "2025-07-14T16:24:02.166541", "level": "INFO", "message": "Creating ModSecurity include file at /usr/local/nginx/website_waf/4a17ef81d39b0b3d/modsec_includes.conf"}
-{"timestamp": "2025-07-14T16:24:02.185003", "level": "INFO", "message": "Enabling Apache site: aaabb.conf"}
-{"timestamp": "2025-07-14T16:24:02.213941", "level": "INFO", "message": "Testing Apache configuration"}
-{"timestamp": "2025-07-14T16:24:02.245649", "level": "INFO", "message": "Apache configtest output: "}
-{"timestamp": "2025-07-14T16:24:02.245810", "level": "INFO", "message": "Reloading Apache"}
-{"timestamp": "2025-07-14T16:24:02.342392", "level": "INFO", "message": "Testing Nginx configuration"}
-{"timestamp": "2025-07-14T16:24:02.458200", "level": "INFO", "message": "Nginx test output: "}
-{"timestamp": "2025-07-14T16:24:02.458320", "level": "INFO", "message": "Ensuring Nginx is running before reload"}
-{"timestamp": "2025-07-14T16:24:02.475469", "level": "INFO", "message": "Reloading Nginx"}
-{"timestamp": "2025-07-14T16:24:02.588100", "level": "INFO", "message": "Nginx reloaded successfully (soft reload)."}
-{"timestamp": "2025-07-14T16:24:02.588228", "level": "INFO", "message": "Finalizing deployment"}
-{"timestamp": "2025-07-14T16:24:02.592902", "level": "INFO", "message": "Successfully deployed aaabb with VIP 192.168.70.253"}
-{"timestamp": "2025-07-14T16:24:07.169525", "level": "INFO", "message": "Trying audit log path: /var/log/modsec_audit.log"}
-{"timestamp": "2025-07-14T16:24:07.170994", "level": "INFO", "message": "Successfully parsed 40 audit logs from /var/log/modsec_audit.log"}
+load_module /usr/local/nginx/modules/ngx_http_modsecurity_module.so;
 
-```
-root    ALL=(ALL:ALL) ALL
-www-data ALL=(ALL) NOPASSWD: /usr/bin/systemctl reload nginx
-www-data ALL=(root) NOPASSWD: /usr/bin/truncate -s 0 /var/log/modsec_audit.log
-www-data ALL=(ALL) NOPASSWD: \
-    /usr/sbin/ip addr add *, \
-    /usr/sbin/ip addr del *, \
-    /usr/sbin/ip addr show *, \
-    /usr/bin/chown *, \
-    /usr/bin/chmod *, \
-    /usr/bin/fuser *, \
-    /usr/sbin/a2ensite *, \
-    /usr/sbin/a2dissite *, \
-    /usr/sbin/apache2ctl *, \
-    /usr/bin/systemctl reload apache2, \
-    /usr/bin/systemctl restart apache2, \
-    /usr/bin/systemctl reload nginx, \
-    /usr/bin/systemctl restart nginx, \
-    /bin/sh -c *
+pid /usr/local/nginx/logs/nginx.pid;
 
-# Allow members of group sudo to execute any command
-%sudo   ALL=(ALL:ALL) ALL
+events {
+    worker_connections 1024;
+}
 
-# See sudoers(5) for more information on "@include" directives:
+http {
+    include /usr/local/nginx/conf/sites-enabled/*.conf;
+modsecurity on;
+    modsecurity_rules_file /usr/local/nginx/conf/modsec_includes.conf;
+    
+    # SSL Configuration
+    ssl_certificate /etc/waf-ssl/waf.crt;
+    ssl_certificate_key /etc/waf-ssl/waf.key;
+    
+    # Error Log Configuration
+    error_log /usr/local/nginx/logs/error.log warn;
 
-@includedir /etc/sudoers.d
-```
+    server {
+        listen 80 default_server;
+        listen 443 ssl default_server;
+        server_name _; # Server name catch-all
+        return 444; # No Response, or return 404;
+    }
+
+ server {
+        listen 80;
+        server_name 192.168.70.2;
+        return 301 https://$server_name$request_uri;
+    }
+    server {
+        listen 80;
+        server_name 192.168.70.2;
+        return 301 https://$server_name$request_uri;
+    }
+
+    server {
+        listen 443 ssl;
+        server_name 192.168.70.2;
+        access_log /usr/local/nginx/logs/access.log;
+
+        location /api/ {
+            proxy_pass http://192.168.70.2:8081;
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Proto $scheme;
+        }
+
+        location /ws {
+            proxy_pass http://192.168.70.2:8081;
+            proxy_http_version 1.1;
+            proxy_set_header Upgrade $http_upgrade;
+            proxy_set_header Connection "upgrade";
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Proto $scheme;
+            proxy_read_timeout 86400;
+        }
+
+        location / {
+            proxy_pass http://192.168.70.2:8080;
+            proxy_set_header Host $host;
+            proxy_set_header X-Real-IP $remote_addr;
+            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+            proxy_set_header X-Forwarded-Proto $scheme;
+        }
+    }
+}
