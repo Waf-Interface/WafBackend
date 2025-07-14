@@ -136,3 +136,26 @@
 {"timestamp": "2025-07-14T16:15:01.838974", "level": "INFO", "message": "Successfully parsed 40 audit logs from /var/log/modsec_audit.log"}
 {"timestamp": "2025-07-14T16:15:03.842886", "level": "INFO", "message": "Client disconnected"}
 {"timestamp": "2025-07-14T16:15:03.843525", "level": "INFO", "message": "Updating website status to failed."}
+
+
+
+
+
+
+
+
+www-data ALL=(ALL) NOPASSWD: \
+    /usr/sbin/ip addr add *, \
+    /usr/sbin/ip addr del *, \
+    /usr/sbin/ip addr show *, \
+    /usr/bin/chown *, \
+    /usr/bin/chmod *, \
+    /usr/bin/fuser *, \
+    /usr/sbin/a2ensite *, \
+    /usr/sbin/a2dissite *, \
+    /usr/sbin/apache2ctl *, \
+    /usr/bin/systemctl reload apache2, \
+    /usr/bin/systemctl restart apache2, \
+    /usr/bin/systemctl reload nginx, \
+    /usr/bin/systemctl restart nginx, \
+    /bin/sh -c *
