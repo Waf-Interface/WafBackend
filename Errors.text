@@ -1,72 +1,70 @@
-load_module /usr/local/nginx/modules/ngx_http_modsecurity_module.so;
+ote: 0/813/0)
+2025/07/14 13:25:13 [notice] 103609#0: libmodsecurity3 version 3.0.9
+2025/07/14 13:25:13 [warn] 103609#0: conflicting server name "192.168.70.2" on 0.0.0.0:80, ignored
+2025/07/14 13:25:13 [notice] 103719#0: ModSecurity-nginx v1.0.4 (rules loaded inline/local/remote: 0/813/0)
+2025/07/14 13:25:13 [notice] 103719#0: libmodsecurity3 version 3.0.9
+2025/07/14 13:25:13 [warn] 103719#0: conflicting server name "192.168.70.2" on 0.0.0.0:80, ignored
+2025/07/14 13:25:13 [notice] 103719#0: signal process started
+2025/07/14 13:25:13 [alert] 103719#0: kill(102782, 1) failed (1: Operation not permitted)
+2025/07/14 13:25:13 [notice] 103726#0: ModSecurity-nginx v1.0.4 (rules loaded inline/local/remote: 0/813/0)
+2025/07/14 13:25:13 [notice] 103726#0: libmodsecurity3 version 3.0.9
+2025/07/14 13:25:13 [warn] 103726#0: conflicting server name "192.168.70.2" on 0.0.0.0:80, ignored
+2025/07/14 13:25:13 [notice] 103727#0: ModSecurity-nginx v1.0.4 (rules loaded inline/local/remote: 0/813/0)
+2025/07/14 13:25:13 [notice] 103727#0: libmodsecurity3 version 3.0.9
+2025/07/14 13:25:13 [warn] 103727#0: conflicting server name "192.168.70.2" on 0.0.0.0:80, ignored
+2025/07/14 13:25:14 [notice] 103730#0: ModSecurity-nginx v1.0.4 (rules loaded inline/local/remote: 0/813/0)
+2025/07/14 13:25:14 [notice] 103730#0: libmodsecurity3 version 3.0.9
+2025/07/14 13:25:14 [warn] 103730#0: conflicting server name "192.168.70.2" on 0.0.0.0:80, ignored
+2025/07/14 13:25:57 [crit] 103729#0: *2 open() "/usr/local/nginx/proxy_temp/1/00/0000000001" failed (13: Permission denied) while reading upstream, client: 192.168.70.175, server: 192.168.70.2, request: "GET /api/waf/website/www.salam/rules HTTP/1.1", upstream: "http://192.168.70.2:8081/api/waf/website/www.salam/rules", host: "192.168.70.2", referrer: "http://192.168.70.2:8080/"
+root@test:/usr/local/nginx/conf# cat /var/log/apache2/error.log
+[Mon Jul 14 10:44:20.257156 2025] [mpm_event:notice] [pid 93341:tid 93341] AH00489: Apache/2.4.62 (Debian) OpenSSL/3.0.16 mod_wsgi/4.9.4 Python/3.11 configured -- resuming normal operations
+[Mon Jul 14 10:44:20.257193 2025] [core:notice] [pid 93341:tid 93341] AH00094: Command line: '/usr/sbin/apache2'
+[Mon Jul 14 12:13:53.114469 2025] [mpm_event:notice] [pid 93341:tid 93341] AH00493: SIGUSR1 received.  Doing graceful restart
+[Mon Jul 14 12:13:53.126489 2025] [mpm_event:notice] [pid 93341:tid 93341] AH00489: Apache/2.4.62 (Debian) OpenSSL/3.0.16 mod_wsgi/4.9.4 Python/3.11 configured -- resuming normal operations
+[Mon Jul 14 12:13:53.126511 2025] [core:notice] [pid 93341:tid 93341] AH00094: Command line: '/usr/sbin/apache2'
+[Mon Jul 14 12:13:53.625425 2025] [mpm_event:notice] [pid 93341:tid 93341] AH00493: SIGUSR1 received.  Doing graceful restart
+[Mon Jul 14 12:13:53.634940 2025] [mpm_event:notice] [pid 93341:tid 93341] AH00489: Apache/2.4.62 (Debian) OpenSSL/3.0.16 mod_wsgi/4.9.4 Python/3.11 configured -- resuming normal operations
+[Mon Jul 14 12:13:53.634958 2025] [core:notice] [pid 93341:tid 93341] AH00094: Command line: '/usr/sbin/apache2'
+[Mon Jul 14 12:15:00.939449 2025] [mpm_event:notice] [pid 93341:tid 93341] AH00493: SIGUSR1 received.  Doing graceful restart
+[Mon Jul 14 12:15:00.946602 2025] [mpm_event:notice] [pid 93341:tid 93341] AH00489: Apache/2.4.62 (Debian) OpenSSL/3.0.16 mod_wsgi/4.9.4 Python/3.11 configured -- resuming normal operations
+[Mon Jul 14 12:15:00.946620 2025] [core:notice] [pid 93341:tid 93341] AH00094: Command line: '/usr/sbin/apache2'
+[Mon Jul 14 12:23:36.401875 2025] [mpm_event:notice] [pid 93341:tid 93341] AH00493: SIGUSR1 received.  Doing graceful restart
+[Mon Jul 14 12:23:36.413068 2025] [mpm_event:notice] [pid 93341:tid 93341] AH00489: Apache/2.4.62 (Debian) OpenSSL/3.0.16 mod_wsgi/4.9.4 Python/3.11 configured -- resuming normal operations
+[Mon Jul 14 12:23:36.413091 2025] [core:notice] [pid 93341:tid 93341] AH00094: Command line: '/usr/sbin/apache2'
+[Mon Jul 14 12:24:02.326474 2025] [mpm_event:notice] [pid 93341:tid 93341] AH00493: SIGUSR1 received.  Doing graceful restart
+[Mon Jul 14 12:24:02.335115 2025] [mpm_event:notice] [pid 93341:tid 93341] AH00489: Apache/2.4.62 (Debian) OpenSSL/3.0.16 mod_wsgi/4.9.4 Python/3.11 configured -- resuming normal operations
+[Mon Jul 14 12:24:02.335132 2025] [core:notice] [pid 93341:tid 93341] AH00094: Command line: '/usr/sbin/apache2'
+[Mon Jul 14 12:41:42.752997 2025] [mpm_event:notice] [pid 93341:tid 93341] AH00493: SIGUSR1 received.  Doing graceful restart
+[Mon Jul 14 12:41:42.765295 2025] [mpm_event:notice] [pid 93341:tid 93341] AH00489: Apache/2.4.62 (Debian) OpenSSL/3.0.16 mod_wsgi/4.9.4 Python/3.11 configured -- resuming normal operations
+[Mon Jul 14 12:41:42.765318 2025] [core:notice] [pid 93341:tid 93341] AH00094: Command line: '/usr/sbin/apache2'
+[Mon Jul 14 13:25:13.250869 2025] [mpm_event:notice] [pid 93341:tid 93341] AH00493: SIGUSR1 received.  Doing graceful restart
+[Mon Jul 14 13:25:13.265900 2025] [mpm_event:notice] [pid 93341:tid 93341] AH00489: Apache/2.4.62 (Debian) OpenSSL/3.0.16 mod_wsgi/4.9.4 Python/3.11 configured -- resuming normal operations
+[Mon Jul 14 13:25:13.265913 2025] [core:notice] [pid 93341:tid 93341] AH00094: Command line: '/usr/sbin/apache2'
 
-pid /usr/local/nginx/logs/nginx.pid;
 
-events {
-    worker_connections 1024;
-}
+t@test:/usr/local/nginx/conf# ss -tulnp | grep 8082
+root@test:/usr/local/nginx/conf# systemctl status apache2
+● apache2.service - The Apache HTTP Server
+     Loaded: loaded (/lib/systemd/system/apache2.service; enabled; preset: enabled)
+     Active: active (running) since Fri 2025-07-11 08:31:33 EDT; 3 days ago
+       Docs: https://httpd.apache.org/docs/2.4/
+    Process: 103603 ExecReload=/usr/sbin/apachectl graceful (code=exited, status=0/SUCCESS)
+   Main PID: 93341 (apache2)
+      Tasks: 105 (limit: 5605)
+     Memory: 49.8M
+        CPU: 2.871s
+     CGroup: /system.slice/apache2.service
+             ├─ 93341 /usr/sbin/apache2 -k start
+             ├─103607 /usr/sbin/apache2 -k start
+             └─103608 /usr/sbin/apache2 -k start
 
-http {
-    include /usr/local/nginx/conf/sites-enabled/*.conf;
-modsecurity on;
-    modsecurity_rules_file /usr/local/nginx/conf/modsec_includes.conf;
-    
-    # SSL Configuration
-    ssl_certificate /etc/waf-ssl/waf.crt;
-    ssl_certificate_key /etc/waf-ssl/waf.key;
-    
-    # Error Log Configuration
-    error_log /usr/local/nginx/logs/error.log warn;
-
-    server {
-        listen 80 default_server;
-        listen 443 ssl default_server;
-        server_name _; # Server name catch-all
-        return 444; # No Response, or return 404;
-    }
-
- server {
-        listen 80;
-        server_name 192.168.70.2;
-        return 301 https://$server_name$request_uri;
-    }
-    server {
-        listen 80;
-        server_name 192.168.70.2;
-        return 301 https://$server_name$request_uri;
-    }
-
-    server {
-        listen 443 ssl;
-        server_name 192.168.70.2;
-        access_log /usr/local/nginx/logs/access.log;
-
-        location /api/ {
-            proxy_pass http://192.168.70.2:8081;
-            proxy_set_header Host $host;
-            proxy_set_header X-Real-IP $remote_addr;
-            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-            proxy_set_header X-Forwarded-Proto $scheme;
-        }
-
-        location /ws {
-            proxy_pass http://192.168.70.2:8081;
-            proxy_http_version 1.1;
-            proxy_set_header Upgrade $http_upgrade;
-            proxy_set_header Connection "upgrade";
-            proxy_set_header Host $host;
-            proxy_set_header X-Real-IP $remote_addr;
-            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-            proxy_set_header X-Forwarded-Proto $scheme;
-            proxy_read_timeout 86400;
-        }
-
-        location / {
-            proxy_pass http://192.168.70.2:8080;
-            proxy_set_header Host $host;
-            proxy_set_header X-Real-IP $remote_addr;
-            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
-            proxy_set_header X-Forwarded-Proto $scheme;
-        }
-    }
-}
+Jul 14 12:15:00 test systemd[1]: Reloading apache2.service - The Apache HTTP Server...
+Jul 14 12:15:00 test systemd[1]: Reloaded apache2.service - The Apache HTTP Server.
+Jul 14 12:23:36 test systemd[1]: Reloading apache2.service - The Apache HTTP Server...
+Jul 14 12:23:36 test systemd[1]: Reloaded apache2.service - The Apache HTTP Server.
+Jul 14 12:24:02 test systemd[1]: Reloading apache2.service - The Apache HTTP Server...
+Jul 14 12:24:02 test systemd[1]: Reloaded apache2.service - The Apache HTTP Server.
+Jul 14 12:41:42 test systemd[1]: Reloading apache2.service - The Apache HTTP Server...
+Jul 14 12:41:42 test systemd[1]: Reloaded apache2.service - The Apache HTTP Server.
+Jul 14 13:25:13 test systemd[1]: Reloading apache2.service - The Apache HTTP Server...
+Jul 14 13:25:13 test systemd[1]: Reloaded apache2.service - The Apache HTTP Server.
