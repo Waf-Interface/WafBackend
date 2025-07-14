@@ -1,149 +1,55 @@
-{"timestamp": "2025-07-14T16:13:30.905219", "level": "INFO", "message": "Trying audit log path: /var/log/modsec_audit.log"}
-{"timestamp": "2025-07-14T16:13:30.907557", "level": "INFO", "message": "Successfully parsed 40 audit logs from /var/log/modsec_audit.log"}
-{"timestamp": "2025-07-14T16:13:50.467492", "level": "INFO", "message": "Starting file upload: aaabb.zip"}
-{"timestamp": "2025-07-14T16:13:50.467755", "level": "INFO", "message": "Upload completed: aaabb.zip"}
-{"timestamp": "2025-07-14T16:13:52.739380", "level": "INFO", "message": "Starting deployment for file: aaabb"}
-{"timestamp": "2025-07-14T16:13:52.739497", "level": "INFO", "message": "Validating existing Nginx configuration"}
-{"timestamp": "2025-07-14T16:13:52.757726", "level": "INFO", "message": "Ensuring Nginx service is ready"}
-{"timestamp": "2025-07-14T16:13:52.778333", "level": "INFO", "message": "Regenerating Nginx pid file"}
-{"timestamp": "2025-07-14T16:13:52.798420", "level": "INFO", "message": "Looking for file at: uploads/aaabb.zip"}
-{"timestamp": "2025-07-14T16:13:52.801858", "level": "INFO", "message": "Creating website entry for aaabb.zip with server IP: 192.168.70.2"}
-{"timestamp": "2025-07-14T16:13:52.810147", "level": "INFO", "message": "Created website entry with ID: f1441eec0c32ab6d"}
-{"timestamp": "2025-07-14T16:13:52.815620", "level": "INFO", "message": "VIP parameters not provided by user. Searching for available VIP in database."}
-{"timestamp": "2025-07-14T16:13:52.817165", "level": "INFO", "message": "Found available VIP in DB: 192.168.70.1"}
-{"timestamp": "2025-07-14T16:13:52.817285", "level": "INFO", "message": "Attempting to ensure VIP 192.168.70.1 is removed from network interface before usage."}
-{"timestamp": "2025-07-14T16:13:52.826373", "level": "INFO", "message": "Configuring VIP network for 192.168.70.1"}
-{"timestamp": "2025-07-14T16:13:52.834429", "level": "INFO", "message": "Killing any processes using port 80 (if any)"}
-{"timestamp": "2025-07-14T16:13:52.917500", "level": "INFO", "message": "Processes on port 80 cleared."}
-{"timestamp": "2025-07-14T16:13:52.922223", "level": "INFO", "message": "Setting up deployment folder at: /usr/local/nginx/html/aaabb"}
-{"timestamp": "2025-07-14T16:13:52.922353", "level": "INFO", "message": "Creating new deployment folder: /usr/local/nginx/html/aaabb"}
-{"timestamp": "2025-07-14T16:13:52.923655", "level": "INFO", "message": "Extracting zip file: uploads/aaabb.zip"}
-{"timestamp": "2025-07-14T16:13:52.924939", "level": "INFO", "message": "Extracted files to /usr/local/nginx/html/aaabb"}
-{"timestamp": "2025-07-14T16:13:52.925054", "level": "INFO", "message": "Setting permissions for /usr/local/nginx/html/aaabb"}
-{"timestamp": "2025-07-14T16:13:52.940502", "level": "INFO", "message": "Configuring Apache port: 8082"}
-{"timestamp": "2025-07-14T16:13:52.942803", "level": "INFO", "message": "Creating Apache config at: /etc/apache2/sites-available/aaabb.conf"}
-{"timestamp": "2025-07-14T16:13:52.943365", "level": "INFO", "message": "Ensuring Nginx includes are configured"}
-{"timestamp": "2025-07-14T16:13:52.964170", "level": "INFO", "message": "Creating sites-available and sites-enabled directories if needed"}
-{"timestamp": "2025-07-14T16:13:52.967969", "level": "INFO", "message": "Creating Nginx config at: /usr/local/nginx/conf/sites-available/aaabb.conf"}
-{"timestamp": "2025-07-14T16:13:52.968568", "level": "INFO", "message": "Creating symlink from /usr/local/nginx/conf/sites-available/aaabb.conf to /usr/local/nginx/conf/sites-enabled/aaabb.conf"}
-{"timestamp": "2025-07-14T16:13:52.968733", "level": "INFO", "message": "Configuring WAF"}
-{"timestamp": "2025-07-14T16:13:52.969791", "level": "INFO", "message": "Copying CRS files from /usr/local/nginx/rules/ to /usr/local/nginx/website_waf/f1441eec0c32ab6d/rules"}
-{"timestamp": "2025-07-14T16:13:52.970335", "level": "INFO", "message": "Found 43 CRS files to copy"}
-{"timestamp": "2025-07-14T16:13:52.999768", "level": "INFO", "message": "Creating ModSecurity include file at /usr/local/nginx/website_waf/f1441eec0c32ab6d/modsec_includes.conf"}
-{"timestamp": "2025-07-14T16:13:53.018268", "level": "INFO", "message": "Enabling Apache site: aaabb.conf"}
-{"timestamp": "2025-07-14T16:13:53.024539", "level": "ERROR", "message": "Apache enable failed: sudo: a terminal is required to read the password; either use the -S option to read from standard input or configure an askpass helper\nsudo: a password is required\n"}
-{"timestamp": "2025-07-14T16:13:53.024693", "level": "ERROR", "message": "HTTPException during deployment: Apache enable failed: sudo: a terminal is required to read the password; either use the -S option to read from standard input or configure an askpass helper\nsudo: a password is required\n"}
-{"timestamp": "2025-07-14T16:13:53.024728", "level": "INFO", "message": "Starting cleanup after failed deployment"}
-{"timestamp": "2025-07-14T16:13:53.024901", "level": "INFO", "message": "Removing deployment folder: /usr/local/nginx/html/aaabb"}
-{"timestamp": "2025-07-14T16:13:53.025222", "level": "INFO", "message": "Disabling Apache site: aaabb.conf"}
-{"timestamp": "2025-07-14T16:13:53.032059", "level": "INFO", "message": "Removing Apache config: /etc/apache2/sites-available/aaabb.conf"}
-{"timestamp": "2025-07-14T16:13:53.032915", "level": "INFO", "message": "Reloading Apache after cleanup"}
-{"timestamp": "2025-07-14T16:13:53.131572", "level": "INFO", "message": "Removing IP address 192.168.70.1/255.255.255.0 from interface ens33 during cleanup."}
-{"timestamp": "2025-07-14T16:13:53.148789", "level": "INFO", "message": "Releasing VIP 192.168.70.1 from database during cleanup."}
-{"timestamp": "2025-07-14T16:13:53.151194", "level": "ERROR", "message": "VIP cleanup error: 500: VIP release failed: 400: VIP is already available"}
-{"timestamp": "2025-07-14T16:13:53.151323", "level": "INFO", "message": "Ensuring Nginx is running after cleanup"}
-{"timestamp": "2025-07-14T16:13:53.170458", "level": "INFO", "message": "Updating website status to failed."}
-{"timestamp": "2025-07-14T16:13:53.187362", "level": "INFO", "message": "Starting deployment for file: aaabb"}
-{"timestamp": "2025-07-14T16:13:53.187495", "level": "INFO", "message": "Validating existing Nginx configuration"}
-{"timestamp": "2025-07-14T16:13:53.305391", "level": "INFO", "message": "Ensuring Nginx service is ready"}
-{"timestamp": "2025-07-14T16:13:53.323628", "level": "INFO", "message": "Looking for file at: uploads/aaabb.zip"}
-{"timestamp": "2025-07-14T16:13:53.325024", "level": "INFO", "message": "Creating website entry for aaabb.zip with server IP: 192.168.70.2"}
-{"timestamp": "2025-07-14T16:13:53.328276", "level": "INFO", "message": "Created website entry with ID: ddd833140d510178"}
-{"timestamp": "2025-07-14T16:13:53.331271", "level": "INFO", "message": "VIP parameters not provided by user. Searching for available VIP in database."}
-{"timestamp": "2025-07-14T16:13:53.332311", "level": "INFO", "message": "Found available VIP in DB: 192.168.70.1"}
-{"timestamp": "2025-07-14T16:13:53.332458", "level": "INFO", "message": "Attempting to ensure VIP 192.168.70.1 is removed from network interface before usage."}
-{"timestamp": "2025-07-14T16:13:53.340136", "level": "INFO", "message": "Configuring VIP network for 192.168.70.1"}
-{"timestamp": "2025-07-14T16:13:53.348037", "level": "INFO", "message": "Killing any processes using port 80 (if any)"}
-{"timestamp": "2025-07-14T16:13:53.435612", "level": "INFO", "message": "Processes on port 80 cleared."}
-{"timestamp": "2025-07-14T16:13:53.440674", "level": "INFO", "message": "Setting up deployment folder at: /usr/local/nginx/html/aaabb"}
-{"timestamp": "2025-07-14T16:13:53.440846", "level": "INFO", "message": "Creating new deployment folder: /usr/local/nginx/html/aaabb"}
-{"timestamp": "2025-07-14T16:13:53.442404", "level": "INFO", "message": "Extracting zip file: uploads/aaabb.zip"}
-{"timestamp": "2025-07-14T16:13:53.443450", "level": "INFO", "message": "Extracted files to /usr/local/nginx/html/aaabb"}
-{"timestamp": "2025-07-14T16:13:53.443561", "level": "INFO", "message": "Setting permissions for /usr/local/nginx/html/aaabb"}
-{"timestamp": "2025-07-14T16:13:53.459616", "level": "INFO", "message": "Configuring Apache port: 8082"}
-{"timestamp": "2025-07-14T16:13:53.459887", "level": "INFO", "message": "Creating Apache config at: /etc/apache2/sites-available/aaabb.conf"}
-{"timestamp": "2025-07-14T16:13:53.460470", "level": "INFO", "message": "Ensuring Nginx includes are configured"}
-{"timestamp": "2025-07-14T16:13:53.460709", "level": "INFO", "message": "Creating sites-available and sites-enabled directories if needed"}
-{"timestamp": "2025-07-14T16:13:53.463179", "level": "INFO", "message": "Creating Nginx config at: /usr/local/nginx/conf/sites-available/aaabb.conf"}
-{"timestamp": "2025-07-14T16:13:53.464047", "level": "INFO", "message": "Removing existing symlink: /usr/local/nginx/conf/sites-enabled/aaabb.conf"}
-{"timestamp": "2025-07-14T16:13:53.464323", "level": "INFO", "message": "Creating symlink from /usr/local/nginx/conf/sites-available/aaabb.conf to /usr/local/nginx/conf/sites-enabled/aaabb.conf"}
-{"timestamp": "2025-07-14T16:13:53.464608", "level": "INFO", "message": "Configuring WAF"}
-{"timestamp": "2025-07-14T16:13:53.466207", "level": "INFO", "message": "Copying CRS files from /usr/local/nginx/rules/ to /usr/local/nginx/website_waf/ddd833140d510178/rules"}
-{"timestamp": "2025-07-14T16:13:53.466721", "level": "INFO", "message": "Found 43 CRS files to copy"}
-{"timestamp": "2025-07-14T16:13:53.494285", "level": "INFO", "message": "Creating ModSecurity include file at /usr/local/nginx/website_waf/ddd833140d510178/modsec_includes.conf"}
-{"timestamp": "2025-07-14T16:13:53.515818", "level": "INFO", "message": "Enabling Apache site: aaabb.conf"}
-{"timestamp": "2025-07-14T16:13:53.523401", "level": "ERROR", "message": "Apache enable failed: sudo: a terminal is required to read the password; either use the -S option to read from standard input or configure an askpass helper\nsudo: a password is required\n"}
-{"timestamp": "2025-07-14T16:13:53.523556", "level": "ERROR", "message": "HTTPException during deployment: Apache enable failed: sudo: a terminal is required to read the password; either use the -S option to read from standard input or configure an askpass helper\nsudo: a password is required\n"}
-{"timestamp": "2025-07-14T16:13:53.523589", "level": "INFO", "message": "Starting cleanup after failed deployment"}
-{"timestamp": "2025-07-14T16:13:53.524894", "level": "INFO", "message": "Removing deployment folder: /usr/local/nginx/html/aaabb"}
-{"timestamp": "2025-07-14T16:13:53.525868", "level": "INFO", "message": "Disabling Apache site: aaabb.conf"}
-{"timestamp": "2025-07-14T16:13:53.532907", "level": "INFO", "message": "Removing Apache config: /etc/apache2/sites-available/aaabb.conf"}
-{"timestamp": "2025-07-14T16:13:53.533590", "level": "INFO", "message": "Reloading Apache after cleanup"}
-{"timestamp": "2025-07-14T16:13:53.641986", "level": "INFO", "message": "Removing IP address 192.168.70.1/255.255.255.0 from interface ens33 during cleanup."}
-{"timestamp": "2025-07-14T16:13:53.666686", "level": "INFO", "message": "Releasing VIP 192.168.70.1 from database during cleanup."}
-{"timestamp": "2025-07-14T16:13:53.668280", "level": "ERROR", "message": "VIP cleanup error: 500: VIP release failed: 400: VIP is already available"}
-{"timestamp": "2025-07-14T16:13:53.668404", "level": "INFO", "message": "Ensuring Nginx is running after cleanup"}
-{"timestamp": "2025-07-14T16:13:53.687561", "level": "INFO", "message": "Nginx not running, attempting to start"}
-{"timestamp": "2025-07-14T16:13:53.799989", "level": "INFO", "message": "Nginx started. Output: "}
-{"timestamp": "2025-07-14T16:13:55.924545", "level": "INFO", "message": "Client disconnected"}
-{"timestamp": "2025-07-14T16:13:55.925106", "level": "INFO", "message": "Updating website status to failed."}
-{"timestamp": "2025-07-14T16:13:55.957907", "level": "INFO", "message": "Trying audit log path: /var/log/modsec_audit.log"}
-{"timestamp": "2025-07-14T16:13:55.958603", "level": "INFO", "message": "Successfully parsed 40 audit logs from /var/log/modsec_audit.log"}
-{"timestamp": "2025-07-14T16:15:00.512265", "level": "INFO", "message": "Starting deployment for file: aaabb"}
-{"timestamp": "2025-07-14T16:15:00.512395", "level": "INFO", "message": "Validating existing Nginx configuration"}
-{"timestamp": "2025-07-14T16:15:00.620868", "level": "INFO", "message": "Ensuring Nginx service is ready"}
-{"timestamp": "2025-07-14T16:15:00.639859", "level": "INFO", "message": "Regenerating Nginx pid file"}
-{"timestamp": "2025-07-14T16:15:00.658518", "level": "INFO", "message": "Looking for file at: uploads/aaabb.zip"}
-{"timestamp": "2025-07-14T16:15:00.659818", "level": "INFO", "message": "Creating website entry for aaabb.zip with server IP: 192.168.70.2"}
-{"timestamp": "2025-07-14T16:15:00.663561", "level": "INFO", "message": "Created website entry with ID: 70a8d1db92c5b803"}
-{"timestamp": "2025-07-14T16:15:00.669256", "level": "INFO", "message": "VIP parameters not provided by user. Searching for available VIP in database."}
-{"timestamp": "2025-07-14T16:15:00.670437", "level": "INFO", "message": "Found available VIP in DB: 192.168.70.1"}
-{"timestamp": "2025-07-14T16:15:00.670554", "level": "INFO", "message": "Attempting to ensure VIP 192.168.70.1 is removed from network interface before usage."}
-{"timestamp": "2025-07-14T16:15:00.677187", "level": "INFO", "message": "Configuring VIP network for 192.168.70.1"}
-{"timestamp": "2025-07-14T16:15:00.685805", "level": "INFO", "message": "Killing any processes using port 80 (if any)"}
-{"timestamp": "2025-07-14T16:15:00.776011", "level": "INFO", "message": "Processes on port 80 cleared."}
-{"timestamp": "2025-07-14T16:15:00.783058", "level": "INFO", "message": "Setting up deployment folder at: /usr/local/nginx/html/aaabb"}
-{"timestamp": "2025-07-14T16:15:00.783479", "level": "INFO", "message": "Creating new deployment folder: /usr/local/nginx/html/aaabb"}
-{"timestamp": "2025-07-14T16:15:00.784775", "level": "INFO", "message": "Extracting zip file: uploads/aaabb.zip"}
-{"timestamp": "2025-07-14T16:15:00.786784", "level": "INFO", "message": "Extracted files to /usr/local/nginx/html/aaabb"}
-{"timestamp": "2025-07-14T16:15:00.786986", "level": "INFO", "message": "Setting permissions for /usr/local/nginx/html/aaabb"}
-{"timestamp": "2025-07-14T16:15:00.806595", "level": "INFO", "message": "Configuring Apache port: 8082"}
-{"timestamp": "2025-07-14T16:15:00.807328", "level": "INFO", "message": "Creating Apache config at: /etc/apache2/sites-available/aaabb.conf"}
-{"timestamp": "2025-07-14T16:15:00.808251", "level": "INFO", "message": "Ensuring Nginx includes are configured"}
-{"timestamp": "2025-07-14T16:15:00.808527", "level": "INFO", "message": "Creating sites-available and sites-enabled directories if needed"}
-{"timestamp": "2025-07-14T16:15:00.811364", "level": "INFO", "message": "Creating Nginx config at: /usr/local/nginx/conf/sites-available/aaabb.conf"}
-{"timestamp": "2025-07-14T16:15:00.812339", "level": "INFO", "message": "Removing existing symlink: /usr/local/nginx/conf/sites-enabled/aaabb.conf"}
-{"timestamp": "2025-07-14T16:15:00.812576", "level": "INFO", "message": "Creating symlink from /usr/local/nginx/conf/sites-available/aaabb.conf to /usr/local/nginx/conf/sites-enabled/aaabb.conf"}
-{"timestamp": "2025-07-14T16:15:00.812718", "level": "INFO", "message": "Configuring WAF"}
-{"timestamp": "2025-07-14T16:15:00.814200", "level": "INFO", "message": "Copying CRS files from /usr/local/nginx/rules/ to /usr/local/nginx/website_waf/70a8d1db92c5b803/rules"}
-{"timestamp": "2025-07-14T16:15:00.814718", "level": "INFO", "message": "Found 43 CRS files to copy"}
-{"timestamp": "2025-07-14T16:15:00.829912", "level": "INFO", "message": "Creating ModSecurity include file at /usr/local/nginx/website_waf/70a8d1db92c5b803/modsec_includes.conf"}
-{"timestamp": "2025-07-14T16:15:00.848683", "level": "INFO", "message": "Enabling Apache site: aaabb.conf"}
-{"timestamp": "2025-07-14T16:15:00.854589", "level": "ERROR", "message": "Apache enable failed: sudo: a terminal is required to read the password; either use the -S option to read from standard input or configure an askpass helper\nsudo: a password is required\n"}
-{"timestamp": "2025-07-14T16:15:00.854745", "level": "ERROR", "message": "HTTPException during deployment: Apache enable failed: sudo: a terminal is required to read the password; either use the -S option to read from standard input or configure an askpass helper\nsudo: a password is required\n"}
-{"timestamp": "2025-07-14T16:15:00.854792", "level": "INFO", "message": "Starting cleanup after failed deployment"}
-{"timestamp": "2025-07-14T16:15:00.855082", "level": "INFO", "message": "Removing deployment folder: /usr/local/nginx/html/aaabb"}
-{"timestamp": "2025-07-14T16:15:00.855504", "level": "INFO", "message": "Disabling Apache site: aaabb.conf"}
-{"timestamp": "2025-07-14T16:15:00.862131", "level": "INFO", "message": "Removing Apache config: /etc/apache2/sites-available/aaabb.conf"}
-{"timestamp": "2025-07-14T16:15:00.862650", "level": "INFO", "message": "Reloading Apache after cleanup"}
-{"timestamp": "2025-07-14T16:15:00.954031", "level": "INFO", "message": "Removing IP address 192.168.70.1/255.255.255.0 from interface ens33 during cleanup."}
-{"timestamp": "2025-07-14T16:15:00.970940", "level": "INFO", "message": "Releasing VIP 192.168.70.1 from database during cleanup."}
-{"timestamp": "2025-07-14T16:15:00.972210", "level": "ERROR", "message": "VIP cleanup error: 500: VIP release failed: 400: VIP is already available"}
-{"timestamp": "2025-07-14T16:15:00.972318", "level": "INFO", "message": "Ensuring Nginx is running after cleanup"}
-{"timestamp": "2025-07-14T16:15:00.989750", "level": "INFO", "message": "Nginx not running, attempting to start"}
-{"timestamp": "2025-07-14T16:15:01.105842", "level": "INFO", "message": "Nginx started. Output: "}
-{"timestamp": "2025-07-14T16:15:01.837908", "level": "INFO", "message": "Trying audit log path: /var/log/modsec_audit.log"}
-{"timestamp": "2025-07-14T16:15:01.838974", "level": "INFO", "message": "Successfully parsed 40 audit logs from /var/log/modsec_audit.log"}
-{"timestamp": "2025-07-14T16:15:03.842886", "level": "INFO", "message": "Client disconnected"}
-{"timestamp": "2025-07-14T16:15:03.843525", "level": "INFO", "message": "Updating website status to failed."}
+{"timestamp": "2025-07-14T16:24:01.834369", "level": "INFO", "message": "Starting deployment for file: aaabb"}
+{"timestamp": "2025-07-14T16:24:01.834509", "level": "INFO", "message": "Validating existing Nginx configuration"}
+{"timestamp": "2025-07-14T16:24:01.958678", "level": "INFO", "message": "Ensuring Nginx service is ready"}
+{"timestamp": "2025-07-14T16:24:01.980627", "level": "INFO", "message": "Regenerating Nginx pid file"}
+{"timestamp": "2025-07-14T16:24:01.999652", "level": "INFO", "message": "Looking for file at: uploads/aaabb.zip"}
+{"timestamp": "2025-07-14T16:24:02.000898", "level": "INFO", "message": "Creating website entry for aaabb.zip with server IP: 192.168.70.2"}
+{"timestamp": "2025-07-14T16:24:02.004970", "level": "INFO", "message": "Created website entry with ID: 4a17ef81d39b0b3d"}
+{"timestamp": "2025-07-14T16:24:02.008334", "level": "INFO", "message": "VIP parameters not provided by user. Searching for available VIP in database."}
+{"timestamp": "2025-07-14T16:24:02.008874", "level": "INFO", "message": "No available VIP found in database. Attempting to create a new one."}
+{"timestamp": "2025-07-14T16:24:02.011141", "level": "WARNING", "message": "IP 192.168.70.254 appears to be in use, trying next if available"}
+{"timestamp": "2025-07-14T16:24:02.011301", "level": "INFO", "message": "Creating new VIP record in database for 192.168.70.253"}
+{"timestamp": "2025-07-14T16:24:02.015688", "level": "INFO", "message": "New VIP record created: 192.168.70.253"}
+{"timestamp": "2025-07-14T16:24:02.015794", "level": "INFO", "message": "Attempting to ensure VIP 192.168.70.253 is removed from network interface before usage."}
+{"timestamp": "2025-07-14T16:24:02.023567", "level": "INFO", "message": "Configuring VIP network for 192.168.70.253"}
+{"timestamp": "2025-07-14T16:24:02.033244", "level": "INFO", "message": "Killing any processes using port 80 (if any)"}
+{"timestamp": "2025-07-14T16:24:02.102580", "level": "INFO", "message": "Processes on port 80 cleared."}
+{"timestamp": "2025-07-14T16:24:02.110378", "level": "INFO", "message": "Setting up deployment folder at: /usr/local/nginx/html/aaabb"}
+{"timestamp": "2025-07-14T16:24:02.110710", "level": "INFO", "message": "Removing existing deployment folder: /usr/local/nginx/html/aaabb"}
+{"timestamp": "2025-07-14T16:24:02.111467", "level": "INFO", "message": "Creating new deployment folder: /usr/local/nginx/html/aaabb"}
+{"timestamp": "2025-07-14T16:24:02.112295", "level": "INFO", "message": "Extracting zip file: uploads/aaabb.zip"}
+{"timestamp": "2025-07-14T16:24:02.112581", "level": "INFO", "message": "Client disconnected"}
+{"timestamp": "2025-07-14T16:24:02.114703", "level": "INFO", "message": "Extracted files to /usr/local/nginx/html/aaabb"}
+{"timestamp": "2025-07-14T16:24:02.114885", "level": "INFO", "message": "Setting permissions for /usr/local/nginx/html/aaabb"}
+{"timestamp": "2025-07-14T16:24:02.130737", "level": "INFO", "message": "Configuring Apache port: 8082"}
+{"timestamp": "2025-07-14T16:24:02.130908", "level": "INFO", "message": "Creating Apache config at: /etc/apache2/sites-available/aaabb.conf"}
+{"timestamp": "2025-07-14T16:24:02.131752", "level": "INFO", "message": "Ensuring Nginx includes are configured"}
+{"timestamp": "2025-07-14T16:24:02.131987", "level": "INFO", "message": "Creating sites-available and sites-enabled directories if needed"}
+{"timestamp": "2025-07-14T16:24:02.133799", "level": "INFO", "message": "Creating Nginx config at: /usr/local/nginx/conf/sites-available/aaabb.conf"}
+{"timestamp": "2025-07-14T16:24:02.134629", "level": "INFO", "message": "Removing existing symlink: /usr/local/nginx/conf/sites-enabled/aaabb.conf"}
+{"timestamp": "2025-07-14T16:24:02.134820", "level": "INFO", "message": "Creating symlink from /usr/local/nginx/conf/sites-available/aaabb.conf to /usr/local/nginx/conf/sites-enabled/aaabb.conf"}
+{"timestamp": "2025-07-14T16:24:02.134934", "level": "INFO", "message": "Configuring WAF"}
+{"timestamp": "2025-07-14T16:24:02.136014", "level": "INFO", "message": "Copying CRS files from /usr/local/nginx/rules/ to /usr/local/nginx/website_waf/4a17ef81d39b0b3d/rules"}
+{"timestamp": "2025-07-14T16:24:02.136416", "level": "INFO", "message": "Found 43 CRS files to copy"}
+{"timestamp": "2025-07-14T16:24:02.166541", "level": "INFO", "message": "Creating ModSecurity include file at /usr/local/nginx/website_waf/4a17ef81d39b0b3d/modsec_includes.conf"}
+{"timestamp": "2025-07-14T16:24:02.185003", "level": "INFO", "message": "Enabling Apache site: aaabb.conf"}
+{"timestamp": "2025-07-14T16:24:02.213941", "level": "INFO", "message": "Testing Apache configuration"}
+{"timestamp": "2025-07-14T16:24:02.245649", "level": "INFO", "message": "Apache configtest output: "}
+{"timestamp": "2025-07-14T16:24:02.245810", "level": "INFO", "message": "Reloading Apache"}
+{"timestamp": "2025-07-14T16:24:02.342392", "level": "INFO", "message": "Testing Nginx configuration"}
+{"timestamp": "2025-07-14T16:24:02.458200", "level": "INFO", "message": "Nginx test output: "}
+{"timestamp": "2025-07-14T16:24:02.458320", "level": "INFO", "message": "Ensuring Nginx is running before reload"}
+{"timestamp": "2025-07-14T16:24:02.475469", "level": "INFO", "message": "Reloading Nginx"}
+{"timestamp": "2025-07-14T16:24:02.588100", "level": "INFO", "message": "Nginx reloaded successfully (soft reload)."}
+{"timestamp": "2025-07-14T16:24:02.588228", "level": "INFO", "message": "Finalizing deployment"}
+{"timestamp": "2025-07-14T16:24:02.592902", "level": "INFO", "message": "Successfully deployed aaabb with VIP 192.168.70.253"}
+{"timestamp": "2025-07-14T16:24:07.169525", "level": "INFO", "message": "Trying audit log path: /var/log/modsec_audit.log"}
+{"timestamp": "2025-07-14T16:24:07.170994", "level": "INFO", "message": "Successfully parsed 40 audit logs from /var/log/modsec_audit.log"}
 
-
-
-
-
-
-
-
+```
+root    ALL=(ALL:ALL) ALL
+www-data ALL=(ALL) NOPASSWD: /usr/bin/systemctl reload nginx
+www-data ALL=(root) NOPASSWD: /usr/bin/truncate -s 0 /var/log/modsec_audit.log
 www-data ALL=(ALL) NOPASSWD: \
     /usr/sbin/ip addr add *, \
     /usr/sbin/ip addr del *, \
@@ -159,3 +65,11 @@ www-data ALL=(ALL) NOPASSWD: \
     /usr/bin/systemctl reload nginx, \
     /usr/bin/systemctl restart nginx, \
     /bin/sh -c *
+
+# Allow members of group sudo to execute any command
+%sudo   ALL=(ALL:ALL) ALL
+
+# See sudoers(5) for more information on "@include" directives:
+
+@includedir /etc/sudoers.d
+```
