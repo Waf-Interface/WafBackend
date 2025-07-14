@@ -1,206 +1,695 @@
-root@test://etc/apache2/sites-available# journalctl -u waf-backend --since "11:39:47" -n 1000
-cat
-INFO:     192.168.70.2:53400 - "OPTIONS /api/deploy/dsnhsd HTTP/1.0" 200 OK
-www-data : PWD=/opt/waf_interface/waf-ghb ; USER=root ; COMMAND=/usr/sbin/ip addr show dev ens33
-pam_unix(sudo:session): session opened for user root(uid=0) by (uid=33)
-pam_unix(sudo:session): session closed for user root
-www-data : PWD=/opt/waf_interface/waf-ghb ; USER=root ; COMMAND=/usr/sbin/ip addr add 192.168.70.1/255.255.255.0 dev ens33
-pam_unix(sudo:session): session opened for user root(uid=0) by (uid=33)
-pam_unix(sudo:session): session closed for user root
-www-data : PWD=/opt/waf_interface/waf-ghb ; USER=root ; COMMAND=/usr/bin/fuser -k 80/tcp
-pam_unix(sudo:session): session opened for user root(uid=0) by (uid=33)
-pam_unix(sudo:session): session closed for user root
-INFO:     connection closed
-INFO:     connection closed
-www-data : PWD=/opt/waf_interface/waf-ghb ; USER=root ; COMMAND=/usr/bin/chown -R www-data:www-data /usr/local/nginx/html/dsnhsd
-pam_unix(sudo:session): session opened for user root(uid=0) by (uid=33)
-pam_unix(sudo:session): session closed for user root
-www-data : PWD=/opt/waf_interface/waf-ghb ; USER=root ; COMMAND=/usr/bin/chmod -R 755 /usr/local/nginx/html/dsnhsd
-pam_unix(sudo:session): session opened for user root(uid=0) by (uid=33)
-pam_unix(sudo:session): session closed for user root
-www-data : PWD=/opt/waf_interface/waf-ghb ; USER=root ; COMMAND=/usr/sbin/ip addr show dev ens33
-pam_unix(sudo:session): session opened for user root(uid=0) by (uid=33)
-pam_unix(sudo:session): session closed for user root
-www-data : PWD=/opt/waf_interface/waf-ghb ; USER=root ; COMMAND=/usr/sbin/ip addr del 192.168.70.1/255.255.255.0 dev ens33
-pam_unix(sudo:session): session opened for user root(uid=0) by (uid=33)
-pam_unix(sudo:session): session closed for user root
-www-data : PWD=/opt/waf_interface/waf-ghb ; USER=root ; COMMAND=/usr/sbin/ip addr show dev ens33
-pam_unix(sudo:session): session opened for user root(uid=0) by (uid=33)
-pam_unix(sudo:session): session closed for user root
-www-data : PWD=/opt/waf_interface/waf-ghb ; USER=root ; COMMAND=/usr/sbin/ip addr add 192.168.70.1/255.255.255.0 dev ens33
-pam_unix(sudo:session): session opened for user root(uid=0) by (uid=33)
-pam_unix(sudo:session): session closed for user root
-www-data : PWD=/opt/waf_interface/waf-ghb ; USER=root ; COMMAND=/usr/bin/fuser -k 80/tcp
-pam_unix(sudo:session): session opened for user root(uid=0) by (uid=33)
-pam_unix(sudo:session): session closed for user root
-www-data : PWD=/opt/waf_interface/waf-ghb ; USER=root ; COMMAND=/usr/bin/chown -R www-data:www-data /usr/local/nginx/html/dsnhsd
-pam_unix(sudo:session): session opened for user root(uid=0) by (uid=33)
-pam_unix(sudo:session): session closed for user root
-www-data : PWD=/opt/waf_interface/waf-ghb ; USER=root ; COMMAND=/usr/bin/chmod -R 755 /usr/local/nginx/html/dsnhsd
-pam_unix(sudo:session): session opened for user root(uid=0) by (uid=33)
-pam_unix(sudo:session): session closed for user root
-www-data : PWD=/opt/waf_interface/waf-ghb ; USER=root ; COMMAND=/usr/sbin/ip addr show dev ens33
-pam_unix(sudo:session): session opened for user root(uid=0) by (uid=33)
-pam_unix(sudo:session): session closed for user root
-www-data : PWD=/opt/waf_interface/waf-ghb ; USER=root ; COMMAND=/usr/sbin/ip addr del 192.168.70.1/255.255.255.0 dev ens33
-pam_unix(sudo:session): session opened for user root(uid=0) by (uid=33)
-pam_unix(sudo:session): session closed for user root
-INFO:     ('192.168.70.2', 53424) - "WebSocket /ws?token=eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ0ZXN0IiwiZXhwIjoxNzUyNTEwMTkxLCJydWxlIjoiYWRtaW4ifQ.URCcJW3ZV4FQfbM96ABP5LKZXr-OkEki9VNa429mWDx1mmJEN-e88FWh4FSRKUdA3FkNbIBslSUB18Syh1l3zkc_7ZYL691n49HFAAhXoGOetgcGfe6OE3UiSXRKFYZmD-SehJ-XRmHDSzL4J7xEFp5eqbCi5EKAPm4woe68tpozSuDMC9gNoMO2i-eJd05oxLvyOLmxEGGm13W3kk_f0kwMQ462gMTMvifZfZDwoXhcm-he_p0QygmsnbkqBlA0NxlZNbN-0TGO0KP1Qacg28J58LEEkjCK9Y4ueNvTsjkkkrw8nrwvP02H5BGoER2EOyK6lR07CF1tgUwjwOMmBA" [accepted]
-INFO:     connection open
-INFO:     ('192.168.70.2', 50322) - "WebSocket /ws?token=eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ0ZXN0IiwiZXhwIjoxNzUyNTA4MTM0LCJydWxlIjoiYWRtaW4ifQ.qXiA4ynbR0QYwyfdrTEWWA7hwR-4XVoPzBO2oXFtuXX9gReXHp6GsYDS1a4VwyXujJUGy2_K9Zc6HzVgGtSYUSAhF5Ktzb_7CPO3xPQeZU4YIQ9PoGMVsboEif09x4pdzOoCfFBk9Wgh0udmIo5gLTtcA1M-C9I-Pw34Rk87TvV-al34icU-3IxZVzYxOoRXntowCONZQrn6ufstp7vk65r34oBBqsVkumtW01IXZB6S6elSlbIIhiUTHwbe7UMTyUiV9wFMg-blfdYpCh42PMIWpq7BWYs6IY-TmccHfDGZ4uyxrbnCVHqiQpdFrvdj7qafWTB8Gca0rV2S8Z9uzw" [accepted]
-INFO:     connection open
-VIP 192.168.70.1/255.255.255.0 not found on ens33. No deletion needed.
-Attempting to add VIP 192.168.70.1/255.255.255.0 to ens33...
-VIP 192.168.70.1/255.255.255.0 added successfully to ens33.
-VIP 192.168.70.1/255.255.255.0 found on ens33. Attempting to delete...
-VIP 192.168.70.1/255.255.255.0 deled successfully from ens33.
-VIP 192.168.70.1/255.255.255.0 not found on ens33. No deletion needed.
-Attempting to add VIP 192.168.70.1/255.255.255.0 to ens33...
-VIP 192.168.70.1/255.255.255.0 added successfully to ens33.
-VIP 192.168.70.1/255.255.255.0 found on ens33. Attempting to delete...
-VIP 192.168.70.1/255.255.255.0 deled successfully from ens33.
-ModSecurity is included in the NGINX configuration.
-ModSecurity is enabled.
-ModSecurity is included in the NGINX configuration.
-ModSecurity is enabled.
-INFO:     192.168.70.2:50338 - "GET /api/traffic HTTP/1.0" 200 OK
-INFO:     192.168.70.2:59398 - "GET /api/traffic HTTP/1.0" 200 OK
-INFO:     192.168.70.2:39158 - "GET /api/traffic HTTP/1.0" 200 OK
-INFO:     192.168.70.2:57202 - "GET /api/traffic HTTP/1.0" 200 OK
-INFO:     192.168.70.2:34138 - "GET /api/traffic HTTP/1.0" 200 OK
-INFO:     192.168.70.2:34144 - "OPTIONS /api/logs/app HTTP/1.0" 200 OK
-INFO:     192.168.70.2:34158 - "OPTIONS /api/logs/login HTTP/1.0" 200 OK
-INFO:     192.168.70.2:34166 - "GET /api/logs/app HTTP/1.0" 200 OK
-INFO:     192.168.70.2:34180 - "GET /api/logs/login HTTP/1.0" 200 OK
-INFO:     192.168.70.2:48428 - "GET /api/traffic HTTP/1.0" 200 OK
-INFO:     192.168.70.2:37812 - "OPTIONS /api/websites/ HTTP/1.0" 200 OK
-INFO:     192.168.70.2:37814 - "GET /api/websites/ HTTP/1.0" 200 OK
-INFO:     192.168.70.2:49416 - "GET /api/traffic HTTP/1.0" 200 OK
-INFO:     192.168.70.2:39940 - "GET /api/traffic HTTP/1.0" 200 OK
-INFO:     192.168.70.2:58428 - "GET /api/traffic HTTP/1.0" 200 OK
-INFO:     192.168.70.2:35756 - "GET /api/traffic HTTP/1.0" 200 OK
-INFO:     192.168.70.2:34508 - "GET /api/traffic HTTP/1.0" 200 OK
-INFO:     192.168.70.2:53178 - "GET /api/deploy/dsnhsd HTTP/1.0" 401 Unauthorized
-INFO:     192.168.70.2:49054 - "OPTIONS /api/traffic HTTP/1.0" 200 OK
-INFO:     192.168.70.2:49058 - "GET /api/traffic HTTP/1.0" 200 OK
-INFO:     192.168.70.2:53302 - "GET /api/deploy/dsnhsd?vip_address=192.168.70.1&vip_netmask=255.255.255.0&network_interface=ens33 HTTP/1.0" 401 Unauthorized
-INFO:     192.168.70.2:39320 - "OPTIONS /api/traffic HTTP/1.0" 200 OK
-INFO:     192.168.70.2:39328 - "GET /api/traffic HTTP/1.0" 200 OK
-INFO:     192.168.70.2:47322 - "GET /api/deploy/dsnhsd?vip_address=192.168.70.1&vip_netmask=255.255.255.0&network_interface=ens33 HTTP/1.0" 401 Unauthorized
-INFO:     192.168.70.2:47334 - "GET /api/traffic HTTP/1.0" 200 OK
-www-data : PWD=/opt/waf_interface/waf-ghb ; USER=root ; COMMAND=/usr/sbin/ip addr show dev ens33
-pam_unix(sudo:session): session opened for user root(uid=0) by (uid=33)
-pam_unix(sudo:session): session closed for user root
-www-data : PWD=/opt/waf_interface/waf-ghb ; USER=root ; COMMAND=/usr/bin/fuser -k 80/tcp
-pam_unix(sudo:session): session opened for user root(uid=0) by (uid=33)
-pam_unix(sudo:session): session closed for user root
-INFO:     connection closed
-INFO:     connection closed
-www-data : PWD=/opt/waf_interface/waf-ghb ; USER=root ; COMMAND=/usr/bin/chmod -R 755 /usr/local/nginx/html/dsnhsd
-pam_unix(sudo:session): session opened for user root(uid=0) by (uid=33)
-pam_unix(sudo:session): session closed for user root
-www-data : PWD=/opt/waf_interface/waf-ghb ; USER=root ; COMMAND=/usr/sbin/ip addr show dev ens33
-pam_unix(sudo:session): session opened for user root(uid=0) by (uid=33)
-pam_unix(sudo:session): session closed for user root
-www-data : PWD=/opt/waf_interface/waf-ghb ; USER=root ; COMMAND=/usr/sbin/ip addr del 192.168.70.1/255.255.255.0 dev ens33
-pam_unix(sudo:session): session opened for user root(uid=0) by (uid=33)
-pam_unix(sudo:session): session closed for user root
-INFO:     ('192.168.70.2', 45760) - "WebSocket /ws?token=eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ0ZXN0IiwiZXhwIjoxNzUyNTEwMTkxLCJydWxlIjoiYWRtaW4ifQ.URCcJW3ZV4FQfbM96ABP5LKZXr-OkEki9VNa429mWDx1mmJEN-e88FWh4FSRKUdA3FkNbIBslSUB18Syh1l3zkc_7ZYL691n49HFAAhXoGOetgcGfe6OE3UiSXRKFYZmD-SehJ-XRmHDSzL4J7xEFp5eqbCi5EKAPm4woe68tpozSuDMC9gNoMO2i-eJd05oxLvyOLmxEGGm13W3kk_f0kwMQ462gMTMvifZfZDwoXhcm-he_p0QygmsnbkqBlA0NxlZNbN-0TGO0KP1Qacg28J58LEEkjCK9Y4ueNvTsjkkkrw8nrwvP02H5BGoER2EOyK6lR07CF1tgUwjwOMmBA" [accepted]
-INFO:     connection open
-INFO:     ('192.168.70.2', 45774) - "WebSocket /ws?token=eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ0ZXN0IiwiZXhwIjoxNzUyNTA4MTM0LCJydWxlIjoiYWRtaW4ifQ.qXiA4ynbR0QYwyfdrTEWWA7hwR-4XVoPzBO2oXFtuXX9gReXHp6GsYDS1a4VwyXujJUGy2_K9Zc6HzVgGtSYUSAhF5Ktzb_7CPO3xPQeZU4YIQ9PoGMVsboEif09x4pdzOoCfFBk9Wgh0udmIo5gLTtcA1M-C9I-Pw34Rk87TvV-al34icU-3IxZVzYxOoRXntowCONZQrn6ufstp7vk65r34oBBqsVkumtW01IXZB6S6elSlbIIhiUTHwbe7UMTyUiV9wFMg-blfdYpCh42PMIWpq7BWYs6IY-TmccHfDGZ4uyxrbnCVHqiQpdFrvdj7qafWTB8Gca0rV2S8Z9uzw" [accepted]
-INFO:     connection open
-www-data : PWD=/opt/waf_interface/waf-ghb ; USER=root ; COMMAND=/usr/sbin/ip addr show dev ens33
-pam_unix(sudo:session): session opened for user root(uid=0) by (uid=33)
-pam_unix(sudo:session): session closed for user root
-www-data : PWD=/opt/waf_interface/waf-ghb ; USER=root ; COMMAND=/usr/sbin/ip addr add 192.168.70.1/255.255.255.0 dev ens33
-pam_unix(sudo:session): session opened for user root(uid=0) by (uid=33)
-pam_unix(sudo:session): session closed for user root
-www-data : PWD=/opt/waf_interface/waf-ghb ; USER=root ; COMMAND=/usr/bin/fuser -k 80/tcp
-pam_unix(sudo:session): session opened for user root(uid=0) by (uid=33)
-pam_unix(sudo:session): session closed for user root
-INFO:     connection closed
-INFO:     connection closed
-www-data : PWD=/opt/waf_interface/waf-ghb ; USER=root ; COMMAND=/usr/bin/chown -R www-data:www-data /usr/local/nginx/html/dsnhsd
-pam_unix(sudo:session): session opened for user root(uid=0) by (uid=33)
-pam_unix(sudo:session): session closed for user root
-www-data : PWD=/opt/waf_interface/waf-ghb ; USER=root ; COMMAND=/usr/bin/chmod -R 755 /usr/local/nginx/html/dsnhsd
-pam_unix(sudo:session): session opened for user root(uid=0) by (uid=33)
-pam_unix(sudo:session): session closed for user root
-www-data : PWD=/opt/waf_interface/waf-ghb ; USER=root ; COMMAND=/usr/sbin/ip addr show dev ens33
-pam_unix(sudo:session): session opened for user root(uid=0) by (uid=33)
-pam_unix(sudo:session): session closed for user root
-www-data : PWD=/opt/waf_interface/waf-ghb ; USER=root ; COMMAND=/usr/sbin/ip addr del 192.168.70.1/255.255.255.0 dev ens33
-pam_unix(sudo:session): session opened for user root(uid=0) by (uid=33)
-pam_unix(sudo:session): session closed for user root
-INFO:     ('192.168.70.2', 44358) - "WebSocket /ws?token=eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ0ZXN0IiwiZXhwIjoxNzUyNTEwMTkxLCJydWxlIjoiYWRtaW4ifQ.URCcJW3ZV4FQfbM96ABP5LKZXr-OkEki9VNa429mWDx1mmJEN-e88FWh4FSRKUdA3FkNbIBslSUB18Syh1l3zkc_7ZYL691n49HFAAhXoGOetgcGfe6OE3UiSXRKFYZmD-SehJ-XRmHDSzL4J7xEFp5eqbCi5EKAPm4woe68tpozSuDMC9gNoMO2i-eJd05oxLvyOLmxEGGm13W3kk_f0kwMQ462gMTMvifZfZDwoXhcm-he_p0QygmsnbkqBlA0NxlZNbN-0TGO0KP1Qacg28J58LEEkjCK9Y4ueNvTsjkkkrw8nrwvP02H5BGoER2EOyK6lR07CF1tgUwjwOMmBA" [accepted]
-INFO:     connection open
-INFO:     ('192.168.70.2', 44368) - "WebSocket /ws?token=eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ0ZXN0IiwiZXhwIjoxNzUyNTA4MTM0LCJydWxlIjoiYWRtaW4ifQ.qXiA4ynbR0QYwyfdrTEWWA7hwR-4XVoPzBO2oXFtuXX9gReXHp6GsYDS1a4VwyXujJUGy2_K9Zc6HzVgGtSYUSAhF5Ktzb_7CPO3xPQeZU4YIQ9PoGMVsboEif09x4pdzOoCfFBk9Wgh0udmIo5gLTtcA1M-C9I-Pw34Rk87TvV-al34icU-3IxZVzYxOoRXntowCONZQrn6ufstp7vk65r34oBBqsVkumtW01IXZB6S6elSlbIIhiUTHwbe7UMTyUiV9wFMg-blfdYpCh42PMIWpq7BWYs6IY-TmccHfDGZ4uyxrbnCVHqiQpdFrvdj7qafWTB8Gca0rV2S8Z9uzw" [accepted]
-INFO:     connection open
-VIP 192.168.70.1/255.255.255.0 not found on ens33. No deletion needed.
-Attempting to add VIP 192.168.70.1/255.255.255.0 to ens33...
-VIP 192.168.70.1/255.255.255.0 added successfully to ens33.
-VIP 192.168.70.1/255.255.255.0 found on ens33. Attempting to delete...
-VIP 192.168.70.1/255.255.255.0 deled successfully from ens33.
-ModSecurity is included in the NGINX configuration.
-ModSecurity is enabled.
-ModSecurity is included in the NGINX configuration.
-ModSecurity is enabled.
-VIP 192.168.70.1/255.255.255.0 not found on ens33. No deletion needed.
-Attempting to add VIP 192.168.70.1/255.255.255.0 to ens33...
-VIP 192.168.70.1/255.255.255.0 added successfully to ens33.
-VIP 192.168.70.1/255.255.255.0 found on ens33. Attempting to delete...
-VIP 192.168.70.1/255.255.255.0 deled successfully from ens33.
-ModSecurity is included in the NGINX configuration.
-ModSecurity is enabled.
-ModSecurity is included in the NGINX configuration.
-ModSecurity is enabled.
-INFO:     192.168.70.2:44380 - "GET /api/traffic HTTP/1.0" 200 OK
-INFO:     192.168.70.2:41328 - "GET /api/traffic HTTP/1.0" 200 OK
-INFO:     192.168.70.2:43996 - "GET /api/traffic HTTP/1.0" 200 OK
-INFO:     192.168.70.2:40860 - "GET /api/traffic HTTP/1.0" 200 OK
-INFO:     192.168.70.2:39340 - "GET /api/traffic HTTP/1.0" 200 OK
-INFO:     192.168.70.2:32872 - "GET /api/traffic HTTP/1.0" 401 Unauthorized
-INFO:     192.168.70.2:39092 - "GET /api/traffic HTTP/1.0" 401 Unauthorized
-INFO:     192.168.70.2:39084 - "GET /api/traffic HTTP/1.0" 200 OK
-INFO:     192.168.70.2:34230 - "GET /api/traffic HTTP/1.0" 401 Unauthorized
-INFO:     192.168.70.2:34226 - "GET /api/traffic HTTP/1.0" 200 OK
-INFO:     192.168.70.2:56964 - "GET /api/traffic HTTP/1.0" 200 OK
-www-data : PWD=/opt/waf_interface/waf-ghb ; USER=root ; COMMAND=/usr/sbin/ip addr show dev ens33
-pam_unix(sudo:session): session opened for user root(uid=0) by (uid=33)
-pam_unix(sudo:session): session closed for user root
-www-data : PWD=/opt/waf_interface/waf-ghb ; USER=root ; COMMAND=/usr/sbin/ip addr add 192.168.70.1/255.255.255.0 dev ens33
-pam_unix(sudo:session): session opened for user root(uid=0) by (uid=33)
-pam_unix(sudo:session): session closed for user root
-www-data : PWD=/opt/waf_interface/waf-ghb ; USER=root ; COMMAND=/usr/bin/fuser -k 80/tcp
-pam_unix(sudo:session): session opened for user root(uid=0) by (uid=33)
-pam_unix(sudo:session): session closed for user root
-INFO:     connection closed
-INFO:     connection closed
-www-data : PWD=/opt/waf_interface/waf-ghb ; USER=root ; COMMAND=/usr/bin/chown -R www-data:www-data /usr/local/nginx/html/dsnhsd
-pam_unix(sudo:session): session opened for user root(uid=0) by (uid=33)
-pam_unix(sudo:session): session closed for user root
-www-data : PWD=/opt/waf_interface/waf-ghb ; USER=root ; COMMAND=/usr/bin/chmod -R 755 /usr/local/nginx/html/dsnhsd
-pam_unix(sudo:session): session opened for user root(uid=0) by (uid=33)
-pam_unix(sudo:session): session closed for user root
-www-data : PWD=/opt/waf_interface/waf-ghb ; USER=root ; COMMAND=/usr/sbin/ip addr show dev ens33
-pam_unix(sudo:session): session opened for user root(uid=0) by (uid=33)
-pam_unix(sudo:session): session closed for user root
-www-data : PWD=/opt/waf_interface/waf-ghb ; USER=root ; COMMAND=/usr/sbin/ip addr del 192.168.70.1/255.255.255.0 dev ens33
-pam_unix(sudo:session): session opened for user root(uid=0) by (uid=33)
-pam_unix(sudo:session): session closed for user root
-INFO:     ('192.168.70.2', 51922) - "WebSocket /ws?token=eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ0ZXN0IiwiZXhwIjoxNzUyNTEwMTkxLCJydWxlIjoiYWRtaW4ifQ.URCcJW3ZV4FQfbM96ABP5LKZXr-OkEki9VNa429mWDx1mmJEN-e88FWh4FSRKUdA3FkNbIBslSUB18Syh1l3zkc_7ZYL691n49HFAAhXoGOetgcGfe6OE3UiSXRKFYZmD-SehJ-XRmHDSzL4J7xEFp5eqbCi5EKAPm4woe68tpozSuDMC9gNoMO2i-eJd05oxLvyOLmxEGGm13W3kk_f0kwMQ462gMTMvifZfZDwoXhcm-he_p0QygmsnbkqBlA0NxlZNbN-0TGO0KP1Qacg28J58LEEkjCK9Y4ueNvTsjkkkrw8nrwvP02H5BGoER2EOyK6lR07CF1tgUwjwOMmBA" [accepted]
-INFO:     connection open
-INFO:     ('192.168.70.2', 51932) - "WebSocket /ws?token=eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ0ZXN0IiwiZXhwIjoxNzUyNTA4MTM0LCJydWxlIjoiYWRtaW4ifQ.qXiA4ynbR0QYwyfdrTEWWA7hwR-4XVoPzBO2oXFtuXX9gReXHp6GsYDS1a4VwyXujJUGy2_K9Zc6HzVgGtSYUSAhF5Ktzb_7CPO3xPQeZU4YIQ9PoGMVsboEif09x4pdzOoCfFBk9Wgh0udmIo5gLTtcA1M-C9I-Pw34Rk87TvV-al34icU-3IxZVzYxOoRXntowCONZQrn6ufstp7vk65r34oBBqsVkumtW01IXZB6S6elSlbIIhiUTHwbe7UMTyUiV9wFMg-blfdYpCh42PMIWpq7BWYs6IY-TmccHfDGZ4uyxrbnCVHqiQpdFrvdj7qafWTB8Gca0rV2S8Z9uzw" [accepted]
-INFO:     connection open
-INFO:     connection closed
-INFO:     ('192.168.70.2', 52572) - "WebSocket /ws?token=eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ0ZXN0IiwiZXhwIjoxNzUyNTA4MTM0LCJydWxlIjoiYWRtaW4ifQ.qXiA4ynbR0QYwyfdrTEWWA7hwR-4XVoPzBO2oXFtuXX9gReXHp6GsYDS1a4VwyXujJUGy2_K9Zc6HzVgGtSYUSAhF5Ktzb_7CPO3xPQeZU4YIQ9PoGMVsboEif09x4pdzOoCfFBk9Wgh0udmIo5gLTtcA1M-C9I-Pw34Rk87TvV-al34icU-3IxZVzYxOoRXntowCONZQrn6ufstp7vk65r34oBBqsVkumtW01IXZB6S6elSlbIIhiUTHwbe7UMTyUiV9wFMg-blfdYpCh42PMIWpq7BWYs6IY-TmccHfDGZ4uyxrbnCVHqiQpdFrvdj7qafWTB8Gca0rV2S8Z9uzw" [accepted]
-INFO:     connection open
-INFO:     connection closed
-VIP 192.168.70.1/255.255.255.0 not found on ens33. No deletion needed.
-Attempting to add VIP 192.168.70.1/255.255.255.0 to ens33...
-VIP 192.168.70.1/255.255.255.0 added successfully to ens33.
-VIP 192.168.70.1/255.255.255.0 found on ens33. Attempting to delete...
-VIP 192.168.70.1/255.255.255.0 deled successfully from ens33.
-ModSecurity is included in the NGINX configuration.
-ModSecurity is enabled.
-I
+{"timestamp": "2025-07-14T14:50:37.737779", "level": "INFO", "message": "Trying audit log path: /var/log/modsec_audit.log"}
+{"timestamp": "2025-07-14T14:50:37.739476", "level": "INFO", "message": "Successfully parsed 40 audit logs from /var/log/modsec_audit.log"}
+{"timestamp": "2025-07-14T14:51:07.755002", "level": "INFO", "message": "Starting file upload: test_test.zip"}
+{"timestamp": "2025-07-14T14:51:07.755309", "level": "INFO", "message": "Upload completed: test_test.zip"}
+{"timestamp": "2025-07-14T14:51:23.290318", "level": "INFO", "message": "Starting deployment for file: test_test"}
+{"timestamp": "2025-07-14T14:51:23.290458", "level": "INFO", "message": "Validating existing Nginx configuration"}
+{"timestamp": "2025-07-14T14:51:23.328942", "level": "INFO", "message": "Ensuring Nginx service is ready"}
+{"timestamp": "2025-07-14T14:51:23.349381", "level": "INFO", "message": "Looking for file at: uploads/test_test.zip"}
+{"timestamp": "2025-07-14T14:51:23.350936", "level": "INFO", "message": "Creating website entry for test_test.zip with server IP: 192.168.70.2"}
+{"timestamp": "2025-07-14T14:51:23.356875", "level": "INFO", "message": "Created website entry with ID: 7f76c26190866d83"}
+{"timestamp": "2025-07-14T14:51:23.360977", "level": "ERROR", "message": "VIP configuration parameters are missing. Please set WAF_VIP_ADDRESS, WAF_VIP_NETMASK, and WAF_NETWORK_INTERFACE environment variables or pass them as arguments."}
+{"timestamp": "2025-07-14T14:51:23.365938", "level": "ERROR", "message": "HTTPException during deployment: VIP configuration parameters are missing. Please set WAF_VIP_ADDRESS, WAF_VIP_NETMASK, and WAF_NETWORK_INTERFACE environment variables or pass them as arguments."}
+{"timestamp": "2025-07-14T14:51:23.366155", "level": "INFO", "message": "Starting cleanup after failed deployment"}
+{"timestamp": "2025-07-14T14:51:23.366220", "level": "INFO", "message": "Ensuring Nginx is running after cleanup"}
+{"timestamp": "2025-07-14T14:51:23.383532", "level": "INFO", "message": "Updating website status to failed."}
+{"timestamp": "2025-07-14T14:51:58.962986", "level": "INFO", "message": "Trying audit log path: /var/log/modsec_audit.log"}
+{"timestamp": "2025-07-14T14:51:58.963665", "level": "INFO", "message": "Successfully parsed 40 audit logs from /var/log/modsec_audit.log"}
+{"timestamp": "2025-07-14T14:52:02.790241", "level": "INFO", "message": "Client disconnected"}
+{"timestamp": "2025-07-14T14:52:30.558769", "level": "INFO", "message": "Starting file upload: donbale.zip"}
+{"timestamp": "2025-07-14T14:52:30.558980", "level": "INFO", "message": "Upload completed: donbale.zip"}
+{"timestamp": "2025-07-14T14:52:32.553900", "level": "INFO", "message": "Starting deployment for file: donbale"}
+{"timestamp": "2025-07-14T14:52:32.554028", "level": "INFO", "message": "Validating existing Nginx configuration"}
+{"timestamp": "2025-07-14T14:52:32.576535", "level": "INFO", "message": "Ensuring Nginx service is ready"}
+{"timestamp": "2025-07-14T14:52:32.595309", "level": "INFO", "message": "Looking for file at: uploads/donbale.zip"}
+{"timestamp": "2025-07-14T14:52:32.596907", "level": "INFO", "message": "Creating website entry for donbale.zip with server IP: 192.168.70.2"}
+{"timestamp": "2025-07-14T14:52:32.600122", "level": "INFO", "message": "Created website entry with ID: 9a7b091586f117d7"}
+{"timestamp": "2025-07-14T14:52:32.603731", "level": "ERROR", "message": "VIP configuration parameters are missing. Please set WAF_VIP_ADDRESS, WAF_VIP_NETMASK, and WAF_NETWORK_INTERFACE environment variables or pass them as arguments."}
+{"timestamp": "2025-07-14T14:52:32.607013", "level": "ERROR", "message": "HTTPException during deployment: VIP configuration parameters are missing. Please set WAF_VIP_ADDRESS, WAF_VIP_NETMASK, and WAF_NETWORK_INTERFACE environment variables or pass them as arguments."}
+{"timestamp": "2025-07-14T14:52:32.607111", "level": "INFO", "message": "Starting cleanup after failed deployment"}
+{"timestamp": "2025-07-14T14:52:32.607142", "level": "INFO", "message": "Ensuring Nginx is running after cleanup"}
+{"timestamp": "2025-07-14T14:52:32.625139", "level": "INFO", "message": "Updating website status to failed."}
+{"timestamp": "2025-07-14T14:53:24.006787", "level": "INFO", "message": "Client disconnected"}
+{"timestamp": "2025-07-14T14:53:24.024520", "level": "INFO", "message": "Trying audit log path: /var/log/modsec_audit.log"}
+{"timestamp": "2025-07-14T14:53:24.025436", "level": "INFO", "message": "Successfully parsed 40 audit logs from /var/log/modsec_audit.log"}
+{"timestamp": "2025-07-14T14:54:45.619180", "level": "INFO", "message": "Client disconnected"}
+{"timestamp": "2025-07-14T14:54:45.625540", "level": "INFO", "message": "Trying audit log path: /var/log/modsec_audit.log"}
+{"timestamp": "2025-07-14T14:54:45.626100", "level": "INFO", "message": "Successfully parsed 40 audit logs from /var/log/modsec_audit.log"}
+{"timestamp": "2025-07-14T15:02:52.872356", "level": "INFO", "message": "Client disconnected"}
+{"timestamp": "2025-07-14T15:03:54.364327", "level": "INFO", "message": "Trying audit log path: /var/log/modsec_audit.log"}
+{"timestamp": "2025-07-14T15:03:54.365013", "level": "INFO", "message": "Successfully parsed 40 audit logs from /var/log/modsec_audit.log"}
+{"timestamp": "2025-07-14T15:04:20.032969", "level": "INFO", "message": "Starting file upload: tessest.zip"}
+{"timestamp": "2025-07-14T15:04:20.033224", "level": "INFO", "message": "Upload completed: tessest.zip"}
+{"timestamp": "2025-07-14T15:04:22.092029", "level": "INFO", "message": "Starting deployment for file: tessest"}
+{"timestamp": "2025-07-14T15:04:22.092140", "level": "INFO", "message": "Validating existing Nginx configuration"}
+{"timestamp": "2025-07-14T15:04:22.109875", "level": "INFO", "message": "Ensuring Nginx service is ready"}
+{"timestamp": "2025-07-14T15:04:22.129622", "level": "INFO", "message": "Looking for file at: uploads/tessest.zip"}
+{"timestamp": "2025-07-14T15:04:22.130973", "level": "INFO", "message": "Creating website entry for tessest.zip with server IP: 192.168.70.2"}
+{"timestamp": "2025-07-14T15:04:22.137023", "level": "INFO", "message": "Created website entry with ID: 686878fe10adc866"}
+{"timestamp": "2025-07-14T15:04:22.142518", "level": "INFO", "message": "VIP parameters not provided by user. Searching for available VIP in database."}
+{"timestamp": "2025-07-14T15:04:22.144173", "level": "INFO", "message": "Found available VIP in DB: 192.168.70.1"}
+{"timestamp": "2025-07-14T15:04:22.144323", "level": "INFO", "message": "Attempting to ensure VIP 192.168.70.1 is removed from network interface before usage."}
+{"timestamp": "2025-07-14T15:04:22.163409", "level": "ERROR", "message": "VIP acquisition failed: An unexpected error occurred during VIP management: Failed to check IP existence: sudo: a terminal is required to read the password; either use the -S option to read from standard input or configure an askpass helper\nsudo: a password is required\n"}
+{"timestamp": "2025-07-14T15:04:22.164432", "level": "ERROR", "message": "HTTPException during deployment: An unexpected error occurred during VIP management: Failed to check IP existence: sudo: a terminal is required to read the password; either use the -S option to read from standard input or configure an askpass helper\nsudo: a password is required\n"}
+{"timestamp": "2025-07-14T15:04:22.164493", "level": "INFO", "message": "Starting cleanup after failed deployment"}
+{"timestamp": "2025-07-14T15:04:22.164528", "level": "INFO", "message": "Removing IP address 192.168.70.1/255.255.255.0 from interface ens33 during cleanup."}
+{"timestamp": "2025-07-14T15:04:22.171586", "level": "ERROR", "message": "VIP cleanup error: 500: An unexpected error occurred during VIP management: Failed to check IP existence: sudo: a terminal is required to read the password; either use the -S option to read from standard input or configure an askpass helper\nsudo: a password is required\n"}
+{"timestamp": "2025-07-14T15:04:22.171701", "level": "INFO", "message": "Ensuring Nginx is running after cleanup"}
+{"timestamp": "2025-07-14T15:04:22.193270", "level": "INFO", "message": "Updating website status to failed."}
+{"timestamp": "2025-07-14T15:04:58.204634", "level": "INFO", "message": "Starting file upload: ueharhg.zip"}
+{"timestamp": "2025-07-14T15:04:58.204906", "level": "INFO", "message": "Upload completed: ueharhg.zip"}
+{"timestamp": "2025-07-14T15:04:59.521658", "level": "INFO", "message": "Starting deployment for file: ueharhg"}
+{"timestamp": "2025-07-14T15:04:59.521765", "level": "INFO", "message": "Validating existing Nginx configuration"}
+{"timestamp": "2025-07-14T15:04:59.543484", "level": "INFO", "message": "Ensuring Nginx service is ready"}
+{"timestamp": "2025-07-14T15:04:59.561686", "level": "INFO", "message": "Looking for file at: uploads/ueharhg.zip"}
+{"timestamp": "2025-07-14T15:04:59.563271", "level": "INFO", "message": "Creating website entry for ueharhg.zip with server IP: 192.168.70.2"}
+{"timestamp": "2025-07-14T15:04:59.567290", "level": "INFO", "message": "Created website entry with ID: c11395dce9fa8d58"}
+{"timestamp": "2025-07-14T15:04:59.571050", "level": "INFO", "message": "VIP parameters not provided by user. Searching for available VIP in database."}
+{"timestamp": "2025-07-14T15:04:59.571969", "level": "INFO", "message": "Found available VIP in DB: 192.168.70.1"}
+{"timestamp": "2025-07-14T15:04:59.572063", "level": "INFO", "message": "Attempting to ensure VIP 192.168.70.1 is removed from network interface before usage."}
+{"timestamp": "2025-07-14T15:04:59.581915", "level": "ERROR", "message": "VIP acquisition failed: An unexpected error occurred during VIP management: Failed to check IP existence: sudo: a terminal is required to read the password; either use the -S option to read from standard input or configure an askpass helper\nsudo: a password is required\n"}
+{"timestamp": "2025-07-14T15:04:59.582506", "level": "ERROR", "message": "HTTPException during deployment: An unexpected error occurred during VIP management: Failed to check IP existence: sudo: a terminal is required to read the password; either use the -S option to read from standard input or configure an askpass helper\nsudo: a password is required\n"}
+{"timestamp": "2025-07-14T15:04:59.582552", "level": "INFO", "message": "Starting cleanup after failed deployment"}
+{"timestamp": "2025-07-14T15:04:59.582585", "level": "INFO", "message": "Removing IP address 192.168.70.1/255.255.255.0 from interface ens33 during cleanup."}
+{"timestamp": "2025-07-14T15:04:59.588592", "level": "ERROR", "message": "VIP cleanup error: 500: An unexpected error occurred during VIP management: Failed to check IP existence: sudo: a terminal is required to read the password; either use the -S option to read from standard input or configure an askpass helper\nsudo: a password is required\n"}
+{"timestamp": "2025-07-14T15:04:59.588713", "level": "INFO", "message": "Ensuring Nginx is running after cleanup"}
+{"timestamp": "2025-07-14T15:04:59.607986", "level": "INFO", "message": "Updating website status to failed."}
+{"timestamp": "2025-07-14T15:05:19.412070", "level": "INFO", "message": "Client disconnected"}
+{"timestamp": "2025-07-14T15:05:19.426217", "level": "INFO", "message": "Trying audit log path: /var/log/modsec_audit.log"}
+{"timestamp": "2025-07-14T15:05:19.427318", "level": "INFO", "message": "Successfully parsed 40 audit logs from /var/log/modsec_audit.log"}
+{"timestamp": "2025-07-14T15:06:44.289361", "level": "INFO", "message": "Client disconnected"}
+{"timestamp": "2025-07-14T15:06:44.303299", "level": "INFO", "message": "Trying audit log path: /var/log/modsec_audit.log"}
+{"timestamp": "2025-07-14T15:06:44.304114", "level": "INFO", "message": "Successfully parsed 40 audit logs from /var/log/modsec_audit.log"}
+{"timestamp": "2025-07-14T15:08:37.103919", "level": "INFO", "message": "Starting file upload: wetew.zip"}
+{"timestamp": "2025-07-14T15:08:37.104196", "level": "INFO", "message": "Upload completed: wetew.zip"}
+{"timestamp": "2025-07-14T15:08:39.371206", "level": "INFO", "message": "Starting deployment for file: wetew"}
+{"timestamp": "2025-07-14T15:08:39.371317", "level": "INFO", "message": "Validating existing Nginx configuration"}
+{"timestamp": "2025-07-14T15:08:39.395734", "level": "INFO", "message": "Ensuring Nginx service is ready"}
+{"timestamp": "2025-07-14T15:08:39.414865", "level": "INFO", "message": "Looking for file at: uploads/wetew.zip"}
+{"timestamp": "2025-07-14T15:08:39.416042", "level": "INFO", "message": "Creating website entry for wetew.zip with server IP: 192.168.70.2"}
+{"timestamp": "2025-07-14T15:08:39.419917", "level": "INFO", "message": "Created website entry with ID: 1015b5b0a8e99a98"}
+{"timestamp": "2025-07-14T15:08:39.423838", "level": "INFO", "message": "VIP parameters not provided by user. Searching for available VIP in database."}
+{"timestamp": "2025-07-14T15:08:39.424661", "level": "INFO", "message": "Found available VIP in DB: 192.168.70.1"}
+{"timestamp": "2025-07-14T15:08:39.424746", "level": "INFO", "message": "Attempting to ensure VIP 192.168.70.1 is removed from network interface before usage."}
+{"timestamp": "2025-07-14T15:08:39.434259", "level": "INFO", "message": "Configuring VIP network for 192.168.70.1"}
+{"timestamp": "2025-07-14T15:08:39.442798", "level": "INFO", "message": "Killing any processes using port 80 (if any)"}
+{"timestamp": "2025-07-14T15:08:39.448916", "level": "WARNING", "message": "fuser command output: sudo: a terminal is required to read the password; either use the -S option to read from standard input or configure an askpass helper\nsudo: a password is required"}
+{"timestamp": "2025-07-14T15:08:39.452674", "level": "INFO", "message": "Setting up deployment folder at: /usr/local/nginx/html/wetew"}
+{"timestamp": "2025-07-14T15:08:39.452936", "level": "INFO", "message": "Creating new deployment folder: /usr/local/nginx/html/wetew"}
+{"timestamp": "2025-07-14T15:08:39.455646", "level": "INFO", "message": "Extracting zip file: uploads/wetew.zip"}
+{"timestamp": "2025-07-14T15:08:39.457722", "level": "INFO", "message": "Extracted files to /usr/local/nginx/html/wetew"}
+{"timestamp": "2025-07-14T15:08:39.457903", "level": "INFO", "message": "Setting permissions for /usr/local/nginx/html/wetew"}
+{"timestamp": "2025-07-14T15:08:39.464949", "level": "ERROR", "message": "Permission setup failed: chown failed: sudo: a terminal is required to read the password; either use the -S option to read from standard input or configure an askpass helper\nsudo: a password is required\n"}
+{"timestamp": "2025-07-14T15:08:39.465148", "level": "ERROR", "message": "HTTPException during deployment: Permission setup failed: chown failed: sudo: a terminal is required to read the password; either use the -S option to read from standard input or configure an askpass helper\nsudo: a password is required\n"}
+{"timestamp": "2025-07-14T15:08:39.465191", "level": "INFO", "message": "Starting cleanup after failed deployment"}
+{"timestamp": "2025-07-14T15:08:39.465578", "level": "INFO", "message": "Removing deployment folder: /usr/local/nginx/html/wetew"}
+{"timestamp": "2025-07-14T15:08:39.466018", "level": "INFO", "message": "Removing IP address 192.168.70.1/255.255.255.0 from interface ens33 during cleanup."}
+{"timestamp": "2025-07-14T15:08:39.486169", "level": "INFO", "message": "Releasing VIP 192.168.70.1 from database during cleanup."}
+{"timestamp": "2025-07-14T15:08:39.488872", "level": "ERROR", "message": "VIP cleanup error: 500: VIP release failed: 400: VIP is already available"}
+{"timestamp": "2025-07-14T15:08:39.489426", "level": "INFO", "message": "Ensuring Nginx is running after cleanup"}
+{"timestamp": "2025-07-14T15:08:39.509385", "level": "INFO", "message": "Updating website status to failed."}
+{"timestamp": "2025-07-14T15:11:19.541207", "level": "INFO", "message": "Starting file upload: asdg.zip"}
+{"timestamp": "2025-07-14T15:11:19.541540", "level": "INFO", "message": "Upload completed: asdg.zip"}
+{"timestamp": "2025-07-14T15:11:21.573357", "level": "INFO", "message": "Starting deployment for file: asdg"}
+{"timestamp": "2025-07-14T15:11:21.573591", "level": "INFO", "message": "Validating existing Nginx configuration"}
+{"timestamp": "2025-07-14T15:11:21.603826", "level": "INFO", "message": "Ensuring Nginx service is ready"}
+{"timestamp": "2025-07-14T15:11:21.626204", "level": "INFO", "message": "Looking for file at: uploads/asdg.zip"}
+{"timestamp": "2025-07-14T15:11:21.628003", "level": "INFO", "message": "Creating website entry for asdg.zip with server IP: 192.168.70.2"}
+{"timestamp": "2025-07-14T15:11:21.632400", "level": "INFO", "message": "Created website entry with ID: 63b5eeb427db80d9"}
+{"timestamp": "2025-07-14T15:11:21.636595", "level": "INFO", "message": "VIP parameters not provided by user. Searching for available VIP in database."}
+{"timestamp": "2025-07-14T15:11:21.637700", "level": "INFO", "message": "Found available VIP in DB: 192.168.70.1"}
+{"timestamp": "2025-07-14T15:11:21.637857", "level": "INFO", "message": "Attempting to ensure VIP 192.168.70.1 is removed from network interface before usage."}
+{"timestamp": "2025-07-14T15:11:21.648071", "level": "INFO", "message": "Configuring VIP network for 192.168.70.1"}
+{"timestamp": "2025-07-14T15:11:21.657654", "level": "INFO", "message": "Killing any processes using port 80 (if any)"}
+{"timestamp": "2025-07-14T15:11:21.663758", "level": "WARNING", "message": "fuser command output: sudo: a terminal is required to read the password; either use the -S option to read from standard input or configure an askpass helper\nsudo: a password is required"}
+{"timestamp": "2025-07-14T15:11:21.667096", "level": "INFO", "message": "Setting up deployment folder at: /usr/local/nginx/html/asdg"}
+{"timestamp": "2025-07-14T15:11:21.667252", "level": "INFO", "message": "Creating new deployment folder: /usr/local/nginx/html/asdg"}
+{"timestamp": "2025-07-14T15:11:21.667740", "level": "INFO", "message": "Extracting zip file: uploads/asdg.zip"}
+{"timestamp": "2025-07-14T15:11:21.668316", "level": "INFO", "message": "Extracted files to /usr/local/nginx/html/asdg"}
+{"timestamp": "2025-07-14T15:11:21.668363", "level": "INFO", "message": "Setting permissions for /usr/local/nginx/html/asdg"}
+{"timestamp": "2025-07-14T15:11:21.683390", "level": "INFO", "message": "Configuring Apache port: 8082"}
+{"timestamp": "2025-07-14T15:11:21.683589", "level": "ERROR", "message": "Error configuring Apache: [Errno 13] Permission denied: '/etc/apache2/ports.conf'"}
+{"timestamp": "2025-07-14T15:11:21.683653", "level": "ERROR", "message": "Apache configuration failed: 500: Apache configuration error"}
+{"timestamp": "2025-07-14T15:11:21.684545", "level": "ERROR", "message": "HTTPException during deployment: Apache configuration failed: 500: Apache configuration error"}
+{"timestamp": "2025-07-14T15:11:21.684604", "level": "INFO", "message": "Starting cleanup after failed deployment"}
+{"timestamp": "2025-07-14T15:11:21.684940", "level": "INFO", "message": "Removing deployment folder: /usr/local/nginx/html/asdg"}
+{"timestamp": "2025-07-14T15:11:21.685840", "level": "INFO", "message": "Removing IP address 192.168.70.1/255.255.255.0 from interface ens33 during cleanup."}
+{"timestamp": "2025-07-14T15:11:21.703170", "level": "INFO", "message": "Releasing VIP 192.168.70.1 from database during cleanup."}
+{"timestamp": "2025-07-14T15:11:21.705144", "level": "ERROR", "message": "VIP cleanup error: 500: VIP release failed: 400: VIP is already available"}
+{"timestamp": "2025-07-14T15:11:21.705316", "level": "INFO", "message": "Ensuring Nginx is running after cleanup"}
+{"timestamp": "2025-07-14T15:11:21.723902", "level": "INFO", "message": "Updating website status to failed."}
+{"timestamp": "2025-07-14T15:22:45.779068", "level": "INFO", "message": "Client disconnected"}
+{"timestamp": "2025-07-14T15:22:50.149418", "level": "INFO", "message": "Trying audit log path: /var/log/modsec_audit.log"}
+{"timestamp": "2025-07-14T15:22:50.150144", "level": "INFO", "message": "Successfully parsed 40 audit logs from /var/log/modsec_audit.log"}
+{"timestamp": "2025-07-14T15:24:36.553168", "level": "INFO", "message": "Trying audit log path: /var/log/modsec_audit.log"}
+{"timestamp": "2025-07-14T15:24:36.554294", "level": "INFO", "message": "Successfully parsed 40 audit logs from /var/log/modsec_audit.log"}
+{"timestamp": "2025-07-14T15:24:56.036389", "level": "INFO", "message": "Starting file upload: example1.zip"}
+{"timestamp": "2025-07-14T15:24:56.036627", "level": "INFO", "message": "Upload completed: example1.zip"}
+{"timestamp": "2025-07-14T15:24:58.613394", "level": "INFO", "message": "Starting deployment for file: example1"}
+{"timestamp": "2025-07-14T15:24:58.613487", "level": "INFO", "message": "Validating existing Nginx configuration"}
+{"timestamp": "2025-07-14T15:24:58.631506", "level": "INFO", "message": "Ensuring Nginx service is ready"}
+{"timestamp": "2025-07-14T15:24:58.652266", "level": "INFO", "message": "Looking for file at: uploads/example1.zip"}
+{"timestamp": "2025-07-14T15:24:58.653746", "level": "INFO", "message": "Creating website entry for example1.zip with server IP: 192.168.70.2"}
+{"timestamp": "2025-07-14T15:24:58.656654", "level": "INFO", "message": "Created website entry with ID: b6e29bc88a0a1e8b"}
+{"timestamp": "2025-07-14T15:24:58.659643", "level": "INFO", "message": "VIP parameters not provided by user. Searching for available VIP in database."}
+{"timestamp": "2025-07-14T15:24:58.660271", "level": "INFO", "message": "Found available VIP in DB: 192.168.70.1"}
+{"timestamp": "2025-07-14T15:24:58.660347", "level": "INFO", "message": "Attempting to ensure VIP 192.168.70.1 is removed from network interface before usage."}
+{"timestamp": "2025-07-14T15:24:58.667236", "level": "INFO", "message": "Configuring VIP network for 192.168.70.1"}
+{"timestamp": "2025-07-14T15:24:58.675749", "level": "INFO", "message": "Killing any processes using port 80 (if any)"}
+{"timestamp": "2025-07-14T15:24:58.681598", "level": "WARNING", "message": "fuser command output: sudo: a terminal is required to read the password; either use the -S option to read from standard input or configure an askpass helper\nsudo: a password is required"}
+{"timestamp": "2025-07-14T15:24:58.685228", "level": "INFO", "message": "Setting up deployment folder at: /usr/local/nginx/html/example1"}
+{"timestamp": "2025-07-14T15:24:58.685407", "level": "INFO", "message": "Creating new deployment folder: /usr/local/nginx/html/example1"}
+{"timestamp": "2025-07-14T15:24:58.686045", "level": "INFO", "message": "Extracting zip file: uploads/example1.zip"}
+{"timestamp": "2025-07-14T15:24:58.686799", "level": "INFO", "message": "Extracted files to /usr/local/nginx/html/example1"}
+{"timestamp": "2025-07-14T15:24:58.686910", "level": "INFO", "message": "Setting permissions for /usr/local/nginx/html/example1"}
+{"timestamp": "2025-07-14T15:24:58.699604", "level": "INFO", "message": "Configuring Apache port: 8082"}
+{"timestamp": "2025-07-14T15:24:58.699805", "level": "ERROR", "message": "Error configuring Apache: [Errno 13] Permission denied: '/etc/apache2/ports.conf'"}
+{"timestamp": "2025-07-14T15:24:58.699872", "level": "ERROR", "message": "Apache configuration failed: 500: Apache configuration error"}
+{"timestamp": "2025-07-14T15:24:58.700611", "level": "ERROR", "message": "HTTPException during deployment: Apache configuration failed: 500: Apache configuration error"}
+{"timestamp": "2025-07-14T15:24:58.700694", "level": "INFO", "message": "Starting cleanup after failed deployment"}
+{"timestamp": "2025-07-14T15:24:58.700966", "level": "INFO", "message": "Removing deployment folder: /usr/local/nginx/html/example1"}
+{"timestamp": "2025-07-14T15:24:58.701334", "level": "INFO", "message": "Removing IP address 192.168.70.1/255.255.255.0 from interface ens33 during cleanup."}
+{"timestamp": "2025-07-14T15:24:58.717231", "level": "INFO", "message": "Releasing VIP 192.168.70.1 from database during cleanup."}
+{"timestamp": "2025-07-14T15:24:58.718293", "level": "ERROR", "message": "VIP cleanup error: 500: VIP release failed: 400: VIP is already available"}
+{"timestamp": "2025-07-14T15:24:58.718407", "level": "INFO", "message": "Ensuring Nginx is running after cleanup"}
+{"timestamp": "2025-07-14T15:24:58.735670", "level": "INFO", "message": "Updating website status to failed."}
+{"timestamp": "2025-07-14T15:26:19.608993", "level": "INFO", "message": "Client disconnected"}
+{"timestamp": "2025-07-14T15:26:22.157164", "level": "INFO", "message": "Trying audit log path: /var/log/modsec_audit.log"}
+{"timestamp": "2025-07-14T15:26:22.158189", "level": "INFO", "message": "Successfully parsed 40 audit logs from /var/log/modsec_audit.log"}
+{"timestamp": "2025-07-14T15:28:24.171057", "level": "INFO", "message": "Starting file upload: aetaetadgs.zip"}
+{"timestamp": "2025-07-14T15:28:24.171419", "level": "INFO", "message": "Upload completed: aetaetadgs.zip"}
+{"timestamp": "2025-07-14T15:28:26.295313", "level": "INFO", "message": "Starting deployment for file: aetaetadgs"}
+{"timestamp": "2025-07-14T15:28:26.295421", "level": "INFO", "message": "Validating existing Nginx configuration"}
+{"timestamp": "2025-07-14T15:28:26.313775", "level": "INFO", "message": "Ensuring Nginx service is ready"}
+{"timestamp": "2025-07-14T15:28:26.332140", "level": "INFO", "message": "Looking for file at: uploads/aetaetadgs.zip"}
+{"timestamp": "2025-07-14T15:28:26.333891", "level": "INFO", "message": "Creating website entry for aetaetadgs.zip with server IP: 192.168.70.2"}
+{"timestamp": "2025-07-14T15:28:26.337612", "level": "INFO", "message": "Created website entry with ID: 85c0a3c3f13a7001"}
+{"timestamp": "2025-07-14T15:28:26.340815", "level": "INFO", "message": "VIP parameters not provided by user. Searching for available VIP in database."}
+{"timestamp": "2025-07-14T15:28:26.341509", "level": "INFO", "message": "Found available VIP in DB: 192.168.70.1"}
+{"timestamp": "2025-07-14T15:28:26.341590", "level": "INFO", "message": "Attempting to ensure VIP 192.168.70.1 is removed from network interface before usage."}
+{"timestamp": "2025-07-14T15:28:26.348241", "level": "INFO", "message": "Configuring VIP network for 192.168.70.1"}
+{"timestamp": "2025-07-14T15:28:26.359653", "level": "INFO", "message": "Killing any processes using port 80 (if any)"}
+{"timestamp": "2025-07-14T15:28:26.366076", "level": "WARNING", "message": "fuser command output: sudo: a terminal is required to read the password; either use the -S option to read from standard input or configure an askpass helper\nsudo: a password is required"}
+{"timestamp": "2025-07-14T15:28:26.370634", "level": "INFO", "message": "Setting up deployment folder at: /usr/local/nginx/html/aetaetadgs"}
+{"timestamp": "2025-07-14T15:28:26.370807", "level": "INFO", "message": "Creating new deployment folder: /usr/local/nginx/html/aetaetadgs"}
+{"timestamp": "2025-07-14T15:28:26.371494", "level": "INFO", "message": "Extracting zip file: uploads/aetaetadgs.zip"}
+{"timestamp": "2025-07-14T15:28:26.372285", "level": "INFO", "message": "Extracted files to /usr/local/nginx/html/aetaetadgs"}
+{"timestamp": "2025-07-14T15:28:26.372754", "level": "INFO", "message": "Setting permissions for /usr/local/nginx/html/aetaetadgs"}
+{"timestamp": "2025-07-14T15:28:26.385793", "level": "INFO", "message": "Configuring Apache port: 8082"}
+{"timestamp": "2025-07-14T15:28:26.385983", "level": "ERROR", "message": "Error configuring Apache: [Errno 13] Permission denied: '/etc/apache2/ports.conf'"}
+{"timestamp": "2025-07-14T15:28:26.386234", "level": "ERROR", "message": "Apache configuration failed: 500: Apache configuration error"}
+{"timestamp": "2025-07-14T15:28:26.387029", "level": "ERROR", "message": "HTTPException during deployment: Apache configuration failed: 500: Apache configuration error"}
+{"timestamp": "2025-07-14T15:28:26.387078", "level": "INFO", "message": "Starting cleanup after failed deployment"}
+{"timestamp": "2025-07-14T15:28:26.387526", "level": "INFO", "message": "Removing deployment folder: /usr/local/nginx/html/aetaetadgs"}
+{"timestamp": "2025-07-14T15:28:26.388252", "level": "INFO", "message": "Removing IP address 192.168.70.1/255.255.255.0 from interface ens33 during cleanup."}
+{"timestamp": "2025-07-14T15:28:26.403479", "level": "INFO", "message": "Releasing VIP 192.168.70.1 from database during cleanup."}
+{"timestamp": "2025-07-14T15:28:26.404523", "level": "ERROR", "message": "VIP cleanup error: 500: VIP release failed: 400: VIP is already available"}
+{"timestamp": "2025-07-14T15:28:26.404637", "level": "INFO", "message": "Ensuring Nginx is running after cleanup"}
+{"timestamp": "2025-07-14T15:28:26.424199", "level": "INFO", "message": "Updating website status to failed."}
+{"timestamp": "2025-07-14T15:29:03.403786", "level": "INFO", "message": "Trying audit log path: /var/log/modsec_audit.log"}
+{"timestamp": "2025-07-14T15:29:03.404514", "level": "INFO", "message": "Successfully parsed 40 audit logs from /var/log/modsec_audit.log"}
+{"timestamp": "2025-07-14T15:29:06.189426", "level": "INFO", "message": "Client disconnected"}
+{"timestamp": "2025-07-14T15:30:28.455380", "level": "INFO", "message": "Client disconnected"}
+{"timestamp": "2025-07-14T15:30:28.469680", "level": "INFO", "message": "Trying audit log path: /var/log/modsec_audit.log"}
+{"timestamp": "2025-07-14T15:30:28.470384", "level": "INFO", "message": "Successfully parsed 40 audit logs from /var/log/modsec_audit.log"}
+{"timestamp": "2025-07-14T15:33:51.010770", "level": "INFO", "message": "Starting file upload: asdgadfs.zip"}
+{"timestamp": "2025-07-14T15:33:51.011005", "level": "INFO", "message": "Upload completed: asdgadfs.zip"}
+{"timestamp": "2025-07-14T15:33:53.870957", "level": "INFO", "message": "Starting deployment for file: asdgadfs"}
+{"timestamp": "2025-07-14T15:33:53.871065", "level": "INFO", "message": "Validating existing Nginx configuration"}
+{"timestamp": "2025-07-14T15:33:53.895744", "level": "INFO", "message": "Ensuring Nginx service is ready"}
+{"timestamp": "2025-07-14T15:33:53.916151", "level": "INFO", "message": "Looking for file at: uploads/asdgadfs.zip"}
+{"timestamp": "2025-07-14T15:33:53.917421", "level": "INFO", "message": "Creating website entry for asdgadfs.zip with server IP: 192.168.70.2"}
+{"timestamp": "2025-07-14T15:33:53.920639", "level": "INFO", "message": "Created website entry with ID: 20bb306c6649aef5"}
+{"timestamp": "2025-07-14T15:33:53.923691", "level": "INFO", "message": "VIP parameters not provided by user. Searching for available VIP in database."}
+{"timestamp": "2025-07-14T15:33:53.924301", "level": "INFO", "message": "Found available VIP in DB: 192.168.70.1"}
+{"timestamp": "2025-07-14T15:33:53.924365", "level": "INFO", "message": "Attempting to ensure VIP 192.168.70.1 is removed from network interface before usage."}
+{"timestamp": "2025-07-14T15:33:53.932052", "level": "INFO", "message": "Configuring VIP network for 192.168.70.1"}
+{"timestamp": "2025-07-14T15:33:53.939194", "level": "INFO", "message": "Killing any processes using port 80 (if any)"}
+{"timestamp": "2025-07-14T15:33:53.944956", "level": "WARNING", "message": "fuser command output: sudo: a terminal is required to read the password; either use the -S option to read from standard input or configure an askpass helper\nsudo: a password is required"}
+{"timestamp": "2025-07-14T15:33:53.948548", "level": "INFO", "message": "Setting up deployment folder at: /usr/local/nginx/html/asdgadfs"}
+{"timestamp": "2025-07-14T15:33:53.948684", "level": "INFO", "message": "Creating new deployment folder: /usr/local/nginx/html/asdgadfs"}
+{"timestamp": "2025-07-14T15:33:53.949044", "level": "INFO", "message": "Extracting zip file: uploads/asdgadfs.zip"}
+{"timestamp": "2025-07-14T15:33:53.949664", "level": "INFO", "message": "Extracted files to /usr/local/nginx/html/asdgadfs"}
+{"timestamp": "2025-07-14T15:33:53.949727", "level": "INFO", "message": "Setting permissions for /usr/local/nginx/html/asdgadfs"}
+{"timestamp": "2025-07-14T15:33:53.963341", "level": "INFO", "message": "Configuring Apache port: 8082"}
+{"timestamp": "2025-07-14T15:33:53.963626", "level": "ERROR", "message": "Error configuring Apache: [Errno 13] Permission denied: '/etc/apache2/ports.conf'"}
+{"timestamp": "2025-07-14T15:33:53.963714", "level": "ERROR", "message": "Apache configuration failed: 500: Apache configuration error"}
+{"timestamp": "2025-07-14T15:33:53.964872", "level": "ERROR", "message": "HTTPException during deployment: Apache configuration failed: 500: Apache configuration error"}
+{"timestamp": "2025-07-14T15:33:53.964999", "level": "INFO", "message": "Starting cleanup after failed deployment"}
+{"timestamp": "2025-07-14T15:33:53.965372", "level": "INFO", "message": "Removing deployment folder: /usr/local/nginx/html/asdgadfs"}
+{"timestamp": "2025-07-14T15:33:53.965871", "level": "INFO", "message": "Removing IP address 192.168.70.1/255.255.255.0 from interface ens33 during cleanup."}
+{"timestamp": "2025-07-14T15:33:53.981264", "level": "INFO", "message": "Releasing VIP 192.168.70.1 from database during cleanup."}
+{"timestamp": "2025-07-14T15:33:53.982336", "level": "ERROR", "message": "VIP cleanup error: 500: VIP release failed: 400: VIP is already available"}
+{"timestamp": "2025-07-14T15:33:53.982440", "level": "INFO", "message": "Ensuring Nginx is running after cleanup"}
+{"timestamp": "2025-07-14T15:33:54.000237", "level": "INFO", "message": "Updating website status to failed."}
+{"timestamp": "2025-07-14T15:36:51.156424", "level": "INFO", "message": "Starting file upload: dfshsfh.zip"}
+{"timestamp": "2025-07-14T15:36:51.156683", "level": "INFO", "message": "Upload completed: dfshsfh.zip"}
+{"timestamp": "2025-07-14T15:36:51.866270", "level": "INFO", "message": "Starting deployment for file: dfshsfh"}
+{"timestamp": "2025-07-14T15:36:51.866469", "level": "INFO", "message": "Validating existing Nginx configuration"}
+{"timestamp": "2025-07-14T15:36:51.888963", "level": "INFO", "message": "Ensuring Nginx service is ready"}
+{"timestamp": "2025-07-14T15:36:51.914795", "level": "INFO", "message": "Looking for file at: uploads/dfshsfh.zip"}
+{"timestamp": "2025-07-14T15:36:51.916854", "level": "INFO", "message": "Creating website entry for dfshsfh.zip with server IP: 192.168.70.2"}
+{"timestamp": "2025-07-14T15:36:51.921797", "level": "INFO", "message": "Created website entry with ID: 50c022fce73b92e4"}
+{"timestamp": "2025-07-14T15:36:51.924998", "level": "INFO", "message": "VIP parameters not provided by user. Searching for available VIP in database."}
+{"timestamp": "2025-07-14T15:36:51.925562", "level": "INFO", "message": "Found available VIP in DB: 192.168.70.1"}
+{"timestamp": "2025-07-14T15:36:51.925625", "level": "INFO", "message": "Attempting to ensure VIP 192.168.70.1 is removed from network interface before usage."}
+{"timestamp": "2025-07-14T15:36:51.935710", "level": "INFO", "message": "Configuring VIP network for 192.168.70.1"}
+{"timestamp": "2025-07-14T15:36:51.946413", "level": "INFO", "message": "Killing any processes using port 80 (if any)"}
+{"timestamp": "2025-07-14T15:36:52.047798", "level": "INFO", "message": "Client disconnected"}
+{"timestamp": "2025-07-14T15:36:52.049624", "level": "INFO", "message": "Processes on port 80 cleared."}
+{"timestamp": "2025-07-14T15:36:52.053994", "level": "INFO", "message": "Setting up deployment folder at: /usr/local/nginx/html/dfshsfh"}
+{"timestamp": "2025-07-14T15:36:52.054181", "level": "INFO", "message": "Creating new deployment folder: /usr/local/nginx/html/dfshsfh"}
+{"timestamp": "2025-07-14T15:36:52.054678", "level": "INFO", "message": "Extracting zip file: uploads/dfshsfh.zip"}
+{"timestamp": "2025-07-14T15:36:52.055592", "level": "INFO", "message": "Extracted files to /usr/local/nginx/html/dfshsfh"}
+{"timestamp": "2025-07-14T15:36:52.055695", "level": "INFO", "message": "Setting permissions for /usr/local/nginx/html/dfshsfh"}
+{"timestamp": "2025-07-14T15:36:52.074467", "level": "INFO", "message": "Configuring Apache port: 8082"}
+{"timestamp": "2025-07-14T15:36:52.074712", "level": "ERROR", "message": "Error configuring Apache: [Errno 13] Permission denied: '/etc/apache2/ports.conf'"}
+{"timestamp": "2025-07-14T15:36:52.074818", "level": "ERROR", "message": "Apache configuration failed: 500: Apache configuration error"}
+{"timestamp": "2025-07-14T15:36:52.075417", "level": "ERROR", "message": "HTTPException during deployment: Apache configuration failed: 500: Apache configuration error"}
+{"timestamp": "2025-07-14T15:36:52.075457", "level": "INFO", "message": "Starting cleanup after failed deployment"}
+{"timestamp": "2025-07-14T15:36:52.075891", "level": "INFO", "message": "Removing deployment folder: /usr/local/nginx/html/dfshsfh"}
+{"timestamp": "2025-07-14T15:36:52.076256", "level": "INFO", "message": "Removing IP address 192.168.70.1/255.255.255.0 from interface ens33 during cleanup."}
+{"timestamp": "2025-07-14T15:36:52.095088", "level": "INFO", "message": "Releasing VIP 192.168.70.1 from database during cleanup."}
+{"timestamp": "2025-07-14T15:36:52.096269", "level": "ERROR", "message": "VIP cleanup error: 500: VIP release failed: 400: VIP is already available"}
+{"timestamp": "2025-07-14T15:36:52.096406", "level": "INFO", "message": "Ensuring Nginx is running after cleanup"}
+{"timestamp": "2025-07-14T15:36:52.118540", "level": "INFO", "message": "Nginx not running, attempting to start"}
+{"timestamp": "2025-07-14T15:36:52.137957", "level": "INFO", "message": "Nginx started. Output: "}
+{"timestamp": "2025-07-14T15:36:52.319223", "level": "INFO", "message": "Starting deployment for file: dfshsfh"}
+{"timestamp": "2025-07-14T15:36:52.319329", "level": "INFO", "message": "Validating existing Nginx configuration"}
+{"timestamp": "2025-07-14T15:36:52.335285", "level": "INFO", "message": "Ensuring Nginx service is ready"}
+{"timestamp": "2025-07-14T15:36:52.353909", "level": "INFO", "message": "Looking for file at: uploads/dfshsfh.zip"}
+{"timestamp": "2025-07-14T15:36:52.355061", "level": "INFO", "message": "Creating website entry for dfshsfh.zip with server IP: 192.168.70.2"}
+{"timestamp": "2025-07-14T15:36:52.358262", "level": "INFO", "message": "Created website entry with ID: 47c856c3eabe93dc"}
+{"timestamp": "2025-07-14T15:36:52.361147", "level": "INFO", "message": "VIP parameters not provided by user. Searching for available VIP in database."}
+{"timestamp": "2025-07-14T15:36:52.361827", "level": "INFO", "message": "Found available VIP in DB: 192.168.70.1"}
+{"timestamp": "2025-07-14T15:36:52.361954", "level": "INFO", "message": "Attempting to ensure VIP 192.168.70.1 is removed from network interface before usage."}
+{"timestamp": "2025-07-14T15:36:52.370929", "level": "INFO", "message": "Configuring VIP network for 192.168.70.1"}
+{"timestamp": "2025-07-14T15:36:52.378534", "level": "INFO", "message": "Killing any processes using port 80 (if any)"}
+{"timestamp": "2025-07-14T15:36:52.453039", "level": "INFO", "message": "Processes on port 80 cleared."}
+{"timestamp": "2025-07-14T15:36:52.456765", "level": "INFO", "message": "Setting up deployment folder at: /usr/local/nginx/html/dfshsfh"}
+{"timestamp": "2025-07-14T15:36:52.456907", "level": "INFO", "message": "Creating new deployment folder: /usr/local/nginx/html/dfshsfh"}
+{"timestamp": "2025-07-14T15:36:52.457366", "level": "INFO", "message": "Extracting zip file: uploads/dfshsfh.zip"}
+{"timestamp": "2025-07-14T15:36:52.457943", "level": "INFO", "message": "Extracted files to /usr/local/nginx/html/dfshsfh"}
+{"timestamp": "2025-07-14T15:36:52.458022", "level": "INFO", "message": "Setting permissions for /usr/local/nginx/html/dfshsfh"}
+{"timestamp": "2025-07-14T15:36:52.473524", "level": "INFO", "message": "Configuring Apache port: 8082"}
+{"timestamp": "2025-07-14T15:36:52.473713", "level": "ERROR", "message": "Error configuring Apache: [Errno 13] Permission denied: '/etc/apache2/ports.conf'"}
+{"timestamp": "2025-07-14T15:36:52.473780", "level": "ERROR", "message": "Apache configuration failed: 500: Apache configuration error"}
+{"timestamp": "2025-07-14T15:36:52.474336", "level": "ERROR", "message": "HTTPException during deployment: Apache configuration failed: 500: Apache configuration error"}
+{"timestamp": "2025-07-14T15:36:52.474377", "level": "INFO", "message": "Starting cleanup after failed deployment"}
+{"timestamp": "2025-07-14T15:36:52.474583", "level": "INFO", "message": "Removing deployment folder: /usr/local/nginx/html/dfshsfh"}
+{"timestamp": "2025-07-14T15:36:52.474849", "level": "INFO", "message": "Removing IP address 192.168.70.1/255.255.255.0 from interface ens33 during cleanup."}
+{"timestamp": "2025-07-14T15:36:52.491952", "level": "INFO", "message": "Releasing VIP 192.168.70.1 from database during cleanup."}
+{"timestamp": "2025-07-14T15:36:52.492845", "level": "ERROR", "message": "VIP cleanup error: 500: VIP release failed: 400: VIP is already available"}
+{"timestamp": "2025-07-14T15:36:52.492954", "level": "INFO", "message": "Ensuring Nginx is running after cleanup"}
+{"timestamp": "2025-07-14T15:36:52.511448", "level": "INFO", "message": "Nginx not running, attempting to start"}
+{"timestamp": "2025-07-14T15:36:52.529491", "level": "INFO", "message": "Nginx started. Output: "}
+{"timestamp": "2025-07-14T15:36:53.645866", "level": "INFO", "message": "Client disconnected"}
+{"timestamp": "2025-07-14T15:36:53.664271", "level": "INFO", "message": "Trying audit log path: /var/log/modsec_audit.log"}
+{"timestamp": "2025-07-14T15:36:53.665015", "level": "INFO", "message": "Successfully parsed 40 audit logs from /var/log/modsec_audit.log"}
+{"timestamp": "2025-07-14T15:36:54.668479", "level": "INFO", "message": "Updating website status to failed."}
+{"timestamp": "2025-07-14T15:36:54.672358", "level": "INFO", "message": "Updating website status to failed."}
+{"timestamp": "2025-07-14T15:36:57.170553", "level": "INFO", "message": "Trying audit log path: /var/log/modsec_audit.log"}
+{"timestamp": "2025-07-14T15:36:57.171155", "level": "INFO", "message": "Successfully parsed 40 audit logs from /var/log/modsec_audit.log"}
+{"timestamp": "2025-07-14T15:37:18.682942", "level": "INFO", "message": "Starting file upload: sehtj.zip"}
+{"timestamp": "2025-07-14T15:37:18.683146", "level": "INFO", "message": "Upload completed: sehtj.zip"}
+{"timestamp": "2025-07-14T15:37:19.626140", "level": "INFO", "message": "Starting deployment for file: sehtj"}
+{"timestamp": "2025-07-14T15:37:19.626280", "level": "INFO", "message": "Validating existing Nginx configuration"}
+{"timestamp": "2025-07-14T15:37:19.653388", "level": "INFO", "message": "Ensuring Nginx service is ready"}
+{"timestamp": "2025-07-14T15:37:19.672550", "level": "INFO", "message": "Regenerating Nginx pid file"}
+{"timestamp": "2025-07-14T15:37:19.692455", "level": "INFO", "message": "Looking for file at: uploads/sehtj.zip"}
+{"timestamp": "2025-07-14T15:37:19.693672", "level": "INFO", "message": "Creating website entry for sehtj.zip with server IP: 192.168.70.2"}
+{"timestamp": "2025-07-14T15:37:19.697607", "level": "INFO", "message": "Created website entry with ID: e6f7359b47ab2618"}
+{"timestamp": "2025-07-14T15:37:19.700675", "level": "INFO", "message": "VIP parameters not provided by user. Searching for available VIP in database."}
+{"timestamp": "2025-07-14T15:37:19.701202", "level": "INFO", "message": "Found available VIP in DB: 192.168.70.1"}
+{"timestamp": "2025-07-14T15:37:19.701261", "level": "INFO", "message": "Attempting to ensure VIP 192.168.70.1 is removed from network interface before usage."}
+{"timestamp": "2025-07-14T15:37:19.707834", "level": "INFO", "message": "Configuring VIP network for 192.168.70.1"}
+{"timestamp": "2025-07-14T15:37:19.715664", "level": "INFO", "message": "Killing any processes using port 80 (if any)"}
+{"timestamp": "2025-07-14T15:37:19.789288", "level": "INFO", "message": "Client disconnected"}
+{"timestamp": "2025-07-14T15:37:19.790838", "level": "INFO", "message": "Processes on port 80 cleared."}
+{"timestamp": "2025-07-14T15:37:19.795049", "level": "INFO", "message": "Setting up deployment folder at: /usr/local/nginx/html/sehtj"}
+{"timestamp": "2025-07-14T15:37:19.795220", "level": "INFO", "message": "Creating new deployment folder: /usr/local/nginx/html/sehtj"}
+{"timestamp": "2025-07-14T15:37:19.795615", "level": "INFO", "message": "Extracting zip file: uploads/sehtj.zip"}
+{"timestamp": "2025-07-14T15:37:19.797140", "level": "INFO", "message": "Extracted files to /usr/local/nginx/html/sehtj"}
+{"timestamp": "2025-07-14T15:37:19.797260", "level": "INFO", "message": "Setting permissions for /usr/local/nginx/html/sehtj"}
+{"timestamp": "2025-07-14T15:37:19.811061", "level": "INFO", "message": "Configuring Apache port: 8082"}
+{"timestamp": "2025-07-14T15:37:19.811232", "level": "ERROR", "message": "Error configuring Apache: [Errno 13] Permission denied: '/etc/apache2/ports.conf'"}
+{"timestamp": "2025-07-14T15:37:19.811294", "level": "ERROR", "message": "Apache configuration failed: 500: Apache configuration error"}
+{"timestamp": "2025-07-14T15:37:19.812135", "level": "ERROR", "message": "HTTPException during deployment: Apache configuration failed: 500: Apache configuration error"}
+{"timestamp": "2025-07-14T15:37:19.812300", "level": "INFO", "message": "Starting cleanup after failed deployment"}
+{"timestamp": "2025-07-14T15:37:19.812877", "level": "INFO", "message": "Removing deployment folder: /usr/local/nginx/html/sehtj"}
+{"timestamp": "2025-07-14T15:37:19.813361", "level": "INFO", "message": "Removing IP address 192.168.70.1/255.255.255.0 from interface ens33 during cleanup."}
+{"timestamp": "2025-07-14T15:37:19.828678", "level": "INFO", "message": "Releasing VIP 192.168.70.1 from database during cleanup."}
+{"timestamp": "2025-07-14T15:37:19.829923", "level": "ERROR", "message": "VIP cleanup error: 500: VIP release failed: 400: VIP is already available"}
+{"timestamp": "2025-07-14T15:37:19.830188", "level": "INFO", "message": "Ensuring Nginx is running after cleanup"}
+{"timestamp": "2025-07-14T15:37:19.849053", "level": "INFO", "message": "Nginx not running, attempting to start"}
+{"timestamp": "2025-07-14T15:37:19.867314", "level": "INFO", "message": "Nginx started. Output: "}
+{"timestamp": "2025-07-14T15:37:20.063161", "level": "INFO", "message": "Starting deployment for file: sehtj"}
+{"timestamp": "2025-07-14T15:37:20.063277", "level": "INFO", "message": "Validating existing Nginx configuration"}
+{"timestamp": "2025-07-14T15:37:20.080796", "level": "INFO", "message": "Ensuring Nginx service is ready"}
+{"timestamp": "2025-07-14T15:37:20.098579", "level": "INFO", "message": "Looking for file at: uploads/sehtj.zip"}
+{"timestamp": "2025-07-14T15:37:20.099868", "level": "INFO", "message": "Creating website entry for sehtj.zip with server IP: 192.168.70.2"}
+{"timestamp": "2025-07-14T15:37:20.103766", "level": "INFO", "message": "Created website entry with ID: 116b17321845f8d2"}
+{"timestamp": "2025-07-14T15:37:20.106823", "level": "INFO", "message": "VIP parameters not provided by user. Searching for available VIP in database."}
+{"timestamp": "2025-07-14T15:37:20.107423", "level": "INFO", "message": "Found available VIP in DB: 192.168.70.1"}
+{"timestamp": "2025-07-14T15:37:20.107488", "level": "INFO", "message": "Attempting to ensure VIP 192.168.70.1 is removed from network interface before usage."}
+{"timestamp": "2025-07-14T15:37:20.115416", "level": "INFO", "message": "Configuring VIP network for 192.168.70.1"}
+{"timestamp": "2025-07-14T15:37:20.123495", "level": "INFO", "message": "Killing any processes using port 80 (if any)"}
+{"timestamp": "2025-07-14T15:37:20.204258", "level": "INFO", "message": "Processes on port 80 cleared."}
+{"timestamp": "2025-07-14T15:37:20.208140", "level": "INFO", "message": "Setting up deployment folder at: /usr/local/nginx/html/sehtj"}
+{"timestamp": "2025-07-14T15:37:20.208249", "level": "INFO", "message": "Creating new deployment folder: /usr/local/nginx/html/sehtj"}
+{"timestamp": "2025-07-14T15:37:20.208575", "level": "INFO", "message": "Extracting zip file: uploads/sehtj.zip"}
+{"timestamp": "2025-07-14T15:37:20.208898", "level": "INFO", "message": "Extracted files to /usr/local/nginx/html/sehtj"}
+{"timestamp": "2025-07-14T15:37:20.208941", "level": "INFO", "message": "Setting permissions for /usr/local/nginx/html/sehtj"}
+{"timestamp": "2025-07-14T15:37:20.225976", "level": "INFO", "message": "Configuring Apache port: 8082"}
+{"timestamp": "2025-07-14T15:37:20.226135", "level": "ERROR", "message": "Error configuring Apache: [Errno 13] Permission denied: '/etc/apache2/ports.conf'"}
+{"timestamp": "2025-07-14T15:37:20.226191", "level": "ERROR", "message": "Apache configuration failed: 500: Apache configuration error"}
+{"timestamp": "2025-07-14T15:37:20.226720", "level": "ERROR", "message": "HTTPException during deployment: Apache configuration failed: 500: Apache configuration error"}
+{"timestamp": "2025-07-14T15:37:20.226755", "level": "INFO", "message": "Starting cleanup after failed deployment"}
+{"timestamp": "2025-07-14T15:37:20.226898", "level": "INFO", "message": "Removing deployment folder: /usr/local/nginx/html/sehtj"}
+{"timestamp": "2025-07-14T15:37:20.227095", "level": "INFO", "message": "Removing IP address 192.168.70.1/255.255.255.0 from interface ens33 during cleanup."}
+{"timestamp": "2025-07-14T15:37:20.244666", "level": "INFO", "message": "Releasing VIP 192.168.70.1 from database during cleanup."}
+{"timestamp": "2025-07-14T15:37:20.246508", "level": "ERROR", "message": "VIP cleanup error: 500: VIP release failed: 400: VIP is already available"}
+{"timestamp": "2025-07-14T15:37:20.246641", "level": "INFO", "message": "Ensuring Nginx is running after cleanup"}
+{"timestamp": "2025-07-14T15:37:20.267590", "level": "INFO", "message": "Nginx not running, attempting to start"}
+{"timestamp": "2025-07-14T15:37:21.869462", "level": "INFO", "message": "Updating website status to failed."}
+{"timestamp": "2025-07-14T15:37:22.792403", "level": "ERROR", "message": "Error ensuring Nginx is running: Failed to start Nginx: nginx: [emerg] bind() to 0.0.0.0:80 failed (98: Address already in use)\nnginx: [emerg] bind() to 0.0.0.0:443 failed (98: Address already in use)\nnginx: [emerg] bind() to 0.0.0.0:80 failed (98: Address already in use)\nnginx: [emerg] bind() to 0.0.0.0:443 failed (98: Address already in use)\nnginx: [emerg] bind() to 0.0.0.0:80 failed (98: Address already in use)\nnginx: [emerg] bind() to 0.0.0.0:443 failed (98: Address already in use)\nnginx: [emerg] bind() to 0.0.0.0:80 failed (98: Address already in use)\nnginx: [emerg] bind() to 0.0.0.0:443 failed (98: Address already in use)\nnginx: [emerg] bind() to 0.0.0.0:80 failed (98: Address already in use)\nnginx: [emerg] bind() to 0.0.0.0:443 failed (98: Address already in use)\nnginx: [emerg] still could not bind()\n"}
+{"timestamp": "2025-07-14T15:37:22.793472", "level": "ERROR", "message": "Failed to ensure Nginx is running during cleanup: Failed to ensure Nginx is running: Failed to start Nginx: nginx: [emerg] bind() to 0.0.0.0:80 failed (98: Address already in use)\nnginx: [emerg] bind() to 0.0.0.0:443 failed (98: Address already in use)\nnginx: [emerg] bind() to 0.0.0.0:80 failed (98: Address already in use)\nnginx: [emerg] bind() to 0.0.0.0:443 failed (98: Address already in use)\nnginx: [emerg] bind() to 0.0.0.0:80 failed (98: Address already in use)\nnginx: [emerg] bind() to 0.0.0.0:443 failed (98: Address already in use)\nnginx: [emerg] bind() to 0.0.0.0:80 failed (98: Address already in use)\nnginx: [emerg] bind() to 0.0.0.0:443 failed (98: Address already in use)\nnginx: [emerg] bind() to 0.0.0.0:80 failed (98: Address already in use)\nnginx: [emerg] bind() to 0.0.0.0:443 failed (98: Address already in use)\nnginx: [emerg] still could not bind()\n"}
+{"timestamp": "2025-07-14T15:37:22.793549", "level": "INFO", "message": "Updating website status to failed."}
+{"timestamp": "2025-07-14T15:37:23.252058", "level": "INFO", "message": "Trying audit log path: /var/log/modsec_audit.log"}
+{"timestamp": "2025-07-14T15:37:23.252722", "level": "INFO", "message": "Successfully parsed 40 audit logs from /var/log/modsec_audit.log"}
+{"timestamp": "2025-07-14T15:37:25.257387", "level": "INFO", "message": "Client disconnected"}
+{"timestamp": "2025-07-14T15:37:25.272761", "level": "INFO", "message": "Trying audit log path: /var/log/modsec_audit.log"}
+{"timestamp": "2025-07-14T15:37:25.273344", "level": "INFO", "message": "Successfully parsed 40 audit logs from /var/log/modsec_audit.log"}
+{"timestamp": "2025-07-14T15:37:35.042580", "level": "INFO", "message": "Starting file upload: wsabhrwhee.zip"}
+{"timestamp": "2025-07-14T15:37:35.042815", "level": "INFO", "message": "Upload completed: wsabhrwhee.zip"}
+{"timestamp": "2025-07-14T15:37:37.234916", "level": "INFO", "message": "Starting deployment for file: wsabhrwhee"}
+{"timestamp": "2025-07-14T15:37:37.235037", "level": "INFO", "message": "Validating existing Nginx configuration"}
+{"timestamp": "2025-07-14T15:37:37.255749", "level": "INFO", "message": "Ensuring Nginx service is ready"}
+{"timestamp": "2025-07-14T15:37:37.276883", "level": "INFO", "message": "Looking for file at: uploads/wsabhrwhee.zip"}
+{"timestamp": "2025-07-14T15:37:37.278593", "level": "INFO", "message": "Creating website entry for wsabhrwhee.zip with server IP: 192.168.70.2"}
+{"timestamp": "2025-07-14T15:37:37.282861", "level": "INFO", "message": "Created website entry with ID: 016320aaa1c73cc1"}
+{"timestamp": "2025-07-14T15:37:37.286004", "level": "INFO", "message": "VIP parameters not provided by user. Searching for available VIP in database."}
+{"timestamp": "2025-07-14T15:37:37.286625", "level": "INFO", "message": "Found available VIP in DB: 192.168.70.1"}
+{"timestamp": "2025-07-14T15:37:37.286691", "level": "INFO", "message": "Attempting to ensure VIP 192.168.70.1 is removed from network interface before usage."}
+{"timestamp": "2025-07-14T15:37:37.293288", "level": "INFO", "message": "Configuring VIP network for 192.168.70.1"}
+{"timestamp": "2025-07-14T15:37:37.302286", "level": "INFO", "message": "Killing any processes using port 80 (if any)"}
+{"timestamp": "2025-07-14T15:37:37.377098", "level": "INFO", "message": "Client disconnected"}
+{"timestamp": "2025-07-14T15:37:37.378275", "level": "INFO", "message": "Processes on port 80 cleared."}
+{"timestamp": "2025-07-14T15:37:37.383581", "level": "INFO", "message": "Setting up deployment folder at: /usr/local/nginx/html/wsabhrwhee"}
+{"timestamp": "2025-07-14T15:37:37.383737", "level": "INFO", "message": "Creating new deployment folder: /usr/local/nginx/html/wsabhrwhee"}
+{"timestamp": "2025-07-14T15:37:37.384152", "level": "INFO", "message": "Extracting zip file: uploads/wsabhrwhee.zip"}
+{"timestamp": "2025-07-14T15:37:37.384736", "level": "INFO", "message": "Extracted files to /usr/local/nginx/html/wsabhrwhee"}
+{"timestamp": "2025-07-14T15:37:37.384862", "level": "INFO", "message": "Setting permissions for /usr/local/nginx/html/wsabhrwhee"}
+{"timestamp": "2025-07-14T15:37:37.398944", "level": "INFO", "message": "Configuring Apache port: 8082"}
+{"timestamp": "2025-07-14T15:37:37.399139", "level": "ERROR", "message": "Error configuring Apache: [Errno 13] Permission denied: '/etc/apache2/ports.conf'"}
+{"timestamp": "2025-07-14T15:37:37.399215", "level": "ERROR", "message": "Apache configuration failed: 500: Apache configuration error"}
+{"timestamp": "2025-07-14T15:37:37.399759", "level": "ERROR", "message": "HTTPException during deployment: Apache configuration failed: 500: Apache configuration error"}
+{"timestamp": "2025-07-14T15:37:37.399794", "level": "INFO", "message": "Starting cleanup after failed deployment"}
+{"timestamp": "2025-07-14T15:37:37.399965", "level": "INFO", "message": "Removing deployment folder: /usr/local/nginx/html/wsabhrwhee"}
+{"timestamp": "2025-07-14T15:37:37.400175", "level": "INFO", "message": "Removing IP address 192.168.70.1/255.255.255.0 from interface ens33 during cleanup."}
+{"timestamp": "2025-07-14T15:37:37.415785", "level": "INFO", "message": "Releasing VIP 192.168.70.1 from database during cleanup."}
+{"timestamp": "2025-07-14T15:37:37.416783", "level": "ERROR", "message": "VIP cleanup error: 500: VIP release failed: 400: VIP is already available"}
+{"timestamp": "2025-07-14T15:37:37.416895", "level": "INFO", "message": "Ensuring Nginx is running after cleanup"}
+{"timestamp": "2025-07-14T15:37:37.434290", "level": "INFO", "message": "Nginx not running, attempting to start"}
+{"timestamp": "2025-07-14T15:37:37.452290", "level": "INFO", "message": "Nginx started. Output: "}
+{"timestamp": "2025-07-14T15:37:37.647922", "level": "INFO", "message": "Starting deployment for file: wsabhrwhee"}
+{"timestamp": "2025-07-14T15:37:37.648036", "level": "INFO", "message": "Validating existing Nginx configuration"}
+{"timestamp": "2025-07-14T15:37:37.663917", "level": "INFO", "message": "Ensuring Nginx service is ready"}
+{"timestamp": "2025-07-14T15:37:37.684912", "level": "INFO", "message": "Looking for file at: uploads/wsabhrwhee.zip"}
+{"timestamp": "2025-07-14T15:37:37.686321", "level": "INFO", "message": "Creating website entry for wsabhrwhee.zip with server IP: 192.168.70.2"}
+{"timestamp": "2025-07-14T15:37:37.689341", "level": "INFO", "message": "Created website entry with ID: d563bc7eed764acc"}
+{"timestamp": "2025-07-14T15:37:37.692140", "level": "INFO", "message": "VIP parameters not provided by user. Searching for available VIP in database."}
+{"timestamp": "2025-07-14T15:37:37.692689", "level": "INFO", "message": "Found available VIP in DB: 192.168.70.1"}
+{"timestamp": "2025-07-14T15:37:37.692746", "level": "INFO", "message": "Attempting to ensure VIP 192.168.70.1 is removed from network interface before usage."}
+{"timestamp": "2025-07-14T15:37:37.701132", "level": "INFO", "message": "Configuring VIP network for 192.168.70.1"}
+{"timestamp": "2025-07-14T15:37:37.708698", "level": "INFO", "message": "Killing any processes using port 80 (if any)"}
+{"timestamp": "2025-07-14T15:37:37.787526", "level": "INFO", "message": "Processes on port 80 cleared."}
+{"timestamp": "2025-07-14T15:37:37.791402", "level": "INFO", "message": "Setting up deployment folder at: /usr/local/nginx/html/wsabhrwhee"}
+{"timestamp": "2025-07-14T15:37:37.791531", "level": "INFO", "message": "Creating new deployment folder: /usr/local/nginx/html/wsabhrwhee"}
+{"timestamp": "2025-07-14T15:37:37.791902", "level": "INFO", "message": "Extracting zip file: uploads/wsabhrwhee.zip"}
+{"timestamp": "2025-07-14T15:37:37.792406", "level": "INFO", "message": "Extracted files to /usr/local/nginx/html/wsabhrwhee"}
+{"timestamp": "2025-07-14T15:37:37.792567", "level": "INFO", "message": "Setting permissions for /usr/local/nginx/html/wsabhrwhee"}
+{"timestamp": "2025-07-14T15:37:37.806889", "level": "INFO", "message": "Configuring Apache port: 8082"}
+{"timestamp": "2025-07-14T15:37:37.807068", "level": "ERROR", "message": "Error configuring Apache: [Errno 13] Permission denied: '/etc/apache2/ports.conf'"}
+{"timestamp": "2025-07-14T15:37:37.807127", "level": "ERROR", "message": "Apache configuration failed: 500: Apache configuration error"}
+{"timestamp": "2025-07-14T15:37:37.807695", "level": "ERROR", "message": "HTTPException during deployment: Apache configuration failed: 500: Apache configuration error"}
+{"timestamp": "2025-07-14T15:37:37.807750", "level": "INFO", "message": "Starting cleanup after failed deployment"}
+{"timestamp": "2025-07-14T15:37:37.807922", "level": "INFO", "message": "Removing deployment folder: /usr/local/nginx/html/wsabhrwhee"}
+{"timestamp": "2025-07-14T15:37:37.808123", "level": "INFO", "message": "Removing IP address 192.168.70.1/255.255.255.0 from interface ens33 during cleanup."}
+{"timestamp": "2025-07-14T15:37:37.824531", "level": "INFO", "message": "Releasing VIP 192.168.70.1 from database during cleanup."}
+{"timestamp": "2025-07-14T15:37:37.825404", "level": "ERROR", "message": "VIP cleanup error: 500: VIP release failed: 400: VIP is already available"}
+{"timestamp": "2025-07-14T15:37:37.825487", "level": "INFO", "message": "Ensuring Nginx is running after cleanup"}
+{"timestamp": "2025-07-14T15:37:37.843254", "level": "INFO", "message": "Nginx not running, attempting to start"}
+{"timestamp": "2025-07-14T15:37:37.862035", "level": "INFO", "message": "Nginx started. Output: "}
+{"timestamp": "2025-07-14T15:37:39.453923", "level": "INFO", "message": "Updating website status to failed."}
+{"timestamp": "2025-07-14T15:37:39.864336", "level": "INFO", "message": "Updating website status to failed."}
+{"timestamp": "2025-07-14T15:37:42.266272", "level": "INFO", "message": "Client disconnected"}
+{"timestamp": "2025-07-14T15:37:42.430982", "level": "INFO", "message": "Trying audit log path: /var/log/modsec_audit.log"}
+{"timestamp": "2025-07-14T15:37:42.431983", "level": "INFO", "message": "Successfully parsed 40 audit logs from /var/log/modsec_audit.log"}
+{"timestamp": "2025-07-14T15:37:43.163523", "level": "INFO", "message": "Trying audit log path: /var/log/modsec_audit.log"}
+{"timestamp": "2025-07-14T15:37:43.164216", "level": "INFO", "message": "Successfully parsed 40 audit logs from /var/log/modsec_audit.log"}
+{"timestamp": "2025-07-14T15:38:02.367537", "level": "INFO", "message": "Client disconnected"}
+{"timestamp": "2025-07-14T15:38:12.034349", "level": "INFO", "message": "Trying audit log path: /var/log/modsec_audit.log"}
+{"timestamp": "2025-07-14T15:38:12.035036", "level": "INFO", "message": "Successfully parsed 40 audit logs from /var/log/modsec_audit.log"}
+{"timestamp": "2025-07-14T15:38:34.336352", "level": "INFO", "message": "Starting file upload: sad.zip"}
+{"timestamp": "2025-07-14T15:38:34.336559", "level": "INFO", "message": "Upload completed: sad.zip"}
+{"timestamp": "2025-07-14T15:38:37.054587", "level": "INFO", "message": "Starting deployment for file: sad"}
+{"timestamp": "2025-07-14T15:38:37.054694", "level": "INFO", "message": "Validating existing Nginx configuration"}
+{"timestamp": "2025-07-14T15:38:37.072767", "level": "INFO", "message": "Ensuring Nginx service is ready"}
+{"timestamp": "2025-07-14T15:38:37.090689", "level": "INFO", "message": "Regenerating Nginx pid file"}
+{"timestamp": "2025-07-14T15:38:37.109701", "level": "INFO", "message": "Looking for file at: uploads/sad.zip"}
+{"timestamp": "2025-07-14T15:38:37.111044", "level": "INFO", "message": "Creating website entry for sad.zip with server IP: 192.168.70.2"}
+{"timestamp": "2025-07-14T15:38:37.114679", "level": "INFO", "message": "Created website entry with ID: 63a61eb2cd316e95"}
+{"timestamp": "2025-07-14T15:38:37.118243", "level": "INFO", "message": "VIP parameters not provided by user. Searching for available VIP in database."}
+{"timestamp": "2025-07-14T15:38:37.118774", "level": "INFO", "message": "Found available VIP in DB: 192.168.70.1"}
+{"timestamp": "2025-07-14T15:38:37.118828", "level": "INFO", "message": "Attempting to ensure VIP 192.168.70.1 is removed from network interface before usage."}
+{"timestamp": "2025-07-14T15:38:37.126060", "level": "INFO", "message": "Configuring VIP network for 192.168.70.1"}
+{"timestamp": "2025-07-14T15:38:37.135620", "level": "INFO", "message": "Killing any processes using port 80 (if any)"}
+{"timestamp": "2025-07-14T15:38:37.212820", "level": "INFO", "message": "Client disconnected"}
+{"timestamp": "2025-07-14T15:38:37.213277", "level": "INFO", "message": "Processes on port 80 cleared."}
+{"timestamp": "2025-07-14T15:38:37.217240", "level": "INFO", "message": "Setting up deployment folder at: /usr/local/nginx/html/sad"}
+{"timestamp": "2025-07-14T15:38:37.217401", "level": "INFO", "message": "Creating new deployment folder: /usr/local/nginx/html/sad"}
+{"timestamp": "2025-07-14T15:38:37.217732", "level": "INFO", "message": "Extracting zip file: uploads/sad.zip"}
+{"timestamp": "2025-07-14T15:38:37.218376", "level": "INFO", "message": "Extracted files to /usr/local/nginx/html/sad"}
+{"timestamp": "2025-07-14T15:38:37.218458", "level": "INFO", "message": "Setting permissions for /usr/local/nginx/html/sad"}
+{"timestamp": "2025-07-14T15:38:37.233675", "level": "INFO", "message": "Configuring Apache port: 8082"}
+{"timestamp": "2025-07-14T15:38:37.234006", "level": "ERROR", "message": "Error configuring Apache: [Errno 13] Permission denied: '/etc/apache2/ports.conf'"}
+{"timestamp": "2025-07-14T15:38:37.234076", "level": "ERROR", "message": "Apache configuration failed: 500: Apache configuration error"}
+{"timestamp": "2025-07-14T15:38:37.234663", "level": "ERROR", "message": "HTTPException during deployment: Apache configuration failed: 500: Apache configuration error"}
+{"timestamp": "2025-07-14T15:38:37.234706", "level": "INFO", "message": "Starting cleanup after failed deployment"}
+{"timestamp": "2025-07-14T15:38:37.234919", "level": "INFO", "message": "Removing deployment folder: /usr/local/nginx/html/sad"}
+{"timestamp": "2025-07-14T15:38:37.235216", "level": "INFO", "message": "Removing IP address 192.168.70.1/255.255.255.0 from interface ens33 during cleanup."}
+{"timestamp": "2025-07-14T15:38:37.251892", "level": "INFO", "message": "Releasing VIP 192.168.70.1 from database during cleanup."}
+{"timestamp": "2025-07-14T15:38:37.252748", "level": "ERROR", "message": "VIP cleanup error: 500: VIP release failed: 400: VIP is already available"}
+{"timestamp": "2025-07-14T15:38:37.252836", "level": "INFO", "message": "Ensuring Nginx is running after cleanup"}
+{"timestamp": "2025-07-14T15:38:37.272157", "level": "INFO", "message": "Updating website status to failed."}
+{"timestamp": "2025-07-14T15:38:37.734237", "level": "INFO", "message": "Starting deployment for file: sad"}
+{"timestamp": "2025-07-14T15:38:37.734374", "level": "INFO", "message": "Validating existing Nginx configuration"}
+{"timestamp": "2025-07-14T15:38:37.751175", "level": "INFO", "message": "Ensuring Nginx service is ready"}
+{"timestamp": "2025-07-14T15:38:37.768852", "level": "INFO", "message": "Looking for file at: uploads/sad.zip"}
+{"timestamp": "2025-07-14T15:38:37.770071", "level": "INFO", "message": "Creating website entry for sad.zip with server IP: 192.168.70.2"}
+{"timestamp": "2025-07-14T15:38:37.772873", "level": "INFO", "message": "Created website entry with ID: cc11baac26a1832d"}
+{"timestamp": "2025-07-14T15:38:37.775386", "level": "INFO", "message": "VIP parameters not provided by user. Searching for available VIP in database."}
+{"timestamp": "2025-07-14T15:38:37.775940", "level": "INFO", "message": "Found available VIP in DB: 192.168.70.1"}
+{"timestamp": "2025-07-14T15:38:37.776008", "level": "INFO", "message": "Attempting to ensure VIP 192.168.70.1 is removed from network interface before usage."}
+{"timestamp": "2025-07-14T15:38:37.784599", "level": "INFO", "message": "Configuring VIP network for 192.168.70.1"}
+{"timestamp": "2025-07-14T15:38:37.791627", "level": "INFO", "message": "Killing any processes using port 80 (if any)"}
+{"timestamp": "2025-07-14T15:38:37.870326", "level": "INFO", "message": "Processes on port 80 cleared."}
+{"timestamp": "2025-07-14T15:38:37.874046", "level": "INFO", "message": "Setting up deployment folder at: /usr/local/nginx/html/sad"}
+{"timestamp": "2025-07-14T15:38:37.874176", "level": "INFO", "message": "Creating new deployment folder: /usr/local/nginx/html/sad"}
+{"timestamp": "2025-07-14T15:38:37.874539", "level": "INFO", "message": "Extracting zip file: uploads/sad.zip"}
+{"timestamp": "2025-07-14T15:38:37.874964", "level": "INFO", "message": "Extracted files to /usr/local/nginx/html/sad"}
+{"timestamp": "2025-07-14T15:38:37.875025", "level": "INFO", "message": "Setting permissions for /usr/local/nginx/html/sad"}
+{"timestamp": "2025-07-14T15:38:37.889811", "level": "INFO", "message": "Configuring Apache port: 8082"}
+{"timestamp": "2025-07-14T15:38:37.889996", "level": "ERROR", "message": "Error configuring Apache: [Errno 13] Permission denied: '/etc/apache2/ports.conf'"}
+{"timestamp": "2025-07-14T15:38:37.890058", "level": "ERROR", "message": "Apache configuration failed: 500: Apache configuration error"}
+{"timestamp": "2025-07-14T15:38:37.890600", "level": "ERROR", "message": "HTTPException during deployment: Apache configuration failed: 500: Apache configuration error"}
+{"timestamp": "2025-07-14T15:38:37.890637", "level": "INFO", "message": "Starting cleanup after failed deployment"}
+{"timestamp": "2025-07-14T15:38:37.890812", "level": "INFO", "message": "Removing deployment folder: /usr/local/nginx/html/sad"}
+{"timestamp": "2025-07-14T15:38:37.891019", "level": "INFO", "message": "Removing IP address 192.168.70.1/255.255.255.0 from interface ens33 during cleanup."}
+{"timestamp": "2025-07-14T15:38:37.906229", "level": "INFO", "message": "Releasing VIP 192.168.70.1 from database during cleanup."}
+{"timestamp": "2025-07-14T15:38:37.907159", "level": "ERROR", "message": "VIP cleanup error: 500: VIP release failed: 400: VIP is already available"}
+{"timestamp": "2025-07-14T15:38:37.907251", "level": "INFO", "message": "Ensuring Nginx is running after cleanup"}
+{"timestamp": "2025-07-14T15:38:37.925644", "level": "INFO", "message": "Nginx not running, attempting to start"}
+{"timestamp": "2025-07-14T15:38:37.944446", "level": "INFO", "message": "Nginx started. Output: "}
+{"timestamp": "2025-07-14T15:38:37.997573", "level": "INFO", "message": "Trying audit log path: /var/log/modsec_audit.log"}
+{"timestamp": "2025-07-14T15:38:37.998650", "level": "INFO", "message": "Successfully parsed 40 audit logs from /var/log/modsec_audit.log"}
+{"timestamp": "2025-07-14T15:38:39.945980", "level": "INFO", "message": "Updating website status to failed."}
+{"timestamp": "2025-07-14T15:38:43.051231", "level": "INFO", "message": "Client disconnected"}
+{"timestamp": "2025-07-14T15:38:43.150954", "level": "INFO", "message": "Trying audit log path: /var/log/modsec_audit.log"}
+{"timestamp": "2025-07-14T15:38:43.151741", "level": "INFO", "message": "Successfully parsed 40 audit logs from /var/log/modsec_audit.log"}
+{"timestamp": "2025-07-14T15:39:45.191597", "level": "INFO", "message": "Starting file upload: dsnhsd.zip"}
+{"timestamp": "2025-07-14T15:39:45.192072", "level": "INFO", "message": "Upload completed: dsnhsd.zip"}
+{"timestamp": "2025-07-14T15:39:47.565550", "level": "INFO", "message": "Starting deployment for file: dsnhsd"}
+{"timestamp": "2025-07-14T15:39:47.565690", "level": "INFO", "message": "Validating existing Nginx configuration"}
+{"timestamp": "2025-07-14T15:39:47.587399", "level": "INFO", "message": "Ensuring Nginx service is ready"}
+{"timestamp": "2025-07-14T15:39:47.605453", "level": "INFO", "message": "Regenerating Nginx pid file"}
+{"timestamp": "2025-07-14T15:39:47.622979", "level": "INFO", "message": "Looking for file at: uploads/dsnhsd.zip"}
+{"timestamp": "2025-07-14T15:39:47.624133", "level": "INFO", "message": "Creating website entry for dsnhsd.zip with server IP: 192.168.70.2"}
+{"timestamp": "2025-07-14T15:39:47.627241", "level": "INFO", "message": "Created website entry with ID: d315309256e2bcb1"}
+{"timestamp": "2025-07-14T15:39:47.631091", "level": "INFO", "message": "VIP parameters not provided by user. Searching for available VIP in database."}
+{"timestamp": "2025-07-14T15:39:47.631797", "level": "INFO", "message": "Found available VIP in DB: 192.168.70.1"}
+{"timestamp": "2025-07-14T15:39:47.631891", "level": "INFO", "message": "Attempting to ensure VIP 192.168.70.1 is removed from network interface before usage."}
+{"timestamp": "2025-07-14T15:39:47.639703", "level": "INFO", "message": "Configuring VIP network for 192.168.70.1"}
+{"timestamp": "2025-07-14T15:39:47.647386", "level": "INFO", "message": "Killing any processes using port 80 (if any)"}
+{"timestamp": "2025-07-14T15:39:47.721725", "level": "INFO", "message": "Client disconnected"}
+{"timestamp": "2025-07-14T15:39:47.722938", "level": "INFO", "message": "Processes on port 80 cleared."}
+{"timestamp": "2025-07-14T15:39:47.726943", "level": "INFO", "message": "Setting up deployment folder at: /usr/local/nginx/html/dsnhsd"}
+{"timestamp": "2025-07-14T15:39:47.727158", "level": "INFO", "message": "Creating new deployment folder: /usr/local/nginx/html/dsnhsd"}
+{"timestamp": "2025-07-14T15:39:47.727620", "level": "INFO", "message": "Extracting zip file: uploads/dsnhsd.zip"}
+{"timestamp": "2025-07-14T15:39:47.728459", "level": "INFO", "message": "Extracted files to /usr/local/nginx/html/dsnhsd"}
+{"timestamp": "2025-07-14T15:39:47.728602", "level": "INFO", "message": "Setting permissions for /usr/local/nginx/html/dsnhsd"}
+{"timestamp": "2025-07-14T15:39:47.742811", "level": "INFO", "message": "Configuring Apache port: 8082"}
+{"timestamp": "2025-07-14T15:39:47.742982", "level": "ERROR", "message": "Error configuring Apache: [Errno 13] Permission denied: '/etc/apache2/ports.conf'"}
+{"timestamp": "2025-07-14T15:39:47.743042", "level": "ERROR", "message": "Apache configuration failed: 500: Apache configuration error"}
+{"timestamp": "2025-07-14T15:39:47.743597", "level": "ERROR", "message": "HTTPException during deployment: Apache configuration failed: 500: Apache configuration error"}
+{"timestamp": "2025-07-14T15:39:47.743651", "level": "INFO", "message": "Starting cleanup after failed deployment"}
+{"timestamp": "2025-07-14T15:39:47.743959", "level": "INFO", "message": "Removing deployment folder: /usr/local/nginx/html/dsnhsd"}
+{"timestamp": "2025-07-14T15:39:47.744271", "level": "INFO", "message": "Removing IP address 192.168.70.1/255.255.255.0 from interface ens33 during cleanup."}
+{"timestamp": "2025-07-14T15:39:47.760846", "level": "INFO", "message": "Releasing VIP 192.168.70.1 from database during cleanup."}
+{"timestamp": "2025-07-14T15:39:47.761972", "level": "ERROR", "message": "VIP cleanup error: 500: VIP release failed: 400: VIP is already available"}
+{"timestamp": "2025-07-14T15:39:47.762092", "level": "INFO", "message": "Ensuring Nginx is running after cleanup"}
+{"timestamp": "2025-07-14T15:39:47.780179", "level": "INFO", "message": "Nginx not running, attempting to start"}
+{"timestamp": "2025-07-14T15:39:47.797609", "level": "INFO", "message": "Nginx started. Output: "}
+{"timestamp": "2025-07-14T15:39:47.983481", "level": "INFO", "message": "Starting deployment for file: dsnhsd"}
+{"timestamp": "2025-07-14T15:39:47.983598", "level": "INFO", "message": "Validating existing Nginx configuration"}
+{"timestamp": "2025-07-14T15:39:48.001649", "level": "INFO", "message": "Ensuring Nginx service is ready"}
+{"timestamp": "2025-07-14T15:39:48.018909", "level": "INFO", "message": "Looking for file at: uploads/dsnhsd.zip"}
+{"timestamp": "2025-07-14T15:39:48.020032", "level": "INFO", "message": "Creating website entry for dsnhsd.zip with server IP: 192.168.70.2"}
+{"timestamp": "2025-07-14T15:39:48.023850", "level": "INFO", "message": "Created website entry with ID: 0db3ef154aa1a8d7"}
+{"timestamp": "2025-07-14T15:39:48.026722", "level": "INFO", "message": "VIP parameters not provided by user. Searching for available VIP in database."}
+{"timestamp": "2025-07-14T15:39:48.027334", "level": "INFO", "message": "Found available VIP in DB: 192.168.70.1"}
+{"timestamp": "2025-07-14T15:39:48.027415", "level": "INFO", "message": "Attempting to ensure VIP 192.168.70.1 is removed from network interface before usage."}
+{"timestamp": "2025-07-14T15:39:48.034947", "level": "INFO", "message": "Configuring VIP network for 192.168.70.1"}
+{"timestamp": "2025-07-14T15:39:48.043166", "level": "INFO", "message": "Killing any processes using port 80 (if any)"}
+{"timestamp": "2025-07-14T15:39:48.120275", "level": "INFO", "message": "Processes on port 80 cleared."}
+{"timestamp": "2025-07-14T15:39:48.123694", "level": "INFO", "message": "Setting up deployment folder at: /usr/local/nginx/html/dsnhsd"}
+{"timestamp": "2025-07-14T15:39:48.123816", "level": "INFO", "message": "Creating new deployment folder: /usr/local/nginx/html/dsnhsd"}
+{"timestamp": "2025-07-14T15:39:48.124146", "level": "INFO", "message": "Extracting zip file: uploads/dsnhsd.zip"}
+{"timestamp": "2025-07-14T15:39:48.124548", "level": "INFO", "message": "Extracted files to /usr/local/nginx/html/dsnhsd"}
+{"timestamp": "2025-07-14T15:39:48.124597", "level": "INFO", "message": "Setting permissions for /usr/local/nginx/html/dsnhsd"}
+{"timestamp": "2025-07-14T15:39:48.138728", "level": "INFO", "message": "Configuring Apache port: 8082"}
+{"timestamp": "2025-07-14T15:39:48.138909", "level": "ERROR", "message": "Error configuring Apache: [Errno 13] Permission denied: '/etc/apache2/ports.conf'"}
+{"timestamp": "2025-07-14T15:39:48.138970", "level": "ERROR", "message": "Apache configuration failed: 500: Apache configuration error"}
+{"timestamp": "2025-07-14T15:39:48.139566", "level": "ERROR", "message": "HTTPException during deployment: Apache configuration failed: 500: Apache configuration error"}
+{"timestamp": "2025-07-14T15:39:48.139618", "level": "INFO", "message": "Starting cleanup after failed deployment"}
+{"timestamp": "2025-07-14T15:39:48.139834", "level": "INFO", "message": "Removing deployment folder: /usr/local/nginx/html/dsnhsd"}
+{"timestamp": "2025-07-14T15:39:48.140153", "level": "INFO", "message": "Removing IP address 192.168.70.1/255.255.255.0 from interface ens33 during cleanup."}
+{"timestamp": "2025-07-14T15:39:48.155069", "level": "INFO", "message": "Releasing VIP 192.168.70.1 from database during cleanup."}
+{"timestamp": "2025-07-14T15:39:48.155909", "level": "ERROR", "message": "VIP cleanup error: 500: VIP release failed: 400: VIP is already available"}
+{"timestamp": "2025-07-14T15:39:48.155982", "level": "INFO", "message": "Ensuring Nginx is running after cleanup"}
+{"timestamp": "2025-07-14T15:39:48.173555", "level": "INFO", "message": "Nginx not running, attempting to start"}
+{"timestamp": "2025-07-14T15:39:48.192293", "level": "INFO", "message": "Nginx started. Output: "}
+{"timestamp": "2025-07-14T15:39:49.684338", "level": "INFO", "message": "Trying audit log path: /var/log/modsec_audit.log"}
+{"timestamp": "2025-07-14T15:39:49.685212", "level": "INFO", "message": "Successfully parsed 40 audit logs from /var/log/modsec_audit.log"}
+{"timestamp": "2025-07-14T15:39:50.688759", "level": "INFO", "message": "Updating website status to failed."}
+{"timestamp": "2025-07-14T15:39:51.693764", "level": "INFO", "message": "Client disconnected"}
+{"timestamp": "2025-07-14T15:39:51.694395", "level": "INFO", "message": "Updating website status to failed."}
+{"timestamp": "2025-07-14T15:39:53.155169", "level": "INFO", "message": "Trying audit log path: /var/log/modsec_audit.log"}
+{"timestamp": "2025-07-14T15:39:53.155830", "level": "INFO", "message": "Successfully parsed 40 audit logs from /var/log/modsec_audit.log"}
+{"timestamp": "2025-07-14T15:46:34.956088", "level": "INFO", "message": "Starting deployment for file: dsnhsd"}
+{"timestamp": "2025-07-14T15:46:34.956201", "level": "INFO", "message": "Validating existing Nginx configuration"}
+{"timestamp": "2025-07-14T15:46:34.974118", "level": "INFO", "message": "Ensuring Nginx service is ready"}
+{"timestamp": "2025-07-14T15:46:34.994619", "level": "INFO", "message": "Regenerating Nginx pid file"}
+{"timestamp": "2025-07-14T15:46:35.015511", "level": "INFO", "message": "Looking for file at: uploads/dsnhsd.zip"}
+{"timestamp": "2025-07-14T15:46:35.016754", "level": "INFO", "message": "Creating website entry for dsnhsd.zip with server IP: 192.168.70.2"}
+{"timestamp": "2025-07-14T15:46:35.019762", "level": "INFO", "message": "Created website entry with ID: c5bbdd10cce0b174"}
+{"timestamp": "2025-07-14T15:46:35.022968", "level": "INFO", "message": "VIP parameters not provided by user. Searching for available VIP in database."}
+{"timestamp": "2025-07-14T15:46:35.023592", "level": "INFO", "message": "Found available VIP in DB: 192.168.70.1"}
+{"timestamp": "2025-07-14T15:46:35.023672", "level": "INFO", "message": "Attempting to ensure VIP 192.168.70.1 is removed from network interface before usage."}
+{"timestamp": "2025-07-14T15:46:35.033441", "level": "INFO", "message": "Configuring VIP network for 192.168.70.1"}
+{"timestamp": "2025-07-14T15:46:35.042820", "level": "INFO", "message": "Killing any processes using port 80 (if any)"}
+{"timestamp": "2025-07-14T15:46:35.122380", "level": "INFO", "message": "Client disconnected"}
+{"timestamp": "2025-07-14T15:46:35.124029", "level": "INFO", "message": "Processes on port 80 cleared."}
+{"timestamp": "2025-07-14T15:46:35.131066", "level": "INFO", "message": "Setting up deployment folder at: /usr/local/nginx/html/dsnhsd"}
+{"timestamp": "2025-07-14T15:46:35.131299", "level": "INFO", "message": "Creating new deployment folder: /usr/local/nginx/html/dsnhsd"}
+{"timestamp": "2025-07-14T15:46:35.131949", "level": "INFO", "message": "Extracting zip file: uploads/dsnhsd.zip"}
+{"timestamp": "2025-07-14T15:46:35.133015", "level": "INFO", "message": "Extracted files to /usr/local/nginx/html/dsnhsd"}
+{"timestamp": "2025-07-14T15:46:35.133143", "level": "INFO", "message": "Setting permissions for /usr/local/nginx/html/dsnhsd"}
+{"timestamp": "2025-07-14T15:46:35.174107", "level": "INFO", "message": "Configuring Apache port: 8082"}
+{"timestamp": "2025-07-14T15:46:35.174859", "level": "ERROR", "message": "Error configuring Apache: [Errno 13] Permission denied: '/etc/apache2/ports.conf'"}
+{"timestamp": "2025-07-14T15:46:35.176415", "level": "ERROR", "message": "Apache configuration failed: 500: Apache configuration error"}
+{"timestamp": "2025-07-14T15:46:35.178015", "level": "ERROR", "message": "HTTPException during deployment: Apache configuration failed: 500: Apache configuration error"}
+{"timestamp": "2025-07-14T15:46:35.178165", "level": "INFO", "message": "Starting cleanup after failed deployment"}
+{"timestamp": "2025-07-14T15:46:35.178617", "level": "INFO", "message": "Removing deployment folder: /usr/local/nginx/html/dsnhsd"}
+{"timestamp": "2025-07-14T15:46:35.179850", "level": "INFO", "message": "Removing IP address 192.168.70.1/255.255.255.0 from interface ens33 during cleanup."}
+{"timestamp": "2025-07-14T15:46:35.201518", "level": "INFO", "message": "Releasing VIP 192.168.70.1 from database during cleanup."}
+{"timestamp": "2025-07-14T15:46:35.202479", "level": "ERROR", "message": "VIP cleanup error: 500: VIP release failed: 400: VIP is already available"}
+{"timestamp": "2025-07-14T15:46:35.202569", "level": "INFO", "message": "Ensuring Nginx is running after cleanup"}
+{"timestamp": "2025-07-14T15:46:35.222392", "level": "INFO", "message": "Updating website status to failed."}
+{"timestamp": "2025-07-14T15:46:38.880453", "level": "INFO", "message": "Client disconnected"}
+{"timestamp": "2025-07-14T15:46:40.200056", "level": "INFO", "message": "Trying audit log path: /var/log/modsec_audit.log"}
+{"timestamp": "2025-07-14T15:46:40.201539", "level": "INFO", "message": "Successfully parsed 40 audit logs from /var/log/modsec_audit.log"}
+{"timestamp": "2025-07-14T15:46:41.156844", "level": "INFO", "message": "Trying audit log path: /var/log/modsec_audit.log"}
+{"timestamp": "2025-07-14T15:46:41.157451", "level": "INFO", "message": "Successfully parsed 40 audit logs from /var/log/modsec_audit.log"}
+{"timestamp": "2025-07-14T15:46:49.505323", "level": "INFO", "message": "Starting deployment for file: dsnhsd"}
+{"timestamp": "2025-07-14T15:46:49.505435", "level": "INFO", "message": "Validating existing Nginx configuration"}
+{"timestamp": "2025-07-14T15:46:49.522258", "level": "INFO", "message": "Ensuring Nginx service is ready"}
+{"timestamp": "2025-07-14T15:46:49.542750", "level": "INFO", "message": "Looking for file at: uploads/dsnhsd.zip"}
+{"timestamp": "2025-07-14T15:46:49.544664", "level": "INFO", "message": "Creating website entry for dsnhsd.zip with server IP: 192.168.70.2"}
+{"timestamp": "2025-07-14T15:46:49.548180", "level": "INFO", "message": "Created website entry with ID: 1979cb778c8a85fa"}
+{"timestamp": "2025-07-14T15:46:49.550771", "level": "INFO", "message": "VIP parameters not provided by user. Searching for available VIP in database."}
+{"timestamp": "2025-07-14T15:46:49.551288", "level": "INFO", "message": "Found available VIP in DB: 192.168.70.1"}
+{"timestamp": "2025-07-14T15:46:49.551359", "level": "INFO", "message": "Attempting to ensure VIP 192.168.70.1 is removed from network interface before usage."}
+{"timestamp": "2025-07-14T15:46:49.560101", "level": "INFO", "message": "Configuring VIP network for 192.168.70.1"}
+{"timestamp": "2025-07-14T15:46:49.566979", "level": "INFO", "message": "Killing any processes using port 80 (if any)"}
+{"timestamp": "2025-07-14T15:46:49.646343", "level": "INFO", "message": "Processes on port 80 cleared."}
+{"timestamp": "2025-07-14T15:46:49.652623", "level": "INFO", "message": "Setting up deployment folder at: /usr/local/nginx/html/dsnhsd"}
+{"timestamp": "2025-07-14T15:46:49.652767", "level": "INFO", "message": "Creating new deployment folder: /usr/local/nginx/html/dsnhsd"}
+{"timestamp": "2025-07-14T15:46:49.654016", "level": "INFO", "message": "Client disconnected"}
+{"timestamp": "2025-07-14T15:46:49.655494", "level": "INFO", "message": "Extracting zip file: uploads/dsnhsd.zip"}
+{"timestamp": "2025-07-14T15:46:49.655826", "level": "INFO", "message": "Client disconnected"}
+{"timestamp": "2025-07-14T15:46:49.657318", "level": "INFO", "message": "Extracted files to /usr/local/nginx/html/dsnhsd"}
+{"timestamp": "2025-07-14T15:46:49.657568", "level": "INFO", "message": "Setting permissions for /usr/local/nginx/html/dsnhsd"}
+{"timestamp": "2025-07-14T15:46:49.677375", "level": "INFO", "message": "Configuring Apache port: 8082"}
+{"timestamp": "2025-07-14T15:46:49.677614", "level": "ERROR", "message": "Error configuring Apache: [Errno 13] Permission denied: '/etc/apache2/ports.conf'"}
+{"timestamp": "2025-07-14T15:46:49.677689", "level": "ERROR", "message": "Apache configuration failed: 500: Apache configuration error"}
+{"timestamp": "2025-07-14T15:46:49.678361", "level": "ERROR", "message": "HTTPException during deployment: Apache configuration failed: 500: Apache configuration error"}
+{"timestamp": "2025-07-14T15:46:49.678434", "level": "INFO", "message": "Starting cleanup after failed deployment"}
+{"timestamp": "2025-07-14T15:46:49.678949", "level": "INFO", "message": "Removing deployment folder: /usr/local/nginx/html/dsnhsd"}
+{"timestamp": "2025-07-14T15:46:49.679569", "level": "INFO", "message": "Removing IP address 192.168.70.1/255.255.255.0 from interface ens33 during cleanup."}
+{"timestamp": "2025-07-14T15:46:49.700152", "level": "INFO", "message": "Releasing VIP 192.168.70.1 from database during cleanup."}
+{"timestamp": "2025-07-14T15:46:49.701211", "level": "ERROR", "message": "VIP cleanup error: 500: VIP release failed: 400: VIP is already available"}
+{"timestamp": "2025-07-14T15:46:49.701332", "level": "INFO", "message": "Ensuring Nginx is running after cleanup"}
+{"timestamp": "2025-07-14T15:46:49.721368", "level": "INFO", "message": "Nginx not running, attempting to start"}
+{"timestamp": "2025-07-14T15:46:49.742167", "level": "INFO", "message": "Nginx started. Output: "}
+{"timestamp": "2025-07-14T15:46:51.743678", "level": "INFO", "message": "Updating website status to failed."}
+{"timestamp": "2025-07-14T15:46:54.707239", "level": "INFO", "message": "Trying audit log path: /var/log/modsec_audit.log"}
+{"timestamp": "2025-07-14T15:46:54.708238", "level": "INFO", "message": "Successfully parsed 40 audit logs from /var/log/modsec_audit.log"}
+{"timestamp": "2025-07-14T15:46:55.160943", "level": "INFO", "message": "Trying audit log path: /var/log/modsec_audit.log"}
+{"timestamp": "2025-07-14T15:46:55.162229", "level": "INFO", "message": "Successfully parsed 40 audit logs from /var/log/modsec_audit.log"}
+{"timestamp": "2025-07-14T15:52:03.841424", "level": "INFO", "message": "Starting deployment for file: dsnhsd"}
+{"timestamp": "2025-07-14T15:52:03.841617", "level": "INFO", "message": "Validating existing Nginx configuration"}
+{"timestamp": "2025-07-14T15:52:03.861372", "level": "INFO", "message": "Ensuring Nginx service is ready"}
+{"timestamp": "2025-07-14T15:52:03.884750", "level": "INFO", "message": "Regenerating Nginx pid file"}
+{"timestamp": "2025-07-14T15:52:03.905057", "level": "INFO", "message": "Looking for file at: uploads/dsnhsd.zip"}
+{"timestamp": "2025-07-14T15:52:03.907181", "level": "INFO", "message": "Creating website entry for dsnhsd.zip with server IP: 192.168.70.2"}
+{"timestamp": "2025-07-14T15:52:03.912442", "level": "INFO", "message": "Created website entry with ID: 582134e3a24c24e6"}
+{"timestamp": "2025-07-14T15:52:03.917220", "level": "INFO", "message": "VIP parameters not provided by user. Searching for available VIP in database."}
+{"timestamp": "2025-07-14T15:52:03.918195", "level": "INFO", "message": "Found available VIP in DB: 192.168.70.1"}
+{"timestamp": "2025-07-14T15:52:03.918286", "level": "INFO", "message": "Attempting to ensure VIP 192.168.70.1 is removed from network interface before usage."}
+{"timestamp": "2025-07-14T15:52:03.926931", "level": "INFO", "message": "Configuring VIP network for 192.168.70.1"}
+{"timestamp": "2025-07-14T15:52:03.936672", "level": "INFO", "message": "Killing any processes using port 80 (if any)"}
+{"timestamp": "2025-07-14T15:52:04.036188", "level": "INFO", "message": "Processes on port 80 cleared."}
+{"timestamp": "2025-07-14T15:52:04.043752", "level": "INFO", "message": "Setting up deployment folder at: /usr/local/nginx/html/dsnhsd"}
+{"timestamp": "2025-07-14T15:52:04.044006", "level": "INFO", "message": "Creating new deployment folder: /usr/local/nginx/html/dsnhsd"}
+{"timestamp": "2025-07-14T15:52:04.045377", "level": "INFO", "message": "Client disconnected"}
+{"timestamp": "2025-07-14T15:52:04.046733", "level": "INFO", "message": "Extracting zip file: uploads/dsnhsd.zip"}
+{"timestamp": "2025-07-14T15:52:04.048372", "level": "INFO", "message": "Extracted files to /usr/local/nginx/html/dsnhsd"}
+{"timestamp": "2025-07-14T15:52:04.048662", "level": "INFO", "message": "Setting permissions for /usr/local/nginx/html/dsnhsd"}
+{"timestamp": "2025-07-14T15:52:04.077895", "level": "INFO", "message": "Configuring Apache port: 8082"}
+{"timestamp": "2025-07-14T15:52:04.078111", "level": "ERROR", "message": "Error configuring Apache: [Errno 13] Permission denied: '/etc/apache2/ports.conf'"}
+{"timestamp": "2025-07-14T15:52:04.078197", "level": "ERROR", "message": "Apache configuration failed: 500: Apache configuration error"}
+{"timestamp": "2025-07-14T15:52:04.078955", "level": "ERROR", "message": "HTTPException during deployment: Apache configuration failed: 500: Apache configuration error"}
+{"timestamp": "2025-07-14T15:52:04.079025", "level": "INFO", "message": "Starting cleanup after failed deployment"}
+{"timestamp": "2025-07-14T15:52:04.079450", "level": "INFO", "message": "Removing deployment folder: /usr/local/nginx/html/dsnhsd"}
+{"timestamp": "2025-07-14T15:52:04.080165", "level": "INFO", "message": "Removing IP address 192.168.70.1/255.255.255.0 from interface ens33 during cleanup."}
+{"timestamp": "2025-07-14T15:52:04.104685", "level": "INFO", "message": "Releasing VIP 192.168.70.1 from database during cleanup."}
+{"timestamp": "2025-07-14T15:52:04.106183", "level": "ERROR", "message": "VIP cleanup error: 500: VIP release failed: 400: VIP is already available"}
+{"timestamp": "2025-07-14T15:52:04.106447", "level": "INFO", "message": "Ensuring Nginx is running after cleanup"}
+{"timestamp": "2025-07-14T15:52:04.132644", "level": "INFO", "message": "Nginx not running, attempting to start"}
+{"timestamp": "2025-07-14T15:52:04.152075", "level": "INFO", "message": "Nginx started. Output: "}
+{"timestamp": "2025-07-14T15:52:05.536045", "level": "INFO", "message": "Trying audit log path: /var/log/modsec_audit.log"}
+{"timestamp": "2025-07-14T15:52:05.537136", "level": "INFO", "message": "Successfully parsed 40 audit logs from /var/log/modsec_audit.log"}
+{"timestamp": "2025-07-14T15:52:06.543457", "level": "INFO", "message": "Updating website status to failed."}
+{"timestamp": "2025-07-14T15:52:08.980895", "level": "INFO", "message": "Client disconnected"}
