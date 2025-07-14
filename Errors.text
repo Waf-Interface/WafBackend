@@ -1,0 +1,28 @@
+Jul 14 11:33:53 test sudo[98193]: www-data : PWD=/opt/waf_interface/waf-ghb ; USER=root ; COMMAND=/usr/sbin/ip addr show dev ens33
+Jul 14 11:33:53 test sudo[98193]: pam_unix(sudo:session): session opened for user root(uid=0) by (uid=33)
+Jul 14 11:33:53 test sudo[98193]: pam_unix(sudo:session): session closed for user root
+Jul 14 11:33:53 test sudo[98196]: www-data : PWD=/opt/waf_interface/waf-ghb ; USER=root ; COMMAND=/usr/sbin/ip addr add 192.168.70.1/255.255.255.0 dev ens33
+Jul 14 11:33:53 test sudo[98196]: pam_unix(sudo:session): session opened for user root(uid=0) by (uid=33)
+Jul 14 11:33:53 test sudo[98196]: pam_unix(sudo:session): session closed for user root
+Jul 14 11:33:53 test sudo[98199]: pam_unix(sudo:auth): conversation failed
+Jul 14 11:33:53 test sudo[98199]: pam_unix(sudo:auth): auth could not identify password for [www-data]
+Jul 14 11:33:53 test sudo[98199]: www-data : command not allowed ; PWD=/opt/waf_interface/waf-ghb ; USER=root ; COMMAND=/usr/bin/fuser -k 80/tcp
+Jul 14 11:33:53 test sudo[98204]: www-data : PWD=/opt/waf_interface/waf-ghb ; USER=root ; COMMAND=/usr/bin/chown -R www-data:www-data /usr/local/nginx/html/asdgadfs
+Jul 14 11:33:53 test sudo[98204]: pam_unix(sudo:session): session opened for user root(uid=0) by (uid=33)
+Jul 14 11:33:53 test sudo[98204]: pam_unix(sudo:session): session closed for user root
+Jul 14 11:33:53 test sudo[98208]: www-data : PWD=/opt/waf_interface/waf-ghb ; USER=root ; COMMAND=/usr/bin/chmod -R 755 /usr/local/nginx/html/asdgadfs
+Jul 14 11:33:53 test sudo[98208]: pam_unix(sudo:session): session opened for user root(uid=0) by (uid=33)
+Jul 14 11:33:53 test sudo[98208]: pam_unix(sudo:session): session closed for user root
+Jul 14 11:33:53 test sudo[98213]: www-data : PWD=/opt/waf_interface/waf-ghb ; USER=root ; COMMAND=/usr/sbin/ip addr show dev ens33
+Jul 14 11:33:53 test sudo[98213]: pam_unix(sudo:session): session opened for user root(uid=0) by (uid=33)
+Jul 14 11:33:53 test sudo[98213]: pam_unix(sudo:session): session closed for user root
+Jul 14 11:33:53 test sudo[98216]: www-data : PWD=/opt/waf_interface/waf-ghb ; USER=root ; COMMAND=/usr/sbin/ip addr del 192.168.70.1/255.255.255.0 dev ens33
+Jul 14 11:33:53 test sudo[98216]: pam_unix(sudo:session): session opened for user root(uid=0) by (uid=33)
+Jul 14 11:33:53 test sudo[98216]: pam_unix(sudo:session): session closed for user root
+Jul 14 11:33:54 test python3[97481]: VIP 192.168.70.1/255.255.255.0 not found on ens33. No deletion needed.
+Jul 14 11:33:54 test python3[97481]: Attempting to add VIP 192.168.70.1/255.255.255.0 to ens33...
+Jul 14 11:33:54 test python3[97481]: VIP 192.168.70.1/255.255.255.0 added successfully to ens33.
+Jul 14 11:33:54 test python3[97481]: VIP 192.168.70.1/255.255.255.0 found on ens33. Attempting to delete...
+Jul 14 11:33:54 test python3[97481]: VIP 192.168.70.1/255.255.255.0 deled successfully from ens33.
+Jul 14 11:33:54 test python3[97481]: INFO:     192.168.70.2:48446 - "GET /api/deploy/asdgadfs HTTP/1.0" 500 Internal Server Error
+
