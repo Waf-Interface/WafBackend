@@ -1,67 +1,156 @@
-l 14 11:39:17 test python3[97481]: INFO:     192.168.70.2:55228 - "GET /api/traffic HTTP/1.0" 200 OK
-Jul 14 11:39:45 test python3[97481]: INFO:     192.168.70.2:53388 - "POST /api/upload HTTP/1.0" 200 OK
-Jul 14 11:39:47 test python3[97481]: INFO:     192.168.70.2:53400 - "OPTIONS /api/deploy/dsnhsd HTTP/1.0" 200 OK
-Jul 14 11:39:47 test sudo[98689]: www-data : PWD=/opt/waf_interface/waf-ghb ; USER=root ; COMMAND=/usr/sbin/ip addr show dev ens33
-Jul 14 11:39:47 test sudo[98689]: pam_unix(sudo:session): session opened for user root(uid=0) by (uid=33)
+root@test://etc/apache2/sites-available# journalctl -u waf-backend --since "11:39:47" -n 1000
+Jul 14 11:39:47 test python3[97481]: INFO:     192.168.70.2:53400 - "OPTIONS /api/deploy/dsnhsd HTT>
+Jul 14 11:39:47 test sudo[98689]: www-data : PWD=/opt/waf_interface/waf-ghb ; USER=root ; COMMAND=/>
+Jul 14 11:39:47 test sudo[98689]: pam_unix(sudo:session): session opened for user root(uid=0) by (u>
 Jul 14 11:39:47 test sudo[98689]: pam_unix(sudo:session): session closed for user root
-Jul 14 11:39:47 test sudo[98692]: www-data : PWD=/opt/waf_interface/waf-ghb ; USER=root ; COMMAND=/usr/sbin/ip addr add 192.168.70.1/255.255.255.0 dev ens33
-Jul 14 11:39:47 test sudo[98692]: pam_unix(sudo:session): session opened for user root(uid=0) by (uid=33)
+Jul 14 11:39:47 test sudo[98692]: www-data : PWD=/opt/waf_interface/waf-ghb ; USER=root ; COMMAND=/>
+Jul 14 11:39:47 test sudo[98692]: pam_unix(sudo:session): session opened for user root(uid=0) by (u>
 Jul 14 11:39:47 test sudo[98692]: pam_unix(sudo:session): session closed for user root
-Jul 14 11:39:47 test sudo[98695]: www-data : PWD=/opt/waf_interface/waf-ghb ; USER=root ; COMMAND=/usr/bin/fuser -k 80/tcp
-Jul 14 11:39:47 test sudo[98695]: pam_unix(sudo:session): session opened for user root(uid=0) by (uid=33)
+Jul 14 11:39:47 test sudo[98695]: www-data : PWD=/opt/waf_interface/waf-ghb ; USER=root ; COMMAND=/>
+Jul 14 11:39:47 test sudo[98695]: pam_unix(sudo:session): session opened for user root(uid=0) by (u>
 Jul 14 11:39:47 test sudo[98695]: pam_unix(sudo:session): session closed for user root
 Jul 14 11:39:47 test python3[97481]: INFO:     connection closed
 Jul 14 11:39:47 test python3[97481]: INFO:     connection closed
-Jul 14 11:39:47 test sudo[98698]: www-data : PWD=/opt/waf_interface/waf-ghb ; USER=root ; COMMAND=/usr/bin/chown -R www-data:www-data /usr/local/nginx/html/dsnhsd
-Jul 14 11:39:47 test sudo[98698]: pam_unix(sudo:session): session opened for user root(uid=0) by (uid=33)
+Jul 14 11:39:47 test sudo[98698]: www-data : PWD=/opt/waf_interface/waf-ghb ; USER=root ; COMMAND=/>
+Jul 14 11:39:47 test sudo[98698]: pam_unix(sudo:session): session opened for user root(uid=0) by (u>
 Jul 14 11:39:47 test sudo[98698]: pam_unix(sudo:session): session closed for user root
-Jul 14 11:39:47 test sudo[98701]: www-data : PWD=/opt/waf_interface/waf-ghb ; USER=root ; COMMAND=/usr/bin/chmod -R 755 /usr/local/nginx/html/dsnhsd
-Jul 14 11:39:47 test sudo[98701]: pam_unix(sudo:session): session opened for user root(uid=0) by (uid=33)
+Jul 14 11:39:47 test sudo[98701]: www-data : PWD=/opt/waf_interface/waf-ghb ; USER=root ; COMMAND=/>
+Jul 14 11:39:47 test sudo[98701]: pam_unix(sudo:session): session opened for user root(uid=0) by (u>
 Jul 14 11:39:47 test sudo[98701]: pam_unix(sudo:session): session closed for user root
-Jul 14 11:39:47 test sudo[98704]: www-data : PWD=/opt/waf_interface/waf-ghb ; USER=root ; COMMAND=/usr/sbin/ip addr show dev ens33
-Jul 14 11:39:47 test sudo[98704]: pam_unix(sudo:session): session opened for user root(uid=0) by (uid=33)
+Jul 14 11:39:47 test sudo[98704]: www-data : PWD=/opt/waf_interface/waf-ghb ; USER=root ; COMMAND=/>
+Jul 14 11:39:47 test sudo[98704]: pam_unix(sudo:session): session opened for user root(uid=0) by (u>
 Jul 14 11:39:47 test sudo[98704]: pam_unix(sudo:session): session closed for user root
-Jul 14 11:39:47 test sudo[98707]: www-data : PWD=/opt/waf_interface/waf-ghb ; USER=root ; COMMAND=/usr/sbin/ip addr del 192.168.70.1/255.255.255.0 dev ens33
-Jul 14 11:39:47 test sudo[98707]: pam_unix(sudo:session): session opened for user root(uid=0) by (uid=33)
+Jul 14 11:39:47 test sudo[98707]: www-data : PWD=/opt/waf_interface/waf-ghb ; USER=root ; COMMAND=/>
+Jul 14 11:39:47 test sudo[98707]: pam_unix(sudo:session): session opened for user root(uid=0) by (u>
 Jul 14 11:39:47 test sudo[98707]: pam_unix(sudo:session): session closed for user root
-Jul 14 11:39:48 test sudo[98720]: www-data : PWD=/opt/waf_interface/waf-ghb ; USER=root ; COMMAND=/usr/sbin/ip addr show dev ens33
-Jul 14 11:39:48 test sudo[98720]: pam_unix(sudo:session): session opened for user root(uid=0) by (uid=33)
+Jul 14 11:39:48 test sudo[98720]: www-data : PWD=/opt/waf_interface/waf-ghb ; USER=root ; COMMAND=/>
+Jul 14 11:39:48 test sudo[98720]: pam_unix(sudo:session): session opened for user root(uid=0) by (u>
 Jul 14 11:39:48 test sudo[98720]: pam_unix(sudo:session): session closed for user root
-Jul 14 11:39:48 test sudo[98723]: www-data : PWD=/opt/waf_interface/waf-ghb ; USER=root ; COMMAND=/usr/sbin/ip addr add 192.168.70.1/255.255.255.0 dev ens33
-Jul 14 11:39:48 test sudo[98723]: pam_unix(sudo:session): session opened for user root(uid=0) by (uid=33)
+Jul 14 11:39:48 test sudo[98723]: www-data : PWD=/opt/waf_interface/waf-ghb ; USER=root ; COMMAND=/>
+Jul 14 11:39:48 test sudo[98723]: pam_unix(sudo:session): session opened for user root(uid=0) by (u>
 Jul 14 11:39:48 test sudo[98723]: pam_unix(sudo:session): session closed for user root
-Jul 14 11:39:48 test sudo[98726]: www-data : PWD=/opt/waf_interface/waf-ghb ; USER=root ; COMMAND=/usr/bin/fuser -k 80/tcp
-Jul 14 11:39:48 test sudo[98726]: pam_unix(sudo:session): session opened for user root(uid=0) by (uid=33)
+Jul 14 11:39:48 test sudo[98726]: www-data : PWD=/opt/waf_interface/waf-ghb ; USER=root ; COMMAND=/>
+Jul 14 11:39:48 test sudo[98726]: pam_unix(sudo:session): session opened for user root(uid=0) by (u>
 Jul 14 11:39:48 test sudo[98726]: pam_unix(sudo:session): session closed for user root
-Jul 14 11:39:48 test sudo[98729]: www-data : PWD=/opt/waf_interface/waf-ghb ; USER=root ; COMMAND=/usr/bin/chown -R www-data:www-data /usr/local/nginx/html/dsnhsd
-Jul 14 11:39:48 test sudo[98729]: pam_unix(sudo:session): session opened for user root(uid=0) by (uid=33)
+Jul 14 11:39:48 test sudo[98729]: www-data : PWD=/opt/waf_interface/waf-ghb ; USER=root ; COMMAND=/>
+Jul 14 11:39:48 test sudo[98729]: pam_unix(sudo:session): session opened for user root(uid=0) by (u>
 Jul 14 11:39:48 test sudo[98729]: pam_unix(sudo:session): session closed for user root
-Jul 14 11:39:48 test sudo[98732]: www-data : PWD=/opt/waf_interface/waf-ghb ; USER=root ; COMMAND=/usr/bin/chmod -R 755 /usr/local/nginx/html/dsnhsd
-Jul 14 11:39:48 test sudo[98732]: pam_unix(sudo:session): session opened for user root(uid=0) by (uid=33)
+Jul 14 11:39:48 test sudo[98732]: www-data : PWD=/opt/waf_interface/waf-ghb ; USER=root ; COMMAND=/>
+Jul 14 11:39:48 test sudo[98732]: pam_unix(sudo:session): session opened for user root(uid=0) by (u>
 Jul 14 11:39:48 test sudo[98732]: pam_unix(sudo:session): session closed for user root
-Jul 14 11:39:48 test sudo[98735]: www-data : PWD=/opt/waf_interface/waf-ghb ; USER=root ; COMMAND=/usr/sbin/ip addr show dev ens33
-Jul 14 11:39:48 test sudo[98735]: pam_unix(sudo:session): session opened for user root(uid=0) by (uid=33)
+Jul 14 11:39:48 test sudo[98735]: www-data : PWD=/opt/waf_interface/waf-ghb ; USER=root ; COMMAND=/>
+Jul 14 11:39:48 test sudo[98735]: pam_unix(sudo:session): session opened for user root(uid=0) by (u>
 Jul 14 11:39:48 test sudo[98735]: pam_unix(sudo:session): session closed for user root
-Jul 14 11:39:48 test sudo[98738]: www-data : PWD=/opt/waf_interface/waf-ghb ; USER=root ; COMMAND=/usr/sbin/ip addr del 192.168.70.1/255.255.255.0 dev ens33
-Jul 14 11:39:48 test sudo[98738]: pam_unix(sudo:session): session opened for user root(uid=0) by (uid=33)
+Jul 14 11:39:48 test sudo[98738]: www-data : PWD=/opt/waf_interface/waf-ghb ; USER=root ; COMMAND=/>
+Jul 14 11:39:48 test sudo[98738]: pam_unix(sudo:session): session opened for user root(uid=0) by (u>
 Jul 14 11:39:48 test sudo[98738]: pam_unix(sudo:session): session closed for user root
-Jul 14 11:39:49 test python3[97481]: INFO:     ('192.168.70.2', 53424) - "WebSocket /ws?token=eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ0ZXN0IiwiZXhwIjoxNzUyNTEwMTkxLCJydWxlIjoiYWRtaW4ifQ.URCcJW3ZV4FQfbM96ABP5LKZXr-OkEki9VNa429mWDx1mmJEN-e88FWh4FSRKUdA3FkNbIBslSUB18Syh1l3zkc_7ZYL691n49HFAAhXoGOetgcGfe6OE3UiSXRKFYZmD-SehJ-XRmHDSzL4J7xEFp5eqbCi5EKAPm4woe68tpozSuDMC9gNoMO2i-eJd05oxLvyOLmxEGGm13W3kk_f0kwMQ462gMTMvifZfZDwoXhcm-he_p0QygmsnbkqBlA0NxlZNbN-0TGO0KP1Qacg28J58LEEkjCK9Y4ueNvTsjkkkrw8nrwvP02H5BGoER2EOyK6lR07CF1tgUwjwOMmBA" [accepted]
+Jul 14 11:39:49 test python3[97481]: INFO:     ('192.168.70.2', 53424) - "WebSocket /ws?token=eyJhb>
 Jul 14 11:39:49 test python3[97481]: INFO:     connection open
-Jul 14 11:39:53 test python3[97481]: INFO:     ('192.168.70.2', 50322) - "WebSocket /ws?token=eyJhbGciOiJSUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJ0ZXN0IiwiZXhwIjoxNzUyNTA4MTM0LCJydWxlIjoiYWRtaW4ifQ.qXiA4ynbR0QYwyfdrTEWWA7hwR-4XVoPzBO2oXFtuXX9gReXHp6GsYDS1a4VwyXujJUGy2_K9Zc6HzVgGtSYUSAhF5Ktzb_7CPO3xPQeZU4YIQ9PoGMVsboEif09x4pdzOoCfFBk9Wgh0udmIo5gLTtcA1M-C9I-Pw34Rk87TvV-al34icU-3IxZVzYxOoRXntowCONZQrn6ufstp7vk65r34oBBqsVkumtW01IXZB6S6elSlbIIhiUTHwbe7UMTyUiV9wFMg-blfdYpCh42PMIWpq7BWYs6IY-TmccHfDGZ4uyxrbnCVHqiQpdFrvdj7qafWTB8Gca0rV2S8Z9uzw" [accepted]
+Jul 14 11:39:53 test python3[97481]: INFO:     ('192.168.70.2', 50322) - "WebSocket /ws?token=eyJhb>
 Jul 14 11:39:53 test python3[97481]: INFO:     connection open
-Jul 14 11:39:56 test python3[97481]: VIP 192.168.70.1/255.255.255.0 not found on ens33. No deletion needed.
+Jul 14 11:39:56 test python3[97481]: VIP 192.168.70.1/255.255.255.0 not found on ens33. No deletion>
 Jul 14 11:39:56 test python3[97481]: Attempting to add VIP 192.168.70.1/255.255.255.0 to ens33...
 Jul 14 11:39:56 test python3[97481]: VIP 192.168.70.1/255.255.255.0 added successfully to ens33.
-Jul 14 11:39:56 test python3[97481]: VIP 192.168.70.1/255.255.255.0 found on ens33. Attempting to delete...
+Jul 14 11:39:56 test python3[97481]: VIP 192.168.70.1/255.255.255.0 found on ens33. Attempting to d>
 Jul 14 11:39:56 test python3[97481]: VIP 192.168.70.1/255.255.255.0 deled successfully from ens33.
-Jul 14 11:39:56 test python3[97481]: VIP 192.168.70.1/255.255.255.0 not found on ens33. No deletion needed.
+Jul 14 11:39:56 test python3[97481]: VIP 192.168.70.1/255.255.255.0 not found on ens33. No deletion>
 Jul 14 11:39:56 test python3[97481]: Attempting to add VIP 192.168.70.1/255.255.255.0 to ens33...
 Jul 14 11:39:56 test python3[97481]: VIP 192.168.70.1/255.255.255.0 added successfully to ens33.
-Jul 14 11:39:56 test python3[97481]: VIP 192.168.70.1/255.255.255.0 found on ens33. Attempting to delete...
+Jul 14 11:39:56 test python3[97481]: VIP 192.168.70.1/255.255.255.0 found on ens33. Attempting to d>
 Jul 14 11:39:56 test python3[97481]: VIP 192.168.70.1/255.255.255.0 deled successfully from ens33.
 Jul 14 11:39:56 test python3[97481]: ModSecurity is included in the NGINX configuration.
 Jul 14 11:39:56 test python3[97481]: ModSecurity is enabled.
 Jul 14 11:39:56 test python3[97481]: ModSecurity is included in the NGINX configuration.
 Jul 14 11:39:56 test python3[97481]: ModSecurity is enabled.
-Jul 14 11:39:56 test python3[97481]: INFO:     192.168.70.2:50338 - "GET /api/traffic HTTP/1.0" 200 OK
-Jul 14 11:40:17 test python3[97481]: INFO:     192.168.70.2:59398 - "GET /api/traffic HTTP/1.0" 200 OK
+Jul 14 11:39:56 test python3[97481]: INFO:     192.168.70.2:50338 - "GET /api/traffic HTTP/1.0" 200>
+Jul 14 11:40:17 test python3[97481]: INFO:     192.168.70.2:59398 - "GET /api/traffic HTTP/1.0" 200>
+Jul 14 11:40:56 test python3[97481]: INFO:     192.168.70.2:39158 - "GET /api/traffic HTTP/1.0" 200>
+Jul 14 11:41:17 test python3[97481]: INFO:     192.168.70.2:57202 - "GET /api/traffic HTTP/1.0" 200>
+Jul 14 11:41:56 test python3[97481]: INFO:     192.168.70.2:34138 - "GET /api/traffic HTTP/1.0" 200>
+Jul 14 11:41:59 test python3[97481]: INFO:     192.168.70.2:34144 - "OPTIONS /api/logs/app HTTP/1.0>
+Jul 14 11:41:59 test python3[97481]: INFO:     192.168.70.2:34158 - "OPTIONS /api/logs/login HTTP/1>
+Jul 14 11:41:59 test python3[97481]: INFO:     192.168.70.2:34166 - "GET /api/logs/app HTTP/1.0" 20>
+Jul 14 11:41:59 test python3[97481]: INFO:     192.168.70.2:34180 - "GET /api/logs/login HTTP/1.0" >
+Jul 14 11:42:17 test python3[97481]: INFO:     192.168.70.2:48428 - "GET /api/traffic HTTP/1.0" 200>
+Jul 14 11:42:38 test python3[97481]: INFO:     192.168.70.2:37812 - "OPTIONS /api/websites/ HTTP/1.>
+Jul 14 11:42:39 test python3[97481]: INFO:     192.168.70.2:37814 - "GET /api/websites/ HTTP/1.0" 2>
+Jul 14 11:42:56 test python3[97481]: INFO:     192.168.70.2:49416 - "GET /api/traffic HTTP/1.0" 200>
+Jul 14 11:43:17 test python3[97481]: INFO:     192.168.70.2:39940 - "GET /api/traffic HTTP/1.0" 200>
+Jul 14 11:43:56 test python3[97481]: INFO:     192.168.70.2:58428 - "GET /api/traffic HTTP/1.0" 200>
+Jul 14 11:44:17 test python3[97481]: INFO:     192.168.70.2:35756 - "GET /api/traffic HTTP/1.0" 200>
+Jul 14 11:44:56 test python3[97481]: INFO:     192.168.70.2:34508 - "GET /api/traffic HTTP/1.0" 200>
+Jul 14 11:45:05 test python3[97481]: INFO:     192.168.70.2:53178 - "GET /api/deploy/dsnhsd HTTP/1.>
+Jul 14 11:45:17 test python3[97481]: INFO:     192.168.70.2:49054 - "OPTIONS /api/traffic HTTP/1.0">
+Jul 14 11:45:17 test python3[97481]: INFO:     192.168.70.2:49058 - "GET /api/traffic HTTP/1.0" 200>
+Jul 14 11:44:56 test python3[97481]: INFO:     192.168.70.2:34508 - "GET /api/traffic HTTP/1.0" 200>
+Jul 14 11:45:05 test python3[97481]: INFO:     192.168.70.2:53178 - "GET /api/deploy/dsnhsd HTTP/1.>
+Jul 14 11:45:17 test python3[97481]: INFO:     192.168.70.2:49054 - "OPTIONS /api/traffic HTTP/1.0">
+Jul 14 11:45:17 test python3[97481]: INFO:     192.168.70.2:49058 - "GET /api/traffic HTTP/1.0" 200>
+Jul 14 11:45:38 test python3[97481]: INFO:     192.168.70.2:53302 - "GET /api/deploy/dsnhsd?vip_add>
+Jul 14 11:45:56 test python3[97481]: INFO:     192.168.70.2:39320 - "OPTIONS /api/traffic HTTP/1.0">
+Jul 14 11:45:56 test python3[97481]: INFO:     192.168.70.2:39328 - "GET /api/traffic HTTP/1.0" 200>
+Jul 14 11:46:15 test python3[97481]: INFO:     192.168.70.2:47322 - "GET /api/deploy/dsnhsd?vip_add>
+Jul 14 11:46:17 test python3[97481]: INFO:     192.168.70.2:47334 - "GET /api/traffic HTTP/1.0" 200>
+Jul 14 11:46:35 test sudo[99053]: www-data : PWD=/opt/waf_interface/waf-ghb ; USER=root ; COMMAND=/>
+Jul 14 11:46:35 test sudo[99053]: pam_unix(sudo:session): session opened for user root(uid=0) by (u>
+Jul 14 11:46:35 test sudo[99053]: pam_unix(sudo:session): session closed for user root
+Jul 14 11:46:35 test sudo[99060]: www-data : PWD=/opt/waf_interface/waf-ghb ; USER=root ; COMMAND=/>
+Jul 14 11:46:35 test sudo[99060]: pam_unix(sudo:session): session opened for user root(uid=0) by (u>
+Jul 14 11:46:35 test sudo[99060]: pam_unix(sudo:session): session closed for user root
+Jul 14 11:46:35 test python3[97481]: INFO:     connection closed
+Jul 14 11:46:35 test python3[97481]: INFO:     connection closed
+Jul 14 11:46:35 test sudo[99070]: www-data : PWD=/opt/waf_interface/waf-ghb ; USER=root ; COMMAND=/>
+Jul 14 11:46:35 test sudo[99070]: pam_unix(sudo:session): session opened for user root(uid=0) by (u>
+Jul 14 11:46:35 test sudo[99070]: pam_unix(sudo:session): session closed for user root
+Jul 14 11:46:35 test sudo[99073]: www-data : PWD=/opt/waf_interface/waf-ghb ; USER=root ; COMMAND=/>
+Jul 14 11:46:35 test sudo[99073]: pam_unix(sudo:session): session opened for user root(uid=0) by (u>
+Jul 14 11:46:35 test sudo[99073]: pam_unix(sudo:session): session closed for user root
+Jul 14 11:46:35 test sudo[99076]: www-data : PWD=/opt/waf_interface/waf-ghb ; USER=root ; COMMAND=/>
+Jul 14 11:46:35 test sudo[99076]: pam_unix(sudo:session): session opened for user root(uid=0) by (u>
+Jul 14 11:46:35 test sudo[99076]: pam_unix(sudo:session): session closed for user root
+Jul 14 11:46:40 test python3[97481]: INFO:     ('192.168.70.2', 45760) - "WebSocket /ws?token=eyJhb>
+Jul 14 11:46:40 test python3[97481]: INFO:     connection open
+Jul 14 11:46:41 test python3[97481]: INFO:     ('192.168.70.2', 45774) - "WebSocket /ws?token=eyJhb>
+Jul 14 11:46:41 test python3[97481]: INFO:     connection open
+Jul 14 11:46:49 test sudo[99090]: www-data : PWD=/opt/waf_interface/waf-ghb ; USER=root ; COMMAND=/>
+Jul 14 11:46:49 test sudo[99090]: pam_unix(sudo:session): session opened for user root(uid=0) by (u>
+Jul 14 11:46:49 test sudo[99090]: pam_unix(sudo:session): session closed for user root
+Jul 14 11:46:49 test sudo[99093]: www-data : PWD=/opt/waf_interface/waf-ghb ; USER=root ; COMMAND=/>
+Jul 14 11:46:49 test sudo[99093]: pam_unix(sudo:session): session opened for user root(uid=0) by (u>
+Jul 14 11:46:49 test sudo[99093]: pam_unix(sudo:session): session closed for user root
+Jul 14 11:46:49 test sudo[99096]: www-data : PWD=/opt/waf_interface/waf-ghb ; USER=root ; COMMAND=/>
+Jul 14 11:46:49 test sudo[99096]: pam_unix(sudo:session): session opened for user root(uid=0) by (u>
+Jul 14 11:46:49 test sudo[99096]: pam_unix(sudo:session): session closed for user root
+Jul 14 11:46:49 test python3[97481]: INFO:     connection closed
+Jul 14 11:46:49 test python3[97481]: INFO:     connection closed
+Jul 14 11:46:49 test sudo[99099]: www-data : PWD=/opt/waf_interface/waf-ghb ; USER=root ; COMMAND=/>
+Jul 14 11:46:49 test sudo[99099]: pam_unix(sudo:session): session opened for user root(uid=0) by (u>
+Jul 14 11:46:49 test sudo[99099]: pam_unix(sudo:session): session closed for user root
+Jul 14 11:46:49 test sudo[99102]: www-data : PWD=/opt/waf_interface/waf-ghb ; USER=root ; COMMAND=/>
+Jul 14 11:46:49 test sudo[99102]: pam_unix(sudo:session): session opened for user root(uid=0) by (u>
+Jul 14 11:46:49 test sudo[99102]: pam_unix(sudo:session): session closed for user root
+Jul 14 11:46:49 test sudo[99105]: www-data : PWD=/opt/waf_interface/waf-ghb ; USER=root ; COMMAND=/>
+Jul 14 11:46:49 test sudo[99105]: pam_unix(sudo:session): session opened for user root(uid=0) by (u>
+Jul 14 11:46:49 test sudo[99105]: pam_unix(sudo:session): session closed for user root
+Jul 14 11:46:49 test sudo[99108]: www-data : PWD=/opt/waf_interface/waf-ghb ; USER=root ; COMMAND=/>
+Jul 14 11:46:49 test sudo[99108]: pam_unix(sudo:session): session opened for user root(uid=0) by (u>
+Jul 14 11:46:49 test sudo[99108]: pam_unix(sudo:session): session closed for user root
+Jul 14 11:46:54 test python3[97481]: INFO:     ('192.168.70.2', 44358) - "WebSocket /ws?token=eyJhb>
+Jul 14 11:46:54 test python3[97481]: INFO:     connection open
+Jul 14 11:46:55 test python3[97481]: INFO:     ('192.168.70.2', 44368) - "WebSocket /ws?token=eyJhb>
+Jul 14 11:46:55 test python3[97481]: INFO:     connection open
+Jul 14 11:46:56 test python3[97481]: VIP 192.168.70.1/255.255.255.0 not found on ens33. No deletion>
+Jul 14 11:46:56 test python3[97481]: Attempting to add VIP 192.168.70.1/255.255.255.0 to ens33...
+Jul 14 11:46:56 test python3[97481]: VIP 192.168.70.1/255.255.255.0 added successfully to ens33.
+Jul 14 11:46:56 test python3[97481]: VIP 192.168.70.1/255.255.255.0 found on ens33. Attempting to d>
+Jul 14 11:46:56 test python3[97481]: VIP 192.168.70.1/255.255.255.0 deled successfully from ens33.
+Jul 14 11:46:56 test python3[97481]: ModSecurity is included in the NGINX configuration.
+Jul 14 11:46:56 test python3[97481]: ModSecurity is enabled.
+Jul 14 11:46:56 test python3[97481]: ModSecurity is included in the NGINX configuration.
+Jul 14 11:46:56 test python3[97481]: ModSecurity is enabled.
+Jul 14 11:46:56 test python3[97481]: VIP 192.168.70.1/255.255.255.0 not found on ens33. No deletion>
+Jul 14 11:46:56 test python3[97481]: Attempting to add VIP 192.168.70.1/255.255.255.0 to ens33...
+Jul 14 11:46:56 test python3[97481]: VIP 192.168.70.1/255.255.255.0 added successfully to ens33.
+Jul 14 11:46:56 test python3[97481]: VIP 192.168.70.1/255.255.255.0 found on ens33. Attempting to d>
+Jul 14 11:46:56 test python3[97481]: VIP 192.168.70.1/255.255.255.0 deled successfully from ens33.
+l
