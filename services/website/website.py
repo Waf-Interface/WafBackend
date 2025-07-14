@@ -31,6 +31,7 @@ NGINX_BIN = '/usr/local/nginx/sbin/nginx'
 APACHE_CONF_DIRECTORY = '/etc/apache2/sites-available'
 APACHE_PORTS_FILE = '/etc/apache2/ports.conf'
 DEFAULT_PORT = 8080
+APACHE_PORTS_CONF_PATH = "/etc/apache2/ports.conf"
 
 os.makedirs(UPLOAD_DIRECTORY, exist_ok=True)
 
@@ -65,24 +66,69 @@ def get_available_port():
                 port += 1
     raise HTTPException(status_code=500, detail="No available ports found")
 
-def configure_apache_port(port: int):
+async def configure_apache_port(port: int):
+    """
+    Configures Apache to listen on the specified port by modifying ports.conf.
+    This function uses sudo to read and write to the file.
+    """
+    app_logger.info(f"Attempting to configure Apache port {port} in {APACHE_PORTS_CONF_PATH}")
     try:
-        with open(APACHE_PORTS_FILE, 'r') as f:
-            if f"Listen {port}" in f.read():
-                return port
+        # گام 1: خواندن محتوای فعلی فایل ports.conf با sudo
+        proc_read = await asyncio.create_subprocess_exec(
+            'sudo', 'cat', APACHE_PORTS_CONF_PATH,
+            stdout=asyncio.subprocess.PIPE,
+            stderr=asyncio.subprocess.PIPE
+        )
+        stdout_read, stderr_read = await proc_read.communicate()
         
-        with open(APACHE_PORTS_FILE, 'a') as f:
-            f.write(f"\nListen {port}\n")
+        if proc_read.returncode != 0:
+            raise RuntimeError(f"Failed to read {APACHE_PORTS_CONF_PATH} with sudo: {stderr_read.decode()}")
         
-        subprocess.run(['sudo', 'apache2ctl', 'configtest'], check=True)
-        subprocess.run(['sudo', 'systemctl', 'reload', 'apache2'], check=True)
-        return port
-    except subprocess.CalledProcessError as e:
-        app_logger.error(f"Apache configuration failed: {e.stderr.decode() if e.stderr else str(e)}")
-        raise HTTPException(status_code=500, detail="Apache port configuration failed")
+        lines = stdout_read.decode().splitlines()
+        new_lines = []
+        port_configured = False
+
+        # گام 2: اصلاح محتوا
+        for line in lines:
+            # اگر خط "Listen 80" یا "Listen 443" (با هر تعداد فضای خالی قبل) پیدا شد، آن را تغییر می‌دهیم.
+            # این Regex بهینه شده تا دقیقا Listen ها را هدف قرار دهد.
+            if re.match(r'^\s*Listen\s+(80|443|' + str(port) + r')\s*$', line): # شامل پورت فعلی هم می‌شود
+                if f"Listen {port}" not in line: # اگر پورت فعلی نیست، تغییر بده
+                    new_lines.append(f"Listen {port}")
+                    app_logger.info(f"Updated 'Listen' directive to: Listen {port}")
+                else: # اگر همین پورت موجود است، تغییری نمی‌دهیم
+                    new_lines.append(line)
+                port_configured = True
+            else:
+                new_lines.append(line)
+        
+        # اگر هیچ خط 'Listen' مربوطه پیدا نشد (مثلا فایل خالی بود)، یک خط جدید اضافه کن
+        if not port_configured:
+            new_lines.append(f"Listen {port}")
+            app_logger.info(f"Added new 'Listen' directive: Listen {port}")
+
+        content_to_write = "\n".join(new_lines) + "\n"
+
+        # گام 3: نوشتن محتوای تغییر یافته به فایل ports.conf با استفاده از sudo sh -c
+        # این دستور به sudo اجازه می‌دهد که دستور shell (echo) را با دسترسی root اجرا کند
+        # و خروجی را به فایل سیستمی redirection کند.
+        cmd = ["sudo", "sh", "-c", f"echo '{content_to_write}' > {APACHE_PORTS_CONF_PATH}"]
+        
+        proc_write = await asyncio.create_subprocess_exec(
+            *cmd,
+            stdout=asyncio.subprocess.PIPE,
+            stderr=asyncio.subprocess.PIPE
+        )
+        stdout_write, stderr_write = await proc_write.communicate()
+
+        if proc_write.returncode != 0:
+            raise RuntimeError(f"Failed to write to {APACHE_PORTS_CONF_PATH} with sudo: {stderr_write.decode()}")
+        
+        app_logger.info(f"Apache ports.conf successfully updated to listen on port {port}.")
+
     except Exception as e:
-        app_logger.error(f"Error configuring Apache: {e}")
-        raise HTTPException(status_code=500, detail="Apache configuration error")
+        app_logger.error(f"Error configuring Apache ports.conf: {e}", exc_info=True)
+        raise RuntimeError(f"Error configuring Apache: {e}")
 
 def create_simple_apache_config(domain: str, port: int, doc_root: str):
     return f"""
@@ -1158,7 +1204,8 @@ async def _ensure_nginx_running_async():
             if proc_pid.returncode != 0:
                 raise RuntimeError(f"Failed to get Nginx PID: {stderr_pid.decode()}")
             
-
+            # نوشتن به فایل به صورت همگام است، اما برای فایل‌های کوچک معمولاً مشکلی ایجاد نمی‌کند.
+            # اگر نیاز به async I/O کامل دارید، می‌توانید از loop.run_in_executor استفاده کنید:
             loop = asyncio.get_event_loop()
             await loop.run_in_executor(None, lambda: open(pid_file, 'w').write(stdout_pid.decode().strip()))
         
