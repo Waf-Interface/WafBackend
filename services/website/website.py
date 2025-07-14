@@ -357,72 +357,32 @@ def _ensure_nginx_structure():
         app_logger.error(f"Error ensuring nginx structure: {str(e)}")
         raise RuntimeError(f"Failed to ensure proper nginx.conf structure: {str(e)}")
 
+
 async def deploy_file_service(
     file_name: str,
+    # این پارامترها اکنون اختیاری هستند و اگر None باشند، از DB استفاده می‌شود
     vip_address: str = None,
     vip_netmask: str = None,
     network_interface: str = None
 ):
-    interface_db = next(get_db()) 
-    website_db = WebsiteSessionLocal() 
+    interface_db = next(get_db())
+    website_db = WebsiteSessionLocal()
     vip = None
     deployment_folder = None
-    nginx_conf_path = None 
-    apache_conf_path = None 
+    nginx_conf_path = None
+    apache_conf_path = None
     website = None
     domain_name = None
-
-    async def _ensure_nginx_running_async():
-        try:
-            proc_check = await asyncio.create_subprocess_exec(
-                'pgrep', '-f', 'nginx',
-                stdout=asyncio.subprocess.PIPE,
-                stderr=asyncio.subprocess.PIPE
-            )
-            stdout, stderr = await proc_check.communicate()
-            
-            if proc_check.returncode != 0:
-                app_logger.info("Nginx not running, attempting to start")
-                proc_start = await asyncio.create_subprocess_exec(
-                    NGINX_BIN,
-                    stdout=asyncio.subprocess.PIPE,
-                    stderr=asyncio.subprocess.PIPE
-                )
-                stdout_start, stderr_start = await proc_start.communicate()
-                if proc_start.returncode != 0:
-                    raise RuntimeError(f"Failed to start Nginx: {stderr_start.decode()}")
-                app_logger.info(f"Nginx started. Output: {stdout_start.decode()}")
-                await asyncio.sleep(2) # Wait a moment for Nginx to start
-            
-            # Ensure pid file exists and has content
-            pid_file = '/usr/local/nginx/logs/nginx.pid'
-            if not os.path.exists(pid_file) or os.path.getsize(pid_file) == 0:
-                app_logger.info("Regenerating Nginx pid file")
-                # Get the main Nginx process ID
-                proc_pid = await asyncio.create_subprocess_exec(
-                    'pgrep', '-o', '-f', 'nginx',
-                    stdout=asyncio.subprocess.PIPE,
-                    stderr=asyncio.subprocess.PIPE
-                )
-                stdout_pid, stderr_pid = await proc_pid.communicate()
-                if proc_pid.returncode != 0:
-                    raise RuntimeError(f"Failed to get Nginx PID: {stderr_pid.decode()}")
-                
-                with open(pid_file, 'w') as f:
-                    f.write(stdout_pid.decode().strip())
-            
-            return True
-        except Exception as e:
-            app_logger.error(f"Error ensuring Nginx is running: {str(e)}", exc_info=True)
-            raise RuntimeError(f"Failed to ensure Nginx is running: {str(e)}")
-
+    apache_port = None # برای اطمینان از تعریف شدن در بخش Finalize
 
     try:
         app_logger.info(f"Starting deployment for file: {file_name}")
         
+        # Validate existing configs before proceeding
         app_logger.info("Validating existing Nginx configuration")
-        _validate_existing_configs() 
+        _validate_existing_configs() # این تابع باید همگام باشد یا تبدیل به async شود
         
+        # Ensure Nginx is running properly before starting
         app_logger.info("Ensuring Nginx service is ready")
         await _ensure_nginx_running_async()
         
@@ -437,44 +397,79 @@ async def deploy_file_service(
             app_logger.error(error_msg)
             raise HTTPException(status_code=404, detail=error_msg)
 
+        # Create website entry
         try:
-            server_ip = get_server_ip() # فرض می‌شود همگام است
+            server_ip = get_server_ip()
             app_logger.info(f"Creating website entry for {file_name} with server IP: {server_ip}")
-            website = create_website_entry(website_db, file_name, server_ip) # فرض می‌شود همگام است
+            website = create_website_entry(website_db, file_name, server_ip)
             app_logger.info(f"Created website entry with ID: {website.id}")
-            update_website_status(website_db, website.id, "Acquiring VIP") # فرض می‌شود همگام است
+            update_website_status(website_db, website.id, "Acquiring VIP")
         except Exception as e:
             app_logger.error(f"Failed to create website entry: {str(e)}", exc_info=True)
-            raise HTTPException(status_code=500, detail=f"Failed to create website entry: {str(e)}") # تغییر برای HTTPException
+            raise HTTPException(status_code=500, detail=f"Failed to create website entry: {str(e)}")
 
-        _vip_address = vip_address or os.environ.get("WAF_VIP_ADDRESS")
-        _vip_netmask = vip_netmask or os.environ.get("WAF_VIP_NETMASK")
-        _network_interface = network_interface or os.environ.get("WAF_NETWORK_INTERFACE")
+        # --- شروع بخش به‌روزرسانی مدیریت VIP ---
+        _vip_address = vip_address
+        _vip_netmask = vip_netmask
+        _network_interface = network_interface
 
+        # اگر پارامترهای VIP توسط کاربر ارائه نشده‌اند، از DB استفاده کن
         if not _vip_address or not _vip_netmask or not _network_interface:
-            error_msg = "VIP configuration parameters are missing. Please set WAF_VIP_ADDRESS, WAF_VIP_NETMASK, and WAF_NETWORK_INTERFACE environment variables or pass them as arguments."
-            app_logger.error(error_msg)
-            update_website_status(website_db, website.id, "VIP Config Missing") # فرض می‌شود همگام است
-            raise HTTPException(status_code=500, detail=error_msg)
-
-        try:
-            # سعی می‌کنیم VIP موجود را از دیتابیس بگیریم
-            vip = interface_db.query(VirtualIP).filter(VirtualIP.ip_address == _vip_address).first()
+            app_logger.info("VIP parameters not provided by user. Searching for available VIP in database.")
+            # کوئری کردن اولین VIP آزاد در دیتابیس
+            found_vip = interface_db.query(VirtualIP).filter(VirtualIP.status == "available").first()
             
-            if vip and vip.status == "in_use":
-                app_logger.info(f"Releasing in-use VIP {vip.ip_address} from database.")
-                # اگر VIP قبلاً در دیتابیس in_use بوده، باید آن را آزاد کنیم
-                release_vip(vip.id) # فرض می‌شود همگام است
-                interface_db.refresh(vip) # رفرش کردن وضعیت VIP در دیتابیس
-                app_logger.info(f"VIP {vip.ip_address} status updated to available.")
+            if found_vip:
+                app_logger.info(f"Found available VIP in DB: {found_vip.ip_address}")
+                _vip_address = found_vip.ip_address
+                _vip_netmask = found_vip.netmask
+                _network_interface = found_vip.interface
+                vip = found_vip # vip اصلی را به این VIP پیدا شده در DB ارجاع می‌دهیم
+            else:
+                # اگر هیچ VIP آزادی در DB پیدا نشد، تلاش برای ایجاد یک VIP جدید
+                app_logger.info("No available VIP found in database. Attempting to create a new one.")
+                netmask = calculate_netmask(server_ip) # فرض می‌شود calculate_netmask همگام است
+                try:
+                    network = ipaddress.IPv4Network(f"{server_ip}/{netmask}", strict=False)
+                except ValueError as e:
+                    app_logger.error(f"Invalid network {server_ip}/{netmask}: {e}")
+                    netmask = '255.255.255.0'
+                    network = ipaddress.IPv4Network(f"{server_ip}/{netmask}", strict=False)
+                
+                hosts = list(network.hosts())
+                # سعی کن آخرین IP موجود را استفاده کنی
+                new_ip = str(hosts[-1]) if hosts else None
 
-            # حالا IP را از سیستم عامل حذف می‌کنیم تا مطمئن شویم برای اضافه شدن مجدد آماده است
-            app_logger.info(f"Attempting to ensure VIP {_vip_address} is removed from network interface.")
-            await _check_and_manage_vip(_vip_address, _vip_netmask, _network_interface, "del")
-            
-            # اگر VIP در دیتابیس موجود نبود، یک رکورد جدید ایجاد می‌کنیم
-            if not vip:
-                app_logger.info(f"Creating new VIP entry in database for {_vip_address}")
+                # اگر new_ip وجود ندارد (مثلا subnet خیلی کوچک است)
+                if not new_ip:
+                    error_msg = "Could not find a suitable new IP within the network for VIP."
+                    app_logger.error(error_msg)
+                    update_website_status(website_db, website.id, "No Suitable VIP IP")
+                    raise HTTPException(status_code=503, detail=error_msg)
+
+                # بررسی اجمالی که IP در حال استفاده نباشد (این یک تست سطحی است)
+                try:
+                    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+                        s.settimeout(1)
+                        s.bind((new_ip, 80))
+                        s.close()
+                except socket.error:
+                    app_logger.warning(f"IP {new_ip} appears to be in use, trying next if available")
+                    # اگر IP استفاده شده بود، IP قبلی را امتحان کن (اگر وجود داشته باشد)
+                    if len(hosts) > 1:
+                        new_ip = str(hosts[-2]) # امتحان IP دوم از آخر
+                    else:
+                        error_msg = f"Generated IP {new_ip} is in use and no alternative available."
+                        app_logger.error(error_msg)
+                        update_website_status(website_db, website.id, "Generated VIP In Use")
+                        raise HTTPException(status_code=503, detail=error_msg)
+                
+                _vip_address = new_ip
+                _vip_netmask = netmask
+                _network_interface = os.getenv("DEFAULT_INTERFACE", "ens33") # از متغیر محیطی یا پیش‌فرض استفاده کن
+
+                # یک رکورد جدید در دیتابیس برای VIP ایجاد کن
+                app_logger.info(f"Creating new VIP record in database for {_vip_address}")
                 vip = VirtualIP(
                     ip_address=_vip_address,
                     netmask=_vip_netmask,
@@ -485,68 +480,81 @@ async def deploy_file_service(
                 interface_db.commit()
                 interface_db.refresh(vip)
                 app_logger.info(f"New VIP record created: {vip.ip_address}")
-            
-            # گام نهایی: اضافه کردن IP مجازی به اینترفیس شبکه
-            app_logger.info(f"Configuring VIP network for {vip.ip_address}")
-            await _check_and_manage_vip(vip.ip_address, vip.netmask, vip.interface, "add")
-            
-            # validate_vip_binding نیازی به call مستقیم ندارد اگر _check_and_manage_vip کارش را درست انجام دهد
-            # _validate_vip_binding(vip.ip_address) # این تابع باید بررسی کند که IP روی سیستم bind شده باشد
+        
+        # اگر تا اینجا هنوز _vip_address تنظیم نشده، یعنی مشکلی وجود دارد
+        if not _vip_address:
+            error_msg = "No VIP available and creation failed."
+            app_logger.error(error_msg)
+            update_website_status(website_db, website.id, "No VIP Available Final")
+            raise HTTPException(status_code=503, detail=error_msg)
 
+        try:
+            # اکنون که یک VIP داریم (چه از کاربر، چه از DB، چه جدید ایجاد شده)، آن را مدیریت می‌کنیم.
+            # گام 1: مطمئن شویم که IP از اینترفیس شبکه حذف شده (قبل از اضافه کردن یا استفاده مجدد)
+            app_logger.info(f"Attempting to ensure VIP {_vip_address} is removed from network interface before usage.")
+            await _check_and_manage_vip(_vip_address, _vip_netmask, _network_interface, "del")
+            
+            # گام 2: اضافه کردن IP مجازی به اینترفیس شبکه
+            app_logger.info(f"Configuring VIP network for {_vip_address}")
+            await _check_and_manage_vip(_vip_address, _vip_netmask, _network_interface, "add")
+            
+            # _validate_vip_binding(_vip_address) # اگر این تابع هنوز مورد نیاز است
+            
             app_logger.info("Killing any processes using port 80 (if any)")
-            # اجرای fuser -k 80/tcp به صورت async
             proc_fuser = await asyncio.create_subprocess_exec(
                 'sudo', 'fuser', '-k', '80/tcp',
                 stdout=asyncio.subprocess.PIPE,
                 stderr=asyncio.subprocess.PIPE
             )
             stdout_fuser, stderr_fuser = await proc_fuser.communicate()
-            if proc_fuser.returncode != 0 and b'No process found' not in stderr_fuser: # fuser ممکن است با کد 1 برگردد اگر چیزی پیدا نکند
+            if proc_fuser.returncode != 0 and b'No process found' not in stderr_fuser:
                 app_logger.warning(f"fuser command output: {stderr_fuser.decode().strip()}")
             else:
                 app_logger.info("Processes on port 80 cleared.")
 
         except HTTPException as http_exc_vip:
             error_msg = f"VIP acquisition failed: {http_exc_vip.detail}"
-            update_website_status(website_db, website.id, f"VIP Acquisition Failed: {http_exc_vip.detail}") # فرض می‌شود همگام است
+            update_website_status(website_db, website.id, f"VIP Acquisition Failed: {http_exc_vip.detail}")
             app_logger.error(error_msg, exc_info=True)
             raise http_exc_vip
         except Exception as e:
             error_msg = f"VIP acquisition failed: {str(e)}"
-            update_website_status(website_db, website.id, f"VIP Acquisition Failed: {str(e)}") # فرض می‌شود همگام است
+            update_website_status(website_db, website.id, f"VIP Acquisition Failed: {str(e)}")
             app_logger.error(error_msg, exc_info=True)
             raise HTTPException(status_code=503, detail=error_msg)
+        # --- پایان بخش به‌روزرسانی مدیریت VIP ---
 
         # Deployment Preparation
-        update_website_status(website_db, website.id, "Preparing Deployment") # فرض می‌شود همگام است
+        update_website_status(website_db, website.id, "Preparing Deployment")
         domain_name = os.path.splitext(file_name)[0]
         deployment_folder = os.path.join(NGINX_HTML_DIRECTORY, domain_name)
         app_logger.info(f"Setting up deployment folder at: {deployment_folder}")
         
-        # Clean and create deployment directory
         if os.path.exists(deployment_folder):
             app_logger.info(f"Removing existing deployment folder: {deployment_folder}")
-            shutil.rmtree(deployment_folder) # shutil.rmtree همگام است، برای async باید از aiofiles یا loop.run_in_executor استفاده کنید
+            loop = asyncio.get_event_loop()
+            await loop.run_in_executor(None, lambda: shutil.rmtree(deployment_folder, ignore_errors=True))
         
         app_logger.info(f"Creating new deployment folder: {deployment_folder}")
-        os.makedirs(deployment_folder, exist_ok=True) # os.makedirs همگام است
+        loop = asyncio.get_event_loop()
+        await loop.run_in_executor(None, lambda: os.makedirs(deployment_folder, exist_ok=True))
 
         # Extract files and set permissions
         app_logger.info(f"Extracting zip file: {file_path}")
         try:
-            # zipfile عملیات I/O مسدودکننده است، برای async باید از loop.run_in_executor استفاده کنید
-            with zipfile.ZipFile(file_path, 'r') as zip_ref:
-                zip_ref.extractall(deployment_folder)
-            app_logger.info(f"Extracted {len(zip_ref.filelist)} files to {deployment_folder}")
+            loop = asyncio.get_event_loop()
+            await loop.run_in_executor(None, lambda: (
+                lambda: (zip_ref := zipfile.ZipFile(file_path, 'r'), zip_ref.extractall(deployment_folder), len(zip_ref.filelist), zip_ref.close())
+            )())
+            app_logger.info(f"Extracted files to {deployment_folder}")
         except Exception as e:
             error_msg = f"Failed to extract zip file: {str(e)}"
             app_logger.error(error_msg, exc_info=True)
-            raise HTTPException(status_code=500, detail=error_msg) # تغییر برای HTTPException
+            raise HTTPException(status_code=500, detail=error_msg)
         
         # Set proper permissions
         try:
             app_logger.info(f"Setting permissions for {deployment_folder}")
-            # اجرای chown و chmod به صورت async
             proc_chown = await asyncio.create_subprocess_exec(
                 'sudo', 'chown', '-R', 'www-data:www-data', deployment_folder,
                 stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE
@@ -563,91 +571,89 @@ async def deploy_file_service(
             if proc_chmod.returncode != 0:
                 raise RuntimeError(f"chmod failed: {stderr_chmod.decode()}")
 
-        except Exception as e: # تغییر Exception برای پوشش تمام خطاهای subprocess
+        except Exception as e:
             error_detail = f"Permission setup failed: {str(e)}"
             app_logger.error(error_detail)
             raise HTTPException(status_code=500, detail=error_detail)
 
         # Apache Configuration
         try:
-            apache_port = get_available_port() # فرض می‌شود همگام است
+            apache_port = get_available_port()
             app_logger.info(f"Configuring Apache port: {apache_port}")
-            configure_apache_port(apache_port) # فرض می‌شود همگام است
+            configure_apache_port(apache_port)
             
-            apache_conf = create_simple_apache_config( # فرض می‌شود همگام است
+            apache_conf = create_simple_apache_config(
                 domain_name,
                 apache_port,
                 deployment_folder
             )
             apache_conf_path = os.path.join(APACHE_CONF_DIRECTORY, f"{domain_name}.conf")
             app_logger.info(f"Creating Apache config at: {apache_conf_path}")
-            # باز کردن فایل و نوشتن به صورت async
             loop = asyncio.get_event_loop()
             await loop.run_in_executor(None, lambda: open(apache_conf_path, 'w').write(apache_conf))
             
         except Exception as e:
             error_msg = f"Apache configuration failed: {str(e)}"
             app_logger.error(error_msg, exc_info=True)
-            raise HTTPException(status_code=500, detail=error_msg) # تغییر برای HTTPException
+            raise HTTPException(status_code=500, detail=error_msg)
 
         # Nginx Configuration
         try:
             app_logger.info("Ensuring Nginx includes are configured")
-            _ensure_nginx_structure() # فرض می‌شود همگام است
+            _ensure_nginx_structure()
             
             sites_available = os.path.join(NGINX_CONF_DIRECTORY, "sites-available")
             sites_enabled = os.path.join(NGINX_CONF_DIRECTORY, "sites-enabled")
             app_logger.info(f"Creating sites-available and sites-enabled directories if needed")
-            os.makedirs(sites_available, exist_ok=True) # همگام
-            os.makedirs(sites_enabled, exist_ok=True) # همگام
+            loop = asyncio.get_event_loop()
+            await loop.run_in_executor(None, lambda: os.makedirs(sites_available, exist_ok=True))
+            await loop.run_in_executor(None, lambda: os.makedirs(sites_enabled, exist_ok=True))
 
-            nginx_conf = create_nginx_config( # فرض می‌شود همگام است
-                vip.ip_address,
+            nginx_conf = create_nginx_config(
+                _vip_address, # استفاده از VIP تعیین شده
                 domain_name,
                 apache_port,
                 deployment_folder,
-                website.id  # Pass website ID for WAF config
+                website.id
             )
             
             nginx_available_path = os.path.join(sites_available, f"{domain_name}.conf")
             app_logger.info(f"Creating Nginx config at: {nginx_available_path}")
-            # نوشتن فایل به صورت async
             await loop.run_in_executor(None, lambda: open(nginx_available_path, 'w').write(nginx_conf))
 
             nginx_enabled_path = os.path.join(sites_enabled, f"{domain_name}.conf")
-            if os.path.exists(nginx_enabled_path): # همگام
+            if await loop.run_in_executor(None, lambda: os.path.exists(nginx_enabled_path)):
                 app_logger.info(f"Removing existing symlink: {nginx_enabled_path}")
-                os.remove(nginx_enabled_path) # همگام
+                await loop.run_in_executor(None, lambda: os.remove(nginx_enabled_path))
             app_logger.info(f"Creating symlink from {nginx_available_path} to {nginx_enabled_path}")
-            os.symlink(nginx_available_path, nginx_enabled_path) # همگام
+            await loop.run_in_executor(None, lambda: os.symlink(nginx_available_path, nginx_enabled_path))
 
         except Exception as e:
             error_detail = f"Nginx configuration failed: {str(e)}"
             app_logger.error(error_detail, exc_info=True)
-            raise HTTPException(status_code=500, detail=error_detail) # تغییر برای HTTPException
+            raise HTTPException(status_code=500, detail=error_detail)
 
         # WAF Configuration
         try:
             app_logger.info("Configuring WAF")
-            waf_manager = WAFWebsiteManager(website.id) # فرض می‌شود همگام است
-            crs_dir = "/usr/local/nginx/rules/" # این مسیر باید به صورت پیکربندی شده باشد
+            waf_manager = WAFWebsiteManager(website.id)
+            crs_dir = "/usr/local/nginx/rules/"
             
-            if not os.path.exists(crs_dir): # همگام
+            if not os.path.exists(crs_dir):
                 error_msg = f"CRS directory not found: {crs_dir}"
                 app_logger.error(error_msg)
                 raise HTTPException(status_code=500, detail=error_msg)
             
-            if not os.path.exists(waf_manager.rules_dir): # همگام
+            if not os.path.exists(waf_manager.rules_dir):
                 error_msg = f"WAF rules directory not found: {waf_manager.rules_dir}"
                 app_logger.error(error_msg)
                 raise HTTPException(status_code=500, detail=error_msg)
             
-            # Copy ALL CRS files (both .conf and .data)
             app_logger.info(f"Copying CRS files from {crs_dir} to {waf_manager.rules_dir}")
             
             files_to_copy = []
-            # os.walk همگام است
-            for root, _, files in os.walk(crs_dir):
+            loop = asyncio.get_event_loop()
+            for root, _, files in await loop.run_in_executor(None, lambda: os.walk(crs_dir)):
                 for file in files:
                     if file.endswith(('.conf', '.data')):
                         files_to_copy.append(os.path.join(root, file))
@@ -655,23 +661,21 @@ async def deploy_file_service(
             app_logger.info(f"Found {len(files_to_copy)} CRS files to copy")
             
             for source_file in files_to_copy:
-                file_name = os.path.basename(source_file)
-                dest_path = os.path.join(waf_manager.rules_dir, file_name)
+                file_name_ = os.path.basename(source_file) # از file_name_ برای جلوگیری از تداخل استفاده شد
+                dest_path = os.path.join(waf_manager.rules_dir, file_name_)
                 
                 try:
-                    if not os.access(source_file, os.R_OK): # همگام
+                    if not await loop.run_in_executor(None, lambda: os.access(source_file, os.R_OK)):
                         app_logger.error(f"Source file not readable: {source_file}")
                         continue
                     
-                    # shutil.copy2 همگام است، برای async باید از loop.run_in_executor استفاده کنید
                     await loop.run_in_executor(None, lambda: shutil.copy2(source_file, dest_path))
-                    app_logger.debug(f"Copied CRS file: {file_name}")
+                    app_logger.debug(f"Copied CRS file: {file_name_}")
                 except Exception as e:
-                    app_logger.error(f"Failed to copy file {file_name}: {str(e)}")
+                    app_logger.error(f"Failed to copy file {file_name_}: {str(e)}")
                     continue
 
             app_logger.info(f"Creating ModSecurity include file at {waf_manager.modsec_include}")
-            # نوشتن فایل به صورت async
             await loop.run_in_executor(None, lambda: open(waf_manager.modsec_include, 'w').write(
                 f"SecAuditEngine On\n"
                 f"SecAuditLog {os.path.join(waf_manager.base_dir, 'audit.log')}\n"
@@ -682,7 +686,6 @@ async def deploy_file_service(
                 f"Include {waf_manager.rules_dir}/*.conf\n"
             ))
             
-            # اجرای chown و chmod به صورت async
             proc_chown_waf = await asyncio.create_subprocess_exec(
                 'sudo', 'chown', '-R', 'www-data:www-data', waf_manager.base_dir,
                 stdout=asyncio.subprocess.PIPE, stderr=asyncio.subprocess.PIPE
@@ -702,9 +705,9 @@ async def deploy_file_service(
         except Exception as e:
             error_msg = f"WAF configuration failed: {str(e)}"
             app_logger.error(error_msg, exc_info=True)
-            raise HTTPException(status_code=500, detail=error_msg) # تغییر برای HTTPException
+            raise HTTPException(status_code=500, detail=error_msg)
 
-        update_website_status(website_db, website.id, "Enabling Services") # فرض می‌شود همگام است
+        update_website_status(website_db, website.id, "Enabling Services")
         try:
             # Apache activation
             app_logger.info(f"Enabling Apache site: {os.path.basename(apache_conf_path)}")
@@ -761,11 +764,10 @@ async def deploy_file_service(
 
             # Improved Nginx reload handling
             app_logger.info("Ensuring Nginx is running before reload")
-            await _ensure_nginx_running_async() # استفاده از نسخه async
+            await _ensure_nginx_running_async()
 
             app_logger.info("Reloading Nginx")
             try:
-                # First try normal reload
                 proc_nginx_reload_soft = await asyncio.create_subprocess_exec(
                     NGINX_BIN, '-s', 'reload',
                     stdout=asyncio.subprocess.PIPE,
@@ -775,7 +777,6 @@ async def deploy_file_service(
                 
                 if proc_nginx_reload_soft.returncode != 0:
                     app_logger.warning("Normal Nginx reload failed, attempting full restart")
-                    # If reload fails, try full restart
                     proc_nginx_restart = await asyncio.create_subprocess_exec(
                         'sudo', 'systemctl', 'restart', 'nginx',
                         stdout=asyncio.subprocess.PIPE,
@@ -788,85 +789,84 @@ async def deploy_file_service(
                 else:
                     app_logger.info("Nginx reloaded successfully (soft reload).")
 
-            except Exception as e: # شامل CalledProcessError نیز می‌شود
+            except Exception as e:
                 error_detail = f"Nginx reload/restart failed: {str(e)}"
                 app_logger.error(error_detail)
                 raise RuntimeError(error_detail)
 
-        except RuntimeError as e: # خطاهای Runtime که در بالا raise شده‌اند
+        except RuntimeError as e:
             raise HTTPException(status_code=500, detail=str(e))
-        except Exception as e: # سایر خطاهای غیرمنتظره
+        except Exception as e:
             error_detail = f"Service enabling error: {str(e)}"
             app_logger.error(error_detail, exc_info=True)
             raise HTTPException(status_code=500, detail=error_detail)
 
         # Finalize deployment
         app_logger.info("Finalizing deployment")
-        if vip: # اطمینان از اینکه vip مقداردهی شده است
+        if vip:
             vip.status = "in_use"
             vip.domain = domain_name
             vip.last_updated = datetime.utcnow()
-            interface_db.commit() # فرض می‌شود همگام است
+            interface_db.commit()
 
-        if website: # اطمینان از اینکه website مقداردهی شده است
-            website.listen_to = f"127.0.0.1:{apache_port}" # apache_port باید مقداردهی شده باشد
+        if website:
+            website.listen_to = f"127.0.0.1:{apache_port}"
             website.status = "Active"
             website.mode = "enabled"
             website.waf_enabled = True
-            website_db.commit() # فرض می‌شود همگام است
+            website_db.commit()
 
-        app_logger.info(f"Successfully deployed {domain_name} with VIP {vip.ip_address if vip else 'N/A'}")
+        app_logger.info(f"Successfully deployed {domain_name} with VIP {_vip_address}")
         return {
             "status": "success",
             "domain": domain_name,
-            "vip": vip.ip_address if vip else "N/A",
-            "apache_port": apache_port, # apache_port باید مقداردهی شده باشد
+            "vip": _vip_address,
+            "apache_port": apache_port,
             "deployment_folder": deployment_folder,
-            "website_id": website.id if website else "N/A",
+            "website_id": website.id,
             "waf_enabled": True,
-            "rules_copied": len(glob.glob(os.path.join(waf_manager.rules_dir, "*.conf"))) # waf_manager باید مقداردهی شده باشد
+            "rules_copied": len(glob.glob(os.path.join(waf_manager.rules_dir, "*.conf")))
         }
 
     except HTTPException as http_exc:
         app_logger.error(f"HTTPException during deployment: {str(http_exc.detail)}")
-        # مدیریت cleanup در صورت خطای HTTPException
         await _perform_cleanup_on_failure(
-            website_db, interface_db, website, vip, deployment_folder, nginx_conf_path, apache_conf_path, app_logger
+            website_db, interface_db, website, vip, deployment_folder, nginx_conf_path, apache_conf_path, app_logger,
+            _vip_address, _vip_netmask, _network_interface # VIP details for cleanup
         )
         raise http_exc
     except Exception as exc:
         error_detail = f"Deployment failed: {str(exc)}"
         app_logger.error(error_detail, exc_info=True)
-        # مدیریت cleanup در صورت خطای عمومی
         await _perform_cleanup_on_failure(
-            website_db, interface_db, website, vip, deployment_folder, nginx_conf_path, apache_conf_path, app_logger
+            website_db, interface_db, website, vip, deployment_folder, nginx_conf_path, apache_conf_path, app_logger,
+            _vip_address, _vip_netmask, _network_interface # VIP details for cleanup
         )
         raise HTTPException(status_code=500, detail=error_detail)
 
-# --- تابع کمکی برای Cleanup (برای تمیز نگه داشتن deploy_file_service) ---
+
 async def _perform_cleanup_on_failure(
-    website_db, interface_db, website, vip, deployment_folder, nginx_conf_path, apache_conf_path, app_logger
+    website_db, interface_db, website, vip, deployment_folder, nginx_conf_path, apache_conf_path, app_logger,
+    vip_address_cleanup: str = None, vip_netmask_cleanup: str = None, network_interface_cleanup: str = None
 ):
-    """تابع کمکی برای انجام عملیات cleanup در صورت شکست دیپلوی."""
     app_logger.info("Starting cleanup after failed deployment")
-    
+    loop = asyncio.get_event_loop() # گرفتن loop برای اجرای همگام در executor
+
     # حذف فولدر دیپلوی
-    if deployment_folder and os.path.exists(deployment_folder):
+    if deployment_folder and await loop.run_in_executor(None, lambda: os.path.exists(deployment_folder)):
         app_logger.info(f"Removing deployment folder: {deployment_folder}")
-        # shutil.rmtree همگام است
-        asyncio.get_event_loop().run_in_executor(None, lambda: shutil.rmtree(deployment_folder, ignore_errors=True))
+        await loop.run_in_executor(None, lambda: shutil.rmtree(deployment_folder, ignore_errors=True))
         
     # حذف پیکربندی Nginx
-    if nginx_conf_path and os.path.exists(nginx_conf_path):
+    if nginx_conf_path and await loop.run_in_executor(None, lambda: os.path.exists(nginx_conf_path)):
         try:
             app_logger.info(f"Removing Nginx config: {nginx_conf_path}")
-            # os.remove همگام است
-            asyncio.get_event_loop().run_in_executor(None, lambda: os.remove(nginx_conf_path))
+            await loop.run_in_executor(None, lambda: os.remove(nginx_conf_path))
         except Exception as e:
             app_logger.error(f"Error removing Nginx config during cleanup: {str(e)}")
             
     # حذف پیکربندی Apache
-    if apache_conf_path and os.path.exists(apache_conf_path):
+    if apache_conf_path and await loop.run_in_executor(None, lambda: os.path.exists(apache_conf_path)):
         try:
             app_logger.info(f"Disabling Apache site: {os.path.basename(apache_conf_path)}")
             proc_a2dissite = await asyncio.create_subprocess_exec(
@@ -874,11 +874,10 @@ async def _perform_cleanup_on_failure(
                 stdout=asyncio.subprocess.PIPE,
                 stderr=asyncio.subprocess.PIPE
             )
-            await proc_a2dissite.communicate() # نیازی به بررسی returncode نیست، فقط برای cleanup است
+            await proc_a2dissite.communicate()
             
             app_logger.info(f"Removing Apache config: {apache_conf_path}")
-            # os.remove همگام است
-            asyncio.get_event_loop().run_in_executor(None, lambda: os.remove(apache_conf_path))
+            await loop.run_in_executor(None, lambda: os.remove(apache_conf_path))
             
             app_logger.info("Reloading Apache after cleanup")
             proc_apache_reload = await asyncio.create_subprocess_exec(
@@ -891,28 +890,30 @@ async def _perform_cleanup_on_failure(
             app_logger.error(f"Apache cleanup error: {str(e)}")
             
     # آزاد کردن VIP
-    if vip:
+    # استفاده از پارامترهای cleanup اگر در زمان خطا VIP مقداردهی شده باشد
+    if vip_address_cleanup and vip_netmask_cleanup and network_interface_cleanup:
         try:
-            app_logger.info(f"Releasing VIP from database: {vip.ip_address}")
-            release_vip(vip.id) # فرض می‌شود همگام است
+            app_logger.info(f"Removing IP address {vip_address_cleanup}/{vip_netmask_cleanup} from interface {network_interface_cleanup} during cleanup.")
+            # استفاده از _check_and_manage_vip برای حذف IP در زمان cleanup
+            await _check_and_manage_vip(vip_address_cleanup, vip_netmask_cleanup, network_interface_cleanup, "del")
             
-            app_logger.info(f"Removing IP address {vip.ip_address}/{vip.netmask} from interface {vip.interface}")
-            # استفاده از _check_and_manage_vip برای حذف IP
-            await _check_and_manage_vip(vip.ip_address, vip.netmask, vip.interface, "del")
+            if vip: # اگر آبجکت VIP موجود است، وضعیت آن را در DB هم آزاد کن
+                app_logger.info(f"Releasing VIP {vip.ip_address} from database during cleanup.")
+                release_vip(vip.id)
         except Exception as e:
             app_logger.error(f"VIP cleanup error: {str(e)}")
             
     # اطمینان از اجرای Nginx پس از cleanup
     try:
         app_logger.info("Ensuring Nginx is running after cleanup")
-        await _ensure_nginx_running_async() # استفاده از نسخه async
+        await _ensure_nginx_running_async()
     except Exception as e:
         app_logger.error(f"Failed to ensure Nginx is running during cleanup: {str(e)}")
                 
     # به‌روزرسانی وضعیت وب‌سایت در دیتابیس
     if website:
         app_logger.info(f"Updating website status to failed.")
-        update_website_status(website_db, website.id, f"Failed: Cleanup performed.") # فرض می‌شود همگام است
+        update_website_status(website_db, website.id, f"Failed: Cleanup performed.")
 
 def create_website_entry(db: Session, name: str, real_web_s: str):
     name_without_extension = name.split('.')[0]  
@@ -1157,8 +1158,7 @@ async def _ensure_nginx_running_async():
             if proc_pid.returncode != 0:
                 raise RuntimeError(f"Failed to get Nginx PID: {stderr_pid.decode()}")
             
-            # نوشتن به فایل به صورت همگام است، اما برای فایل‌های کوچک معمولاً مشکلی ایجاد نمی‌کند.
-            # اگر نیاز به async I/O کامل دارید، می‌توانید از loop.run_in_executor استفاده کنید:
+
             loop = asyncio.get_event_loop()
             await loop.run_in_executor(None, lambda: open(pid_file, 'w').write(stdout_pid.decode().strip()))
         
